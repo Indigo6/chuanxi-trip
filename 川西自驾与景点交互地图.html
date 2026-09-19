@@ -1,0 +1,3158 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>川西自驾与主要景点全景交互地图</title>
+  
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --bg-glass: rgba(255, 255, 255, 0.94);
+      --bg-card: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border-color: rgba(226, 232, 240, 0.95);
+      --shadow-lg: 0 14px 36px -4px rgba(15, 23, 42, 0.14), 0 4px 12px -2px rgba(15, 23, 42, 0.08);
+      --sidebar-width: 260px;
+      --drawer-width: min(890px, 72vw);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif;
+      color: var(--text-main);
+      background-color: #0f172a;
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+    }
+
+    #app {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+    }
+
+    #map {
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      background: #f1f5f9;
+    }
+
+    /* Top Floating Toolbar */
+    .top-toolbar {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      z-index: 1000;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      max-width: calc(100vw - 32px);
+    }
+
+    .brand-pill {
+      background: var(--bg-glass);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border-color);
+      border-radius: 9999px;
+      padding: 8px 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: var(--shadow-lg);
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.2s ease;
+    }
+
+    .brand-pill:hover {
+      background: #ffffff;
+      transform: translateY(-1px);
+    }
+
+    .brand-title {
+      font-weight: 700;
+      font-size: 14px;
+      color: #0f172a;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .brand-subtitle {
+      font-size: 11px;
+      background: #dbeafe;
+      color: #1d4ed8;
+      padding: 2px 7px;
+      border-radius: 12px;
+      font-weight: 600;
+    }
+
+    .sidebar-toggle-text {
+      font-size: 12px;
+      color: #64748b;
+      margin-left: 2px;
+    }
+
+    /* Left Drawer: Slim & Streamlined Spots Explorer */
+    .spots-sidebar {
+      position: absolute;
+      top: 72px;
+      left: 16px;
+      bottom: 24px;
+      width: var(--sidebar-width);
+      background: var(--bg-glass);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--border-color);
+      border-radius: 18px;
+      z-index: 999;
+      box-shadow: var(--shadow-lg);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.32s ease, width 0.32s ease;
+    }
+
+    .spots-sidebar.collapsed {
+      transform: translateX(calc(-100% - 24px));
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    /* Auto-collapse to mini rail when detail drawer is active */
+    .spots-sidebar.auto-mini {
+      transform: translateX(calc(-100% + 44px));
+      opacity: 0.9;
+      cursor: pointer;
+    }
+    .spots-sidebar.auto-mini:hover {
+      transform: translateX(0);
+      opacity: 1;
+    }
+
+    .sidebar-header {
+      padding: 12px 12px 8px;
+      border-bottom: 1px solid rgba(226, 232, 240, 0.7);
+    }
+
+    .search-box {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .search-box input {
+      width: 100%;
+      height: 36px;
+      padding: 6px 30px 6px 12px;
+      border-radius: 10px;
+      border: 1px solid #cbd5e1;
+      background: rgba(255, 255, 255, 0.95);
+      font-size: 12.5px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .search-box input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+      background: #ffffff;
+    }
+
+    .search-clear {
+      position: absolute;
+      right: 8px;
+      cursor: pointer;
+      color: #94a3b8;
+      font-size: 14px;
+      display: none;
+    }
+
+    /* Compact Filter Chips */
+    .filter-scroll {
+      display: flex;
+      gap: 4px;
+      overflow-x: auto;
+      padding: 8px 0 2px;
+      scrollbar-width: none;
+    }
+    .filter-scroll::-webkit-scrollbar { display: none; }
+
+    .chip {
+      padding: 3px 8px;
+      font-size: 11px;
+      font-weight: 500;
+      border-radius: 9999px;
+      background: #f1f5f9;
+      color: #475569;
+      border: 1px solid transparent;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .chip:hover { background: #e2e8f0; }
+    .chip.active {
+      background: var(--text-main);
+      color: #ffffff;
+      font-weight: 600;
+    }
+
+    .loop-toggle-row {
+      display: flex;
+      gap: 3px;
+      padding-top: 6px;
+    }
+
+    .loop-btn {
+      flex: 1;
+      padding: 4px 1px;
+      font-size: 10.5px;
+      text-align: center;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      color: #64748b;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .loop-btn.active {
+      background: #eff6ff;
+      border-color: #93c5fd;
+      color: #1d4ed8;
+      font-weight: 600;
+    }
+
+    /* Streamlined Spots List (Clean & Lightweight) */
+    .spots-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 6px 8px;
+      scrollbar-width: thin;
+    }
+
+    .spot-card {
+      padding: 7px 9px;
+      background: #ffffff;
+      border: 1px solid #f1f5f9;
+      border-radius: 10px;
+      margin-bottom: 6px;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .spot-card:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px -2px rgba(15, 23, 42, 0.08);
+      border-color: #cbd5e1;
+    }
+
+    .spot-card.selected {
+      border-color: var(--primary);
+      background: #f0f7ff;
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.25);
+    }
+
+    .spot-card-thumb {
+      width: 44px;
+      height: 44px;
+      border-radius: 8px;
+      object-fit: cover;
+      background: #e2e8f0;
+      flex-shrink: 0;
+    }
+
+    .spot-card-info {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .spot-card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .spot-card-title {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: #0f172a;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .spot-badge {
+      font-size: 9.5px;
+      padding: 1.5px 5px;
+      border-radius: 4px;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+
+    .badge-snow { background: #e0f2fe; color: #0369a1; }
+    .badge-lake { background: #ccfbf1; color: #0f766e; }
+    .badge-pass { background: #ffedd5; color: #c2410c; }
+    .badge-culture { background: #ffe4e6; color: #be123c; }
+    .badge-pasture { background: #dcfce7; color: #15803d; }
+    .badge-geology { background: #f1f5f9; color: #334155; }
+    .badge-road { background: #e2e8f0; color: #475569; }
+
+    .spot-meta {
+      display: flex;
+      gap: 6px;
+      font-size: 10.5px;
+      color: #64748b;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Expanded Right Detail Drawer (Side-by-Side Two-Column Layout) */
+    .detail-drawer {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      bottom: 24px;
+      width: var(--drawer-width);
+      max-width: calc(100vw - 32px);
+      background: #ffffff;
+      border-radius: 20px;
+      box-shadow: 0 24px 54px -12px rgba(15, 23, 42, 0.28), 0 0 0 1px rgba(15, 23, 42, 0.08);
+      z-index: 1001;
+      display: flex;
+      flex-direction: row;
+      overflow: hidden;
+      transform: translateX(calc(100% + 32px));
+      transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .detail-drawer.open {
+      transform: translateX(0);
+    }
+
+    /* LEFT COLUMN: Real Photo Gallery & Media Management */
+    .drawer-left-col {
+      width: 360px;
+      flex-shrink: 0;
+      background: #f8fafc;
+      border-right: 1px solid #e2e8f0;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    .drawer-main-photo-box {
+      position: relative;
+      width: 100%;
+      height: 250px;
+      background: #0f172a;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .drawer-main-photo {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: opacity 0.22s ease, transform 0.3s ease;
+    }
+
+    .photo-caption-pill {
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      background: rgba(15, 23, 42, 0.82);
+      backdrop-filter: blur(8px);
+      color: #ffffff;
+      padding: 3px 10px;
+      border-radius: 16px;
+      font-size: 11px;
+      font-weight: 600;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      z-index: 10;
+      max-width: calc(100% - 75px);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .photo-counter-badge {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      background: rgba(15, 23, 42, 0.82);
+      backdrop-filter: blur(8px);
+      color: #ffffff;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-size: 10.5px;
+      font-weight: 700;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      z-index: 10;
+    }
+
+    /* Action Toolbar under Main Photo */
+    .gallery-action-toolbar {
+      display: flex;
+      gap: 5px;
+      padding: 8px 10px;
+      background: #ffffff;
+      border-bottom: 1px solid #e2e8f0;
+      flex-shrink: 0;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .btn-gallery-tool {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 5px 8px;
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      font-size: 11.5px;
+      font-weight: 600;
+      color: #334155;
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.15s ease;
+    }
+
+    .btn-gallery-tool:hover {
+      background: #e2e8f0;
+      color: var(--primary);
+      border-color: #94a3b8;
+    }
+
+    .btn-gallery-tool.btn-danger {
+      color: #e11d48;
+      border-color: #fecdd3;
+      background: #fff1f2;
+    }
+
+    .btn-gallery-tool.btn-danger:hover {
+      background: #ffe4e6;
+      border-color: #fda4af;
+    }
+
+    .btn-gallery-tool.btn-reset {
+      color: #2563eb;
+      border-color: #bfdbfe;
+      background: #eff6ff;
+    }
+    .btn-gallery-tool.btn-reset:hover {
+      background: #dbeafe;
+    }
+
+    .gallery-thumbs-header {
+      padding: 8px 12px 4px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #64748b;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    .gallery-thumbs-grid {
+      flex: 1;
+      overflow-y: auto;
+      padding: 6px 10px 10px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      align-content: start;
+      scrollbar-width: thin;
+    }
+
+    .thumb-card {
+      position: relative;
+      height: 64px;
+      border-radius: 8px;
+      overflow: hidden;
+      cursor: pointer;
+      border: 2px solid transparent;
+      background: #e2e8f0;
+      transition: all 0.18s ease;
+    }
+
+    .thumb-card:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+    }
+
+    .thumb-card.active {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.3);
+    }
+
+    .thumb-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .thumb-tag-badge {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(15, 23, 42, 0.78);
+      color: #ffffff;
+      font-size: 9px;
+      text-align: center;
+      padding: 1.5px 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .thumb-delete-icon {
+      position: absolute;
+      top: 2px;
+      right: 2px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.7);
+      color: #ffffff;
+      font-size: 10px;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .thumb-card:hover .thumb-delete-icon {
+      display: flex;
+    }
+
+    .thumb-delete-icon:hover {
+      background: #e11d48;
+    }
+
+    .gallery-footer-tips {
+      padding: 8px 10px;
+      font-size: 10.5px;
+      line-height: 1.45;
+      color: #64748b;
+      background: #f1f5f9;
+      border-top: 1px solid #e2e8f0;
+      flex-shrink: 0;
+    }
+
+    /* RIGHT COLUMN: Rich Information & Specs */
+    .drawer-right-col {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      overflow: hidden;
+      background: #ffffff;
+    }
+
+    .drawer-header-row {
+      padding: 14px 18px 12px;
+      border-bottom: 1px solid #e2e8f0;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      flex-shrink: 0;
+      background: #ffffff;
+    }
+
+    .drawer-header-text {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .spot-header-tags {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      margin-bottom: 4px;
+      flex-wrap: wrap;
+    }
+
+    .spot-main-title {
+      font-size: 21px;
+      font-weight: 800;
+      color: #0f172a;
+      line-height: 1.25;
+      letter-spacing: -0.01em;
+    }
+
+    .spot-alias-text {
+      font-size: 12.5px;
+      color: #64748b;
+      margin-top: 3px;
+    }
+
+    .drawer-close-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      color: #475569;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+
+    .drawer-close-btn:hover {
+      background: #e2e8f0;
+      color: #0f172a;
+      transform: scale(1.08);
+    }
+
+    /* Scrollable Information Body (Spacious & Large Font Tolerant) */
+    .drawer-scroll-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 20px;
+      scrollbar-width: thin;
+      font-size: 13.5px;
+    }
+
+    /* Specs Grid */
+    .specs-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .spec-card {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 8px 12px;
+    }
+
+    .spec-label {
+      font-size: 11px;
+      color: #64748b;
+      margin-bottom: 2px;
+      font-weight: 500;
+    }
+
+    .spec-value {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #0f172a;
+      word-break: break-word;
+    }
+
+    .section-title {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #0f172a;
+      margin: 14px 0 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .section-title::before {
+      content: '';
+      display: inline-block;
+      width: 4px;
+      height: 13px;
+      background: var(--primary);
+      border-radius: 2px;
+    }
+
+    .detail-p {
+      font-size: 13.5px;
+      line-height: 1.65;
+      color: #334155;
+      margin-bottom: 8px;
+    }
+
+    .highlight-card {
+      border-radius: 10px;
+      padding: 10px 14px;
+      margin-bottom: 10px;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .card-autumn { background: #fffbeb; border: 1px solid #fde68a; color: #92400e; }
+    .card-traffic { background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; }
+    .card-weather { background: #f0f9ff; border: 1px solid #bae6fd; color: #0369a1; }
+    .card-tip { background: #fdf2f8; border: 1px solid #fbcfe8; color: #9d174d; }
+
+    .source-tag-line {
+      font-size: 11.5px;
+      color: #94a3b8;
+      margin-top: 14px;
+      padding-top: 10px;
+      border-top: 1px dashed #e2e8f0;
+      line-height: 1.45;
+    }
+
+    .drawer-bottom-actions {
+      padding: 10px 18px;
+      border-top: 1px solid #e2e8f0;
+      background: #f8fafc;
+      display: flex;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .btn-action {
+      flex: 1;
+      height: 38px;
+      border-radius: 8px;
+      font-size: 12.5px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+
+    .btn-primary { background: var(--primary); color: #ffffff; }
+    .btn-primary:hover { background: var(--primary-dark); }
+    .btn-secondary { background: #e2e8f0; color: #334155; }
+    .btn-secondary:hover { background: #cbd5e1; }
+
+    .btn-standalone-guide {
+      width: 100%;
+      padding: 10px 14px;
+      background: linear-gradient(135deg, #1e293b, #0f172a);
+      color: #38bdf8;
+      border: 1.5px solid #38bdf8;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      transition: all 0.2s ease;
+      margin-bottom: 12px;
+    }
+    .btn-standalone-guide:hover {
+      background: linear-gradient(135deg, #0f172a, #1e293b);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 18px rgba(56, 189, 248, 0.28);
+      color: #7dd3fc;
+    }
+
+    /* Modal for Pasting Image URL */
+    .photo-modal-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(15, 23, 42, 0.65);
+      backdrop-filter: blur(6px);
+      z-index: 3000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .photo-modal-card {
+      background: #ffffff;
+      border-radius: 16px;
+      width: min(500px, 94vw);
+      box-shadow: 0 20px 45px rgba(0,0,0,0.3);
+      overflow: hidden;
+      animation: modalPop 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes modalPop {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .photo-modal-header {
+      padding: 14px 18px;
+      border-bottom: 1px solid #e2e8f0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #f8fafc;
+    }
+
+    .photo-modal-title {
+      font-size: 14.5px;
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    .photo-modal-close {
+      background: none;
+      border: none;
+      font-size: 18px;
+      color: #64748b;
+      cursor: pointer;
+    }
+
+    .photo-modal-close:hover { color: #0f172a; }
+
+    .photo-modal-body {
+      padding: 16px 18px;
+    }
+
+    .photo-form-group {
+      margin-bottom: 12px;
+    }
+
+    .photo-form-group label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: #334155;
+      margin-bottom: 5px;
+    }
+
+    .photo-form-group input {
+      width: 100%;
+      height: 36px;
+      padding: 6px 10px;
+      border-radius: 8px;
+      border: 1px solid #cbd5e1;
+      font-size: 12.5px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .photo-form-group input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+    }
+
+    .photo-modal-hint {
+      font-size: 11px;
+      color: #64748b;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 8px;
+      padding: 8px 10px;
+      line-height: 1.5;
+    }
+
+    .photo-modal-footer {
+      padding: 10px 18px;
+      border-top: 1px solid #e2e8f0;
+      background: #f8fafc;
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+
+    /* Toast Notification */
+    .toast-popup {
+      position: fixed;
+      top: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(15, 23, 42, 0.94);
+      color: #ffffff;
+      padding: 8px 18px;
+      border-radius: 30px;
+      font-size: 13px;
+      font-weight: 600;
+      z-index: 4000;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+      pointer-events: none;
+      animation: toastAnim 2.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes toastAnim {
+      0% { opacity: 0; transform: translate(-50%, -12px); }
+      12% { opacity: 1; transform: translate(-50%, 0); }
+      82% { opacity: 1; transform: translate(-50%, 0); }
+      100% { opacity: 0; transform: translate(-50%, -12px); }
+    }
+
+    /* Bottom Map Controls Bar */
+    .map-controls-bottom {
+      position: absolute;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 998;
+      background: var(--bg-glass);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--border-color);
+      border-radius: 9999px;
+      padding: 6px 14px;
+      box-shadow: var(--shadow-lg);
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      white-space: nowrap;
+    }
+
+    .route-toggle {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11.5px;
+      font-weight: 600;
+      color: #475569;
+      padding: 4px 9px;
+      border-radius: 20px;
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.15s;
+    }
+
+    .route-toggle:hover { background: #e2e8f0; }
+    .route-toggle.active { background: #eff6ff; color: var(--primary); }
+
+    .route-color-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    /* Compact Pin Marker with Always-Visible Text Label */
+    .spot-marker-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+      pointer-events: auto;
+      transform: translate3d(0, 0, 0);
+      transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .spot-marker-wrap:hover {
+      transform: scale(1.18);
+      z-index: 1000 !important;
+    }
+
+    .spot-marker-wrap.selected {
+      transform: scale(1.25);
+      z-index: 1001 !important;
+    }
+
+    .marker-pin-compact {
+      width: 20px;
+      height: 20px;
+      border-radius: 50% 50% 50% 0;
+      transform: rotate(-45deg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      border: 1.5px solid #ffffff;
+    }
+
+    .marker-icon-compact {
+      transform: rotate(45deg);
+      font-size: 10px;
+      line-height: 1;
+      display: block;
+    }
+
+    .marker-label-tag {
+      margin-top: 3px;
+      background: rgba(15, 23, 42, 0.88);
+      backdrop-filter: blur(4px);
+      color: #ffffff;
+      font-size: 10.5px;
+      font-weight: 600;
+      padding: 1px 6px;
+      border-radius: 4px;
+      white-space: nowrap;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+      border: 1px solid rgba(255,255,255,0.25);
+      pointer-events: none;
+      letter-spacing: 0.01em;
+    }
+
+    .spot-marker-wrap.selected .marker-label-tag {
+      background: #1d4ed8;
+      border-color: #93c5fd;
+      font-weight: 700;
+    }
+
+    .prefecture-label-badge {
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid #94a3b8;
+      border-radius: 6px;
+      padding: 3px 10px;
+      font-size: 12.5px;
+      font-weight: 800;
+      color: #1e293b;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.12);
+      pointer-events: none;
+      white-space: nowrap;
+      letter-spacing: 0.05em;
+    }
+
+    /* Responsive */
+    @media (max-width: 820px) {
+      .spots-sidebar {
+        width: calc(100vw - 32px);
+        left: 16px;
+        right: 16px;
+        top: 70px;
+        bottom: auto;
+        height: 380px;
+      }
+      .detail-drawer {
+        width: 100vw;
+        max-width: 100vw;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        top: 56px;
+        border-radius: 20px 20px 0 0;
+        transform: translateY(100%);
+        flex-direction: column;
+      }
+      .detail-drawer.open { transform: translateY(0); }
+      .drawer-left-col {
+        width: 100%;
+        height: auto;
+        max-height: 270px;
+        border-right: none;
+        border-bottom: 1px solid #e2e8f0;
+      }
+      .drawer-main-photo-box {
+        height: 160px;
+      }
+      .gallery-thumbs-grid {
+        display: flex;
+        overflow-x: auto;
+        max-height: none;
+        padding: 6px 8px;
+      }
+      .thumb-card {
+        width: 76px;
+        height: 52px;
+        flex-shrink: 0;
+      }
+      .drawer-right-col {
+        flex: 1;
+        overflow: hidden;
+      }
+      .map-controls-bottom {
+        bottom: 10px;
+        max-width: calc(100% - 24px);
+        overflow-x: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div id="app">
+  <!-- Interactive Map -->
+  <div id="map"></div>
+
+  <!-- Top Floating Toolbar -->
+  <div class="top-toolbar">
+    <div class="brand-pill" id="btnToggleSidebar">
+      <div class="brand-title">
+        <span>🏔️ 川西全景交互地图</span>
+      </div>
+      <div class="brand-subtitle" id="statsCount">34个实拍点位</div>
+      <span class="sidebar-toggle-text" id="sidebarToggleLabel">☰ 列表</span>
+    </div>
+  </div>
+
+  <!-- Left Spots Explorer Sidebar (Slimmer & Auto-Collapsible) -->
+  <div class="spots-sidebar" id="spotsSidebar">
+    <div class="sidebar-header">
+      <div class="search-box">
+        <input type="text" id="searchInput" placeholder="搜索景点 / 县市 / 海拔 (如: 亚丁, 达古)..." />
+        <span class="search-clear" id="searchClear">✕</span>
+      </div>
+
+      <!-- Type Filter Chips -->
+      <div class="filter-scroll" id="typeFilters">
+        <button class="chip active" data-type="all">全部 (34)</button>
+        <button class="chip" data-type="snow">🏔️ 雪山</button>
+        <button class="chip" data-type="lake">💧 湖泊</button>
+        <button class="chip" data-type="pass">🌄 垭口</button>
+        <button class="chip" data-type="culture">🏯 人文</button>
+        <button class="chip" data-type="pasture">🌿 田园</button>
+        <button class="chip" data-type="geology">🗿 地质</button>
+        <button class="chip" data-type="road">🛣️ 公路</button>
+      </div>
+
+      <!-- Route Loop Filter -->
+      <div class="loop-toggle-row" id="loopFilters">
+        <button class="loop-btn active" data-loop="all">全部</button>
+        <button class="loop-btn" data-loop="small">小环</button>
+        <button class="loop-btn" data-loop="big">大环</button>
+        <button class="loop-btn" data-loop="aba">阿坝</button>
+        <button class="loop-btn" data-loop="ganzi">甘孜</button>
+      </div>
+    </div>
+
+    <!-- Spots List -->
+    <div class="spots-list" id="spotsList"></div>
+  </div>
+
+  <!-- Bottom Route & Administrative Controls Bar -->
+  <div class="map-controls-bottom">
+    <div class="route-toggle" id="toggleBoundary">
+      <span class="route-color-dot" style="background: #3b82f6;"></span>
+      <span>🏛️ 市州界线与名称</span>
+    </div>
+    <div class="route-toggle" id="toggleSmallLoop">
+      <span class="route-color-dot" style="background: #2563eb;"></span>
+      <span>川西小环线</span>
+    </div>
+    <div class="route-toggle" id="toggle318">
+      <span class="route-color-dot" style="background: #e11d48;"></span>
+      <span>318川西段</span>
+    </div>
+    <div class="route-toggle" id="toggle317">
+      <span class="route-color-dot" style="background: #d97706;"></span>
+      <span>317北线</span>
+    </div>
+    <div class="route-toggle" id="toggleAbaLoop">
+      <span class="route-color-dot" style="background: #059669;"></span>
+      <span>阿坝九黄线</span>
+    </div>
+    <div class="route-toggle" id="toggleLixiao">
+      <span class="route-color-dot" style="background: #7c3aed;"></span>
+      <span>理小路快线</span>
+    </div>
+  </div>
+
+  <!-- Expanded Right Detail Drawer (Two-Column Side-by-Side) -->
+  <div class="detail-drawer" id="detailDrawer">
+    <!-- LEFT COLUMN: Real Photo Gallery & Management -->
+    <div class="drawer-left-col">
+      <!-- Main Photo Box -->
+      <div class="drawer-main-photo-box">
+        <img src="" alt="" class="drawer-main-photo" id="drawerMainPhoto" referrerpolicy="no-referrer" />
+        <div class="photo-caption-pill" id="photoCaptionPill">
+          <span>📷</span>
+          <span id="photoCaptionText">视角 1</span>
+        </div>
+        <div class="photo-counter-badge" id="photoCounterBadge">1 / 1</div>
+      </div>
+
+      <!-- Gallery Toolbar: Add URL / Local File / Delete / Reset -->
+      <div class="gallery-action-toolbar">
+        <button class="btn-gallery-tool" id="btnPasteImageUrl" title="粘贴网络图片URL链接">
+          <span>🔗</span> 粘贴外链
+        </button>
+        <label class="btn-gallery-tool" title="从电脑选择本地图片导入">
+          <span>📁</span> 本地导入
+          <input type="file" id="localFileInput" accept="image/*" style="display:none;" />
+        </label>
+        <button class="btn-gallery-tool btn-danger" id="btnDeleteCurrentPhoto" title="删除当前显示的这张图片">
+          <span>🗑️</span> 删此图
+        </button>
+        <button class="btn-gallery-tool btn-reset" id="btnResetPhotos" title="恢复默认实拍照片" style="display: none;">
+          <span>↺</span> 恢复默认
+        </button>
+      </div>
+
+      <!-- Thumbnails Grid Header & List -->
+      <div class="gallery-thumbs-header">
+        <span>多视角与秋景画廊</span>
+        <span id="galleryCountText">共 0 张</span>
+      </div>
+      <div class="gallery-thumbs-grid" id="galleryThumbsGrid"></div>
+
+      <div class="gallery-footer-tips">
+        💡 提示：支持粘贴外链或导入本地图，已开启防盗链支持，更改将持久保存在本地。
+      </div>
+    </div>
+
+    <!-- RIGHT COLUMN: Detailed Information & Specs -->
+    <div class="drawer-right-col">
+      <!-- Spot Header with Close Button -->
+      <div class="drawer-header-row">
+        <div class="drawer-header-text">
+          <div class="spot-header-tags" id="drawerTags"></div>
+          <div class="spot-main-title" id="drawerTitle">景点名称</div>
+          <div class="spot-alias-text" id="drawerAlias">别名与特色</div>
+        </div>
+        <button class="drawer-close-btn" id="drawerCloseBtn" title="关闭 (Esc)">✕</button>
+      </div>
+
+      <!-- Scrollable Information Body -->
+      <div class="drawer-scroll-body" id="drawerScrollBody">
+        <!-- Standalone Deep Guide Banner Link -->
+        <div id="standaloneBanner" style="display: none; margin-bottom: 12px;">
+          <button class="btn-standalone-guide" id="btnOpenStandalonePage">
+            <span>📖 打开该景点完整深度路书 (独立精装网页) ↗</span>
+          </button>
+        </div>
+
+        <!-- Specs Grid -->
+        <div class="specs-grid">
+          <div class="spec-card">
+            <div class="spec-label">⛰️ 游览海拔</div>
+            <div class="spec-value" id="specAltitude">--</div>
+          </div>
+          <div class="spec-card">
+            <div class="spec-label">📍 地理区位</div>
+            <div class="spec-value" id="specLocation">--</div>
+          </div>
+          <div class="spec-card">
+            <div class="spec-label">☀️ 天气依赖</div>
+            <div class="spec-value" id="specWeather">--</div>
+          </div>
+          <div class="spec-card">
+            <div class="spec-label">🚗 建议车型</div>
+            <div class="spec-value" id="specVehicle">--</div>
+          </div>
+        </div>
+
+        <!-- Highlights -->
+        <div class="section-title">核心看点（到底看什么）</div>
+        <p class="detail-p" id="descCore"></p>
+
+        <!-- Autumn Feature -->
+        <div class="section-title">最佳季节与秋季特色（9-11月）</div>
+        <div class="highlight-card card-autumn" id="descAutumn"></div>
+
+        <!-- Chengdu Traffic & Route -->
+        <div class="section-title">🚗 从成都出发交通方案 (自驾高速/耗时 vs 公共大巴/高铁)</div>
+        <div class="highlight-card card-traffic" id="descChengdu"></div>
+
+        <!-- Ticket & Transit Fees -->
+        <div class="section-title">💰 门票及内部小交通费用明细 (淡旺季/索道/电瓶车/骑马)</div>
+        <div class="highlight-card card-autumn" id="descFees"></div>
+
+        <!-- Internal Transit & Hardcore Hiking Check -->
+        <div class="section-title">⚠️ 内部通达性与硬核徒步判定 (观光车直达 vs 高海拔徒步)</div>
+        <div class="highlight-card card-tip" id="descInternalTransit"></div>
+
+        <!-- Weather & Visibility -->
+        <div class="section-title">天气与能见度依赖</div>
+        <div class="highlight-card card-weather" id="descWeather"></div>
+
+        <!-- Traffic & Carpool -->
+        <div class="section-title">公共交通、拼车与路况</div>
+        <div class="highlight-card card-traffic" id="descTraffic"></div>
+
+        <!-- Practical Tip / Reservation -->
+        <div class="section-title">预约门票与避坑提示</div>
+        <div class="highlight-card card-tip" id="descTips"></div>
+
+        <!-- Source Citation -->
+        <div class="source-tag-line" id="descSource"></div>
+      </div>
+
+      <!-- Drawer Footer Actions -->
+      <div class="drawer-bottom-actions">
+        <button class="btn-action btn-secondary" id="btnFlyTo">📍 地图居中定位</button>
+        <button class="btn-action btn-primary" id="btnExternalMap">🧭 外部高德导航</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Dialog for Pasting Image URL -->
+  <div class="photo-modal-backdrop" id="photoUrlModal" style="display: none;">
+    <div class="photo-modal-card">
+      <div class="photo-modal-header">
+        <div class="photo-modal-title">🔗 粘贴网络图片链接</div>
+        <button class="photo-modal-close" id="btnClosePhotoModal">✕</button>
+      </div>
+      <div class="photo-modal-body">
+        <div class="photo-form-group">
+          <label for="inputPhotoUrl">图片直链 URL (支持 http/https 网络图片、或 DataURL)：</label>
+          <input type="url" id="inputPhotoUrl" placeholder="https://example.com/autumn.jpg" />
+        </div>
+        <div class="photo-form-group">
+          <label for="inputPhotoTitle">照片视角说明 (可选)：</label>
+          <input type="text" id="inputPhotoTitle" placeholder="例如：金秋彩林倒影 / 傍晚日照金山" />
+        </div>
+        <div class="photo-modal-hint">
+          💡 系统已自动开启防盗链穿透（referrerpolicy="no-referrer"），支持小红书、微博等网络图床直链。添加后将持久保存在本地，下次打开仍然可见。
+        </div>
+      </div>
+      <div class="photo-modal-footer">
+        <button class="btn-action btn-secondary" id="btnCancelPhotoModal" style="flex: 0 0 80px; height: 34px;">取消</button>
+        <button class="btn-action btn-primary" id="btnConfirmPhotoAdd" style="flex: 1; height: 34px;">加入画廊并保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer"></div>
+</div>
+
+<!-- Load Local Sichuan Administrative Boundaries GeoJSON -->
+<script src="sichuan_boundaries.js"></script>
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+<script>
+// ==================== 0. STANDALONE DEEP ROADBOOK PAGES MAPPING ====================
+const STANDALONE_PAGES = {
+  yading: 'spots/yading.html',
+  siguniangshan: 'spots/siguniangshan.html',
+  dagu: 'spots/dagu.html',
+  jiuzhaigou: 'spots/jiuzhaigou.html',
+  bipenggou: 'spots/bipenggou.html',
+  yuzixi: 'spots/yuzixi.html',
+  gedilamu: 'spots/yuzixi.html',
+  lenggacuo: 'spots/lenggacuo.html',
+  zimeiyakou: 'spots/lenggacuo.html',
+  moshi: 'spots/moshi.html',
+  jiagenba: 'spots/jiagenba.html',
+  hailuogou: 'spots/hailuogou.html',
+  lianbaoyeze: 'spots/lianbaoyeze.html',
+  cuopugou: 'spots/cuopugou.html'
+};
+
+// ==================== 1. SPOTS DATA REPOSITORY WITH MULTI-VIEW AUTUMN PHOTOS ====================
+const SPOTS_DATA = [
+  {
+    id: "yading",
+    name: "稻城亚丁",
+    alias: "蓝色星球上的最后一片净土 / 三怙主神山",
+    lat: 28.4385,
+    lng: 100.3547,
+    altitude: "2900m - 4700m",
+    location: "甘孜州稻城县香格里拉镇",
+    category: "snow",
+    categoryName: "雪山冰川",
+    loop: "big",
+    vehicle: "轿车可达大门 / 长线徒步",
+    weatherDep: "极度依赖晴天",
+    bestSeason: "10月中旬 - 11月上旬",
+    photos: [
+      { url: "images/yading.jpg", title: "洛绒牛场与神山央迈勇" },
+      { url: "images/yading_autumn1.jpg", title: "金秋落叶松与灿金草甸" },
+      { url: "images/yading_autumn2.jpg", title: "高山极境：碧蓝牛奶海与五色海" }
+    ],
+    core: "以三座三怙主神山（仙乃日6032m、央迈勇5958m、夏诺多吉5958m）为核心骨架，涵盖冲古草甸、洛绒牛场、高山海子五色海与牛奶海构成的殿堂级复合型风光。",
+    autumn: "草甸全线灿金，落叶松金黄，日照金山概率达 85% 以上，高空晴朗通透，是全年景观与色彩饱和度的无冕巅峰。",
+    weather: "【极度看天脸色】若阴雨大雾，三座神山完全被乌云封盖；且 4700m 高海拔遭遇阴雨极易湿冷失温加重高反。",
+    traffic: "成都/康定/理塘均有长途班车直达稻城及日瓦镇，路况为优质柏油路；但景区内长线往返徒步 6-8 小时考验极限体能。",
+    tips: "门票2日有效（二次进园需人脸录入）；长线五色海牛奶海每日 14:30 封闭卡口，务必早晨07:30前入园；夜宿日瓦镇（2900m）保障血氧睡眠。",
+    source: "稻城亚丁国家级自然保护区管理局 / 中国国家地理",
+    chengduTraffic: "自驾路线：成都出发沿雅叶高速至康定，转G318经雅江、理塘，再转G227至日瓦香格里拉镇（全程约780km，自驾耗时约12-14小时，单程高速过路费约95元）。公共交通：新南门汽车站每日有大巴直发稻城（耗时约14h），或乘机直飞稻城亚丁机场（世界最高民用机场4411m，易突发高反不推荐首选）；也可先乘大巴/动车到康定后拼车至日瓦镇（拼车约200-260元/人）。",
+    feeDetail: "大门票：旺季（4月1日-11月30日）146元/人，淡季（12月1日-次年3月31日）73元/人。必购大巴观光车：120元/人（往返约80公里山路，单程近1小时）。冲古寺-洛绒牛场单轨电瓶车：往返70元/人，单程40元（建议必坐省体力）。洛绒牛场-舍身崖官方马帮：单程往返305元（每天仅限量约300匹马，体重超85kg限骑，且只送到舍身崖，最后绝壁1.5km仍需纯徒步）。人均全口径硬性预算：336~640元/人。",
+    internalTransit: "【严酷高反徒步警告 · 观光车无法直达牛奶海/五色海】景区分为短线与长线。短线（扎灌崩-冲古寺-珍珠海）全程平缓木栈道往返约3km，观光车下车后步行即可，老少皆宜。长线（洛绒牛场4180m - 牛奶海4600m - 五色海4700m）：电瓶车仅通至洛绒牛场！之后绝无任何机动车！必须纯高海拔徒步往返10-12公里、连续拔升520米，含湿滑碎石陡坡与金属悬空栈道，往返需5-7小时。下午14:30冲古寺卡口强制关闭禁止上行。老人、严重心脑血管疾病患者切勿盲目强登！"
+  },
+  {
+    id: "siguniangshan",
+    name: "四姑娘山",
+    alias: "蜀山之后 / 东方阿尔卑斯",
+    lat: 31.0022,
+    lng: 102.8364,
+    altitude: "2500m - 3840m (沟内)",
+    location: "阿坝州小金县四姑娘山镇",
+    category: "snow",
+    categoryName: "雪山峡谷",
+    loop: "small",
+    vehicle: "家用轿车畅达 / 大巴极便",
+    weatherDep: "中度依赖（阴晴各异）",
+    bestSeason: "10月中旬 - 11月中旬",
+    photos: [
+      { url: "images/siguniangshan/siguniangshan-fig3.webp", title: "游览第1站·红杉林（3840m终点）" },
+      { url: "images/siguniangshan/siguniangshan-fig5.webp", title: "游览第2站·布达拉峰公路与雪山" },
+      { url: "images/siguniangshan/siguniangshan-fig8.webp", title: "游览第3站·珠噶纳措雪山倒影" },
+      { url: "images/siguniangshan/siguniangshan-fig9.webp", title: "游览第4站·四姑娜措枯木倒影" },
+      { url: "images/siguniangshan/siguniangshan-fig11.webp", title: "游览第5站·阿妣山（四姑娘外婆山）" },
+      { url: "images/siguniangshan/siguniangshan-fig12.webp", title: "游览第6站·银瀑雍措与云端服务中心" },
+      { url: "images/siguniangshan/siguniangshan-fig13.webp", title: "游览第7站·人参果坪高山草甸" }
+    ],
+    core: "双桥沟（全程观光车，雪峰红杉、布达拉峰公路倒影、人参果坪）、长坪沟（轻徒步栈道看幺妹峰近景）、海子沟（纯户外看高山海子）。",
+    autumn: "离成都最近的金色彩林与初雪同框高地，双桥沟红杉林通体金红，幺妹峰积雪增厚，色彩浓郁。",
+    weather: "晴天看日照金山与雪山倒影；阴雨天云雾缠绕山腰具水墨中国画意境，体验感不至于归零。",
+    traffic: "成都茶店子客运站大巴直达（3-4小时），拼车专线极多，全程柏油铺装，轿车通行毫无压力。",
+    tips: "全面实行网络实名预约，双桥沟旺季门票常提前数天售罄；建议提前7天通过‘阿坝旅游网’锁票。",
+    source: "四姑娘山景区官方公告 / 博主 Suburb.（2024年五一实拍与实测动线）",
+    chengduTraffic: "自驾路线：成都出发沿蓉昌高速至映秀，转中国熊猫大道G350经卧龙、巴朗山隧道直达四姑娘山镇（全程约210km，耗时仅3.5-4小时，过路费约35元，全线铺装柏油，轿车轻松畅达）。公共交通：成都茶店子客运站每天多班直达四姑娘山镇大巴（票价65-90元，车程约4小时）；成都犀浦或茶店子拼车专线（商务车约120-150元/人，随叫随走）。",
+    feeDetail: "【双桥沟】旺季门票80元+观光车70元=150元（淡季门票50元+观光车70元=120元）；漂流自选90元/人。【长坪沟】旺季门票70元+观光车20元=90元（淡季门票50元+车20元=70元）；骑马至木骡子往返约320-360元/人。【海子沟】旺季门票60元（淡季40元），无观光车；骑马至大海子往返约200-300元。",
+    internalTransit: "【三条沟通达性与强度截然不同】：① 双桥沟为【完全无痛全车接驳】：全长34.8km全线铺设双向柏油公路，景区观光大巴公交化循环接驳，一站式直达终点红杉林（3840m），各站点间木栈道平缓漫步（0.5-2km），老少皆宜、轮椅婴儿车可通大部分平路。② 长坪沟为【轻户外徒步】：观光车仅送到喇嘛寺（约7km），之后木栈道步行至枯树滩/下干海子，往返木骡子需在泥石路上徒步28公里或全程骑马。③ 海子沟为【硬核纯户外】：全程纯泥土马道与乱石坡，无任何观光车，仅适合资深徒步露营者。"
+  },
+  {
+    id: "dagu",
+    name: "达古冰川",
+    alias: "最近的遥远 / 世界最高索道",
+    lat: 32.1884,
+    lng: 102.8392,
+    altitude: "2400m - 4860m (山顶)",
+    location: "阿坝州黑水县芦花镇",
+    category: "snow",
+    categoryName: "现代冰川",
+    loop: "aba",
+    vehicle: "家用轿车畅达 / 索道直升",
+    weatherDep: "中高依赖晴天",
+    bestSeason: "10月中旬 - 11月上旬 (彩林+雪峰)",
+    photos: [
+      { url: "images/dagu.jpg", title: "4860m 现代山地冰川极境" },
+      { url: "images/dagu_autumn1.jpg", title: "山脚八十里奶子沟深秋彩林" },
+      { url: "images/dagu_autumn2.jpg", title: "4860m 索道与山顶孤独咖啡馆" }
+    ],
+    core: "世界海拔最高客运缆车直升 4860m 观景台，4860 山顶孤独咖啡馆，13条现代海洋性山地冰川；山脚直通亚洲最大【八十里奶子沟彩林】。",
+    autumn: "山下万山红遍、彩林尽染，山顶白雪皑皑、冰封极地，“一山有四季，冰火两重天”。",
+    weather: "晴天雪山蓝天对比极为震撼；阴雪天虽有白茫茫极地感，但索道山顶浓雾会导致远景能见度归零。",
+    traffic: "成都茶店子客运站大巴直达黑水县城（5小时），县城拼车10分钟到景区；全程新铺柏油，轿车无压力。",
+    tips: "索道瞬间上升至 4860m，温差极大且极易突发高反，羽绒服+便携氧气瓶为必备项，提前预约门票索道套票。",
+    source: "达古冰川风景名胜区管理局 / 黑水文旅",
+    chengduTraffic: "自驾路线：成都出发经蓉昌高速至汶川，沿G213经茂县转G347直达黑水县芦花镇及景区（全程约310km，耗时5-6小时，过路费约60元，全程平整柏油路，普通家轿畅行）。公共交通：成都茶店子客运站每日上午有直达黑水县城大巴（票价约105元，车程5.5h），县城打车或拼车至景区游客中心仅10分钟（15-20元/车）。",
+    feeDetail: "景区实行【门票+观光车+往返索道】通票制：旺季全套通票370元/人（门票120元 + 观光车70元 + 索道180元）；淡季优惠套票约290-310元/人。4860山顶咖啡馆热饮约38-48元/杯。除自选手套、氧气瓶（山下20元、山顶60元）外，无任何其他二次强制小交通消费。",
+    internalTransit: "【轻体力消耗 · 极高海拔突发高反风险】游客中心换乘景区观光车行驶长达35公里（途经金猴海、达古湖等，车程约50分钟），到达缆车下站（海子沟3600m）；随后换乘世界最高客运索道缆车，仅需15分钟瞬间垂直拔升1260米直达海拔4860米山顶雪原观景台！山顶为平缓木栈道，步行仅300-500米，体力消耗极小；但极速升至近5000米极易引发剧烈头痛恶心，必须备好羽绒服与便携氧气。"
+  },
+  {
+    id: "jiuzhaigou",
+    name: "九寨沟",
+    alias: "九寨归来不看水 / 东方水景天花板",
+    lat: 33.2600,
+    lng: 103.9186,
+    altitude: "2000m - 3100m",
+    location: "阿坝州九寨沟县漳扎镇",
+    category: "lake",
+    categoryName: "极致水景",
+    loop: "aba",
+    vehicle: "高铁直达+大巴接驳 / 极便",
+    weatherDep: "极低依赖（晴雨皆绝）",
+    bestSeason: "10月15日 - 11月5日 (彩林天花板)",
+    photos: [
+      { url: "images/jiuzhaigou/jiuzhaigou-fig4.webp", title: "游览第1站·箭竹海深水碧蓝（日则沟）" },
+      { url: "images/jiuzhaigou/jiuzhaigou-fig5.webp", title: "游览第2站·熊猫海清幽水色（日则沟）" },
+      { url: "images/jiuzhaigou/jiuzhaigou-fig8.webp", title: "游览第3站·五花海湖水与倒影（九寨沟之魂）" },
+      { url: "images/jiuzhaigou/jiuzhaigou-fig12.webp", title: "游览第4站·珍珠滩瀑布与雪山同框" },
+      { url: "images/jiuzhaigou/jiuzhaigou-fig13.webp", title: "游览第5站·长海（则查洼沟最高点3100m）" },
+      { url: "images/jiuzhaigou/jiuzhaigou-fig15.webp", title: "游览第6站·五彩池宝石蓝水色" },
+      { url: "images/jiuzhaigou/jiuzhaigou-nuorilang-fig17.webp", title: "游览第7站·诺日朗瀑布高处观景台" },
+      { url: "images/jiuzhaigou/jiuzhaigou-fig18.webp", title: "游览第8站·树正群海梯级海子俯拍" }
+    ],
+    core: "诺日朗瀑布、珍珠滩瀑布、五花海、镜海、长海。富含碳酸钙的湖底呈现极致纯净的孔雀蓝与祖母绿，水下枯木与藻类共生。",
+    autumn: "全国彩林无可争议的天花板！漫山红枫、金桦、紫槭倒映在宝石般清澈的水中，五彩斑斓，步步成景。",
+    weather: "【阴晴皆绝】晴天湖面波光潋滟水色通透；阴雨天雨雾升腾如仙境水墨画，几乎不受天气负面影响。",
+    traffic: "川青铁路高铁通至‘黄龙九寨站’，出站换乘景区直通车无缝到达；全程路况优良，老少咸宜。",
+    tips: "旺季每日限量分时段预约，国庆与10月下旬门票需提前 7-14 天预定，景区游览步行量大需穿舒适防滑运动鞋。",
+    source: "九寨沟景区官方公告 / 博主 Suburb.（2024年五一实拍与实测动线）",
+    chengduTraffic: "高铁方案（强烈推荐）：成都东站乘坐川青铁路动车直达【黄龙九寨站】（车程仅1小时40分-2小时，二等座约120-140元），出站直接无缝换乘景区官方直通大巴直达九寨沟口沟寺（车程1.5-2小时，票价46-51元），比传统坐车节省一半时间！自驾路线：成都出发经成万高速/蓉昌高速转G213/G544（全程约420km，自驾耗时6.5-7.5小时，过路费约60元）。长途大巴：茶店子/新南门客运站早班大巴直发九寨沟口（耗时8-9小时，票价约158-168元）。",
+    feeDetail: "旺季（4月1日-11月15日）：大门票190元 + 观光车90元 = 280元/人。淡季（11月16日-次年3月31日）：大门票80元 + 观光车80元 = 160元/人。九寨沟内部绝无任何电瓶车、索道或强制小交通收费，一张观光车票管全天无限次乘坐！诺日朗中转站自助餐约60-98元/人。",
+    internalTransit: "【公交化循环大巴接驳 · 极度老少友好】九寨沟呈巨型“Y”字形分布（树正沟、日则沟、则查洼沟全长50余公里）。景区配有几百辆高等级绿色环保观光车，实行公交化循环发车，每个核心景点均设有上下客站点。游客下车后顺着平缓木栈道漫步赏景，走累了随时在就近站台上车前往下一个景点，全程台阶平缓以下坡为主，核心段单日步行约5-8公里，老少皆宜。"
+  },
+  {
+    id: "huanglong",
+    name: "黄龙风景区",
+    alias: "人间瑶池 / 巨型高山钙华梯池",
+    lat: 32.7483,
+    lng: 103.8276,
+    altitude: "3100m - 3570m (五彩池)",
+    location: "阿坝州松潘县瑟尔嵯寨",
+    category: "lake",
+    categoryName: "钙华奇观",
+    loop: "aba",
+    vehicle: "高铁站直通大巴 / 极便",
+    weatherDep: "中低依赖",
+    bestSeason: "9月下旬 - 10月底",
+    photos: [
+      { url: "images/huanglong.jpg", title: "人间瑶池五彩池与雪宝顶" },
+      { url: "images/huanglong_autumn1.jpg", title: "争艳池巨型黄色钙华与秋林" }
+    ],
+    core: "由数千个梯级钙华彩池构成的巨型“黄金巨龙”，五彩池、争艳池、迎宾池，背依终年积雪的岷山主峰雪宝顶（5588m）。",
+    autumn: "周边冷杉林与红枫灌木层林尽染，倒映在泛着绿蓝黄相间的钙华池水中，与雪宝顶初雪同框。",
+    weather: "钙华池水在多云天依然具有天然色彩，但晴天阳光斜射时折射出的七彩波光最为梦幻。",
+    traffic: "川青铁路‘黄龙九寨站’距景区仅 35 分钟直达班车；景区配有索道及下行电瓶车，交通极其成熟。",
+    tips: "五彩池海拔达 3570m，建议乘坐索道上行、步行下行；慢步慢走谨防剧烈爬升诱发高反。",
+    source: "黄龙国家级风景名胜区管理局",
+    chengduTraffic: "高铁方案：成都东站乘川青动车至【黄龙九寨站】（约1.5-2h），出站换乘直通车仅30-40分钟即达黄龙景区游客中心（票价28元），是目前川西最快捷世界级景点。自驾路线：成都经成万高速转G213至松潘县瑟尔嵯寨（全程约380km，耗时6-6.5h）。",
+    feeDetail: "旺季门票170元，淡季门票60元。上行索道80元，下行索道40元。望龙坪至五彩池单程摆渡电瓶车20元/人。推荐标准游览花费：门票170+上行索道80+电瓶车20=270元。",
+    internalTransit: "【索道+电瓶车助力 · 防范3570m剧烈高反】推荐【索道上行+电瓶车+步行下山】经典懒人动线：坐索道直达高位，换乘观光电瓶车至五彩池入口，再步行约800米栈道游览五彩池（3570m）；返程沿争艳池、婆萝映彩池步行顺木栈道一路下山（下山木栈道全长约4.2公里，耗时约2.5-3小时），不走回头路。"
+  },
+  {
+    id: "bipenggou",
+    name: "毕棚沟",
+    alias: "雪山倒影与红叶走廊",
+    lat: 31.2589,
+    lng: 102.9463,
+    altitude: "2000m - 3800m",
+    location: "阿坝州理县朴头镇",
+    category: "lake",
+    categoryName: "生态复合",
+    loop: "small",
+    vehicle: "轿车畅行 / 大巴便利",
+    weatherDep: "中度依赖",
+    bestSeason: "10月中旬 - 11月上旬",
+    photos: [
+      { url: "images/bipenggou/fig3.webp", title: "游览第1站·龙王海碧绿水泊（图3）" },
+      { url: "images/bipenggou/fig4.webp", title: "游览第1站·龙王海飞瀑（图4）" },
+      { url: "images/bipenggou/fig6.webp", title: "游览第2站·磐羊湖蓝绿水色与雪山倒影（图6）" },
+      { url: "images/bipenggou/fig10.webp", title: "游览第3站·月亮湾轻徒步换乘点（图10）" },
+      { url: "images/bipenggou/fig11.webp", title: "游览第4站·燕子岩窝现代冰川绝壁（图11）" },
+      { url: "images/bipenggou/fig14.webp", title: "游览第5站·山水秘境高处近距雪山（图14）" }
+    ],
+    core: "龙王海、磐羊湖、燕子岩窝、女皇峰，雪山、红石滩、森林与天然地热温泉复合，离成都极近。",
+    autumn: "川西彩林‘早熟型’代表，每年10月中旬率先进入红叶全盛期，彩林密集连绵，湖水如镜面倒影。",
+    weather: "阴天雾气较浓，晴天更利于欣赏雪山绝壁倒影；雨雪后树枝挂满白雪与彩林同框。",
+    traffic: "成都经蓉昌高速直达理县，大巴和拼车众多；直连理小路可直插四姑娘山，路网优良。",
+    tips: "景区内需换乘观光车和电瓶车，海拔上升快，带好保暖防风衣物。",
+    source: "理县文旅局 / 博主 Suburb.（2024年五一实拍与实测动线）",
+    chengduTraffic: "自驾路线：成都经蓉昌高速直达理县朴头镇（全程仅198km，全线高速占比超90%，耗时仅3-3.5小时，过路费约50元，是离成都最近的雪山彩林景区）。公共交通：成都茶店子汽车站每日多趟大巴发往理县（票价约60元，2.5h），在理县汽车站拼车或打车至景区（约15-20元/人，15分钟）；或预订成都直达毕棚沟景区往返直通车大巴（约128元往返）。",
+    feeDetail: "基础大套票：门票70元 + 景区往返大巴观光车60元 = 130元/人。内部两段观光电瓶车（自选但强烈建议乘坐）：① 上海子至磐羊湖：单程15元，往返30元（全长4.5km）；② 磐羊湖至燕子岩窝：单程15元，往返30元（全长4.5km）。两段电瓶车全坐往返共60元。全套满配预算：190元/人。",
+    internalTransit: "【大巴+两段电瓶车覆盖绝大部分路程】游客中心乘大巴观光车翻山行驶26公里直达上海子（耗时40分钟）；若不坐电瓶车，从上海子至燕子岩窝需沿高海拔盘山公路徒步往返18公里（耗时极长且与电瓶车擦肩危险）；乘坐两段电瓶车后，在磐羊湖（3676m）和燕子岩窝（3837m）仅需在平缓亲水木栈道漫步0.5-1.5公里，老少皆宜，轻松无痛。"
+  },
+  {
+    id: "yala",
+    name: "雅拉雪山风景区",
+    alias: "第二香巴拉 / 近距神山雅拉友措",
+    lat: 30.5750,
+    lng: 101.6967,
+    altitude: "3400m - 4200m",
+    location: "甘孜州道孚县协德镇与康定交界",
+    category: "snow",
+    categoryName: "神圣雪山",
+    loop: "ganzi",
+    vehicle: "G350旁 / 景区观光车",
+    weatherDep: "极度依赖晴天",
+    bestSeason: "9月下旬 - 11月上旬",
+    photos: [
+      { url: "images/yala.jpg", title: "雅拉友措与金字塔形主峰" },
+      { url: "images/yala_autumn1.jpg", title: "雅拉友措秋季湖畔金色彩林" },
+      { url: "images/yala_autumn2.jpg", title: "雅拉神山皇冠日落金山" }
+    ],
+    core: "近距离贴脸仰望 5820m 金字塔形雅拉主峰；徒步至神湖‘雅拉友措’看雪峰水中倒影、姊妹湖、高山彩虹公路与红杉林。",
+    autumn: "秋高气爽，雅拉友措湖畔彩林染金，雪峰初雪增厚，在金黄松林衬托下日照金山极具视觉冲击力。",
+    weather: "【极度看天】晴天主峰露出率高且倒影清澈；阴雨浓雾天主峰常隐没于云层，无法看清‘皇冠’造型。",
+    traffic: "距八美镇仅 20 分钟车程，G350 国道平整好走；大门换乘观光车，末端有平整骑马/步行木栈道。",
+    tips: "景区内骑马或轻徒步需防晒防风，早晨出发雪山倒影最稳，下午容易起云。",
+    source: "甘孜州道孚县文化广电旅游局 / 景区官方",
+    chengduTraffic: "自驾路线：成都经康定、新都桥至中谷村转省道S434，或经丹巴、八美进入雅拉雪山景区大门（全程约340km，自驾约5.5h）。公共交通：八美镇或康定包车/拼车前往（约50-80元/人）。",
+    feeDetail: "景区门票68元 + 往返观光车90元 = 158元/人。自选温泉池泡脚约20-30元，骑马至友措湖往返约150-200元。",
+    internalTransit: "【观光车直通景区腹地 · 湖泊轻徒步】景区观光车送至雅拉友措观景台下方，游客可沿平缓碎石路和木栈道漫步至雅拉友措高山圣湖（约1.5km），仰望莲花宝座般的雅拉神山，体力消耗中等。"
+  },
+  {
+    id: "jiagenba",
+    name: "甲根坝各村落",
+    alias: "木雅田园天花板 / 油画里的乡村",
+    lat: 29.8333,
+    lng: 101.4833,
+    altitude: "3200m - 3400m",
+    location: "甘孜州康定市甲根坝镇",
+    category: "pasture",
+    categoryName: "木雅藏式田园",
+    loop: "small",
+    vehicle: "轿车通行无阻 / 拼车极便",
+    weatherDep: "低依赖（阴晴皆诗意）",
+    bestSeason: "6-7月花海 / 10月中-11月上旬",
+    photos: [
+      { url: "images/jiagenba.jpg", title: "日车村金黄俄色树与溪流木桥" },
+      { url: "images/jiagenba_autumn1.jpg", title: "提吾村金黄青稞田与雪山" },
+      { url: "images/jiagenba_autumn2.jpg", title: "日车村古俄色树林秋日落叶" }
+    ],
+    core: "日车村（古俄色树林、木桥溪流、网红营地）、提吾村（青稞田与石砌藏房背靠雪山）、朋布西村（百年碉楼）；沿途慢调生活。",
+    autumn: "川西金秋油画天花板！俄色树与杨树叶通体金黄，落叶铺满小溪木桥，随手一拍都是治愈系大片。",
+    weather: "晴天光影斑驳适合摄影；阴雨天薄雾缠绕炊烟更具隐世乡村的诗意宁静，几乎不受天气阻碍。",
+    traffic: "新都桥沿 S215 往南仅 30 分钟平整柏油路，轿车畅行，新都桥拼车包车非常容易随叫随走。",
+    tips: "非常适合作为适应海拔的中转站（海拔3200m），可多住一晚体验轻露营与藏式慢调咖啡生活。",
+    source: "康定市文广旅局 / 现场实测",
+    chengduTraffic: "自驾路线：成都经康定翻折多山至新都桥，由新都桥南下沿G248行驶仅30公里即进入甲根坝镇（全程约360km，耗时5-5.5小时，过路费约60元，全线均为双向柏油或水泥硬化村道，轿车畅行无阻）。公共交通：新都桥镇包车或拼车前往甲根坝各村落（拼车约20-30元/人）。",
+    feeDetail: "【完全零门票 · 原生态自然乡村】甲根坝为开放式藏族田园村落，无任何景区大门票与观光车！若在日车村、提吾村等溪边私人草坪营地扎营过夜或停车，当地村民收取卫生清洁费约20-30元/车。",
+    internalTransit: "【水泥路直接通到小溪边与碉楼脚下】甲根坝沿线各核心村落（提吾村、日车村、亚克村等）村道平坦规整，自驾车辆可以直接沿着水泥硬化路开到溪边木桥、彩林树下和俄色花海旁。海拔约3200米，气候温润平缓，完全没有剧烈徒步，老人小孩可以随意在小溪边踏水野餐散步，是川西最舒适的躺平慢游度假地。"
+  },
+  {
+    id: "tagong",
+    name: "塔公草原",
+    alias: "菩萨喜欢的地方 / 金顶与神山",
+    lat: 30.3244,
+    lng: 101.5283,
+    altitude: "约 3700m",
+    location: "甘孜州康定市塔公镇",
+    category: "pasture",
+    categoryName: "高山草原",
+    loop: "small",
+    vehicle: "S215/G350干道 / 轿车畅行",
+    weatherDep: "中度依赖",
+    bestSeason: "6-8月绿草 / 9月下-10月下旬",
+    photos: [
+      { url: "images/tagong.jpg", title: "木雅金塔与雅拉神山夕阳" },
+      { url: "images/yala_autumn2.jpg", title: "塔公草原远眺雅拉雪山" }
+    ],
+    core: "塔公寺金顶、木雅金塔、远眺雅拉雪山起伏、开阔平缓草原、河畔巨大玛尼石阵，周边聚集大量精品民宿与咖啡馆。",
+    autumn: "草原由绿转为深邃温暖的金褐色，雅拉神山雪峰积雪增厚更显威严，金塔在夕阳下交相辉映。",
+    weather: "看雅拉雪山需晴朗天气；阴天逛塔公寺与木雅金塔不受影响。",
+    traffic: "处于川西交通十字路口，康定、新都桥、八美班车与拼车往来不绝，自驾路况极佳。",
+    tips: "傍晚木雅金塔配雅拉雪山日落是经典机位，注意塔公草原风大注意防风保暖。",
+    source: "康定市文化广播电视和旅游局",
+    chengduTraffic: "自驾路线：成都经康定、折多山至新都桥，北上S215省道行驶35km即达塔公镇（全程约370km，自驾5-5.5h，过路费约60元，全线优质铺装公路，轿车畅达）。公共交通：康定/新都桥拼车至塔公镇（拼车约30-40元/人）。",
+    feeDetail: "塔公草原木栈道清洁维护费约15-20元/人；塔公寺门票20元/人；草原骑马体验约50-100元/圈。",
+    internalTransit: "【公路直通草甸 · 平地木栈道】省道S215紧贴塔公寺与塔公草原，车辆停在路边停车场下车即入草甸。沿平缓木栈道漫步即可远眺雅拉雪山金顶，老少皆宜，无任何徒步门槛。"
+  },
+  {
+    id: "yuzixi",
+    name: "鱼子西",
+    alias: "360° 日照金山日落荒野台地",
+    lat: 30.1389,
+    lng: 101.4925,
+    altitude: "4100m - 4250m",
+    location: "甘孜州康定市新都桥/塔公周边山顶",
+    category: "pass",
+    categoryName: "高位观景台",
+    loop: "ganzi",
+    vehicle: "必须 SUV / 建议当地拼车",
+    weatherDep: "极度依赖晴天",
+    bestSeason: "10月 - 次年3月 (少雨干燥期)",
+    photos: [
+      { url: "images/yuzixi.jpg", title: "山顶台地日照金山全景营地" },
+      { url: "images/yuzixi_autumn1.jpg", title: "360° 贡嘎落日与粉紫晚霞" }
+    ],
+    core: "山顶大片荒原，360° 无遮挡同时远观贡嘎群峰与雅拉雪山，落日余晖、晚霞变幻、星空银河与秋千营地。",
+    autumn: "秋季少云少雨，日落金山出现率超 80%，漫天粉紫晚霞，是摄影爱好者的朝圣机位。",
+    weather: "【下雨全完蛋】阴雨大雾天不仅雪山完全隐没，山顶寒风刺骨泥泞难行，极不推荐盲目上山。",
+    traffic: "新都桥/塔公拼车越野车极多；上山为非铺装碎石土路，坑洼较多，轿车容易刮底盘，建议乘 SUV 前往。",
+    tips: "海拔超过 4100m 且山顶狂风刺骨，厚羽绒服与防风帽子必备，拍完日落后即刻下撤，不建议山顶过夜。",
+    source: "康定文旅 / 携程自驾路书",
+    chengduTraffic: "自驾路线：成都出发沿雅叶高速至康定（3.5h），翻折多山沿G318至新都桥镇（1.5h），由新都桥转入机场路往塔公方向，在曲莫贡路口沿非铺装盘山碎石路爬升上山（全程约380km，单程自驾约5.5-6小时，高速路费约100元）。碎石路坑洼陡峭，底盘低的轿车极易刮底，强烈建议SUV或越野车！公共交通：新都桥镇或塔公镇当地拼越野车往返，约50-80元/人。",
+    feeDetail: "鱼子西与格底拉姆均为当地村集体野外高山草甸观景台，无正规大门票，进山由当地村民收取卫生清洁费20元/人，停车费10-20元/台。格底拉姆天空之城旋转木马与咖啡秋千拍照自费10-20元。全口径硬性消费仅20-30元/人。",
+    internalTransit: "【车直接开到山顶观景台 · 极度严寒大风】无论是鱼子西还是格底拉姆，车辆都可以直接开到海拔4200米的山顶平坦停机坪/草甸停车场。下车即是360°无死角贡嘎雪山与雅拉雪山全景环视位，完全不需要爬坡徒步！但山顶海拔高达4200米且无遮挡，傍晚日落前后阵风可达6-8级，体感温度常低于零度，必须穿厚羽绒服防风帽。"
+  },
+  {
+    id: "gedilamu",
+    name: "格底拉姆·天空之城",
+    alias: "云端灯塔与旋转木马",
+    lat: 30.1750,
+    lng: 101.4680,
+    altitude: "约 4250m",
+    location: "甘孜州康定市塔公镇周边山顶",
+    category: "pass",
+    categoryName: "网红观景台",
+    loop: "ganzi",
+    vehicle: "必须 SUV / 碎石烂路",
+    weatherDep: "极度依赖晴天",
+    bestSeason: "10月 - 次年3月",
+    photos: [
+      { url: "images/gedilamu.jpg", title: "云端灯塔与旋转木马夕阳" },
+      { url: "images/gedilamu_autumn1.jpg", title: "复古红顶小木屋与日落秋千" }
+    ],
+    core: "比鱼子西更小众更靠近雅拉雪山的高位台地，标志性高山灯塔、复古旋转木马、小木屋与秋千，直面贡嘎日落。",
+    autumn: "秋季能见度极高，夕阳将贡嘎与雅拉雪山染成橘红，配上云端木马与灯塔，画面极具浪漫唯美气息。",
+    weather: "与鱼子西相同，必须大晴天前往；阴天下雨毫无视野。",
+    traffic: "路况比鱼子西更为崎岖颠簸，普通家用轿车不建议尝试，推荐在新都桥或塔公拼四驱越野车。",
+    tips: "山顶风力强劲，建议携带三脚架防风抗抖，注意保暖防高反。",
+    source: "甘孜文旅 / 携程实测",
+    chengduTraffic: "自驾路线：成都经康定、新都桥至塔公镇附近，转入通往格底拉姆天空之城的盘山土路（全程约385km，耗时约6h）。最后一段土路颠簸且有碎石坑，建议SUV通行。公共交通：塔公镇或新都桥拼车往返（约60-80元/人）。",
+    feeDetail: "当地村民收取清洁维护费20元/人，停车费10-20元/台。旋转木马、红顶灯塔、秋千拍照等部分道具自选消费10-20元。",
+    internalTransit: "【车直接开上山顶 · 无需徒步】车直接开到山顶大草坪，漫步在旋转木马与灯塔间拍照，直面贡嘎雪山与雅拉雪山日落。海拔4250m，气温低风大，注意头部保暖。"
+  },
+  {
+    id: "lenggacuo",
+    name: "冷嘎措",
+    alias: "贡嘎神山的眼泪 / 极致倒影",
+    lat: 29.6108,
+    lng: 101.6433,
+    altitude: "约 4500m",
+    location: "甘孜州康定市甲根坝往南玉龙西村",
+    category: "pass",
+    categoryName: "极致雪山探险",
+    loop: "ganzi",
+    vehicle: "当地四驱/摩托中转+徒步",
+    weatherDep: "极度依赖晴天",
+    bestSeason: "10月中旬 - 12月 (干燥无风)",
+    photos: [
+      { url: "images/lenggacuo.jpg", title: "贡嘎雪山主峰绝美水中倒影" },
+      { url: "images/lenggacuo_autumn1.jpg", title: "秋末干燥无风时镜面金山" }
+    ],
+    core: "直线距离直面 7556m 蜀山之王贡嘎主峰十余公里处，高山海子水中倒映贡嘎金山，全国最顶级的雪山摄影圣地。",
+    autumn: "秋冬季湖面平静如镜，天空万里无云，贡嘎主峰金黄倒影完美投射于碧水之中，初冬冰湖裂纹更是奇观。",
+    weather: "【极度看天】阴云则无倒影且毫无看点，山顶海拔 4500m 极寒，阴雨天徒步极度危险易失温。",
+    traffic: "路况极烂险峻！轿车开到玉龙西村后，必须在当地换乘摩托车或四驱越野车上到山腰，再徒步/骑马爬升。",
+    tips: "海拔高风极大，备足防风保暖衣物、红景天、布洛芬及便携氧气；建议在玉龙西村住宿适应后再冲刺。",
+    source: "甘孜州特种旅游实况 / 中国国家地理",
+    chengduTraffic: "自驾与包车：成都经康定、新都桥，沿甲根坝、沙德镇向南深入至玉龙西村/上木居村（全程约450km，自驾约7-8小时）。进入村庄后通往冷嘎措湖边为非铺装硬核碎石越野路，家轿与城市SUV严禁强行冲关！绝大多数游客选择在新都桥或沙德镇包四驱越野车前往（整车约600-800元/天）。",
+    feeDetail: "玉龙西村当地收取卫生保洁费20元/人。冷嘎措上山小交通（由村民运营）：① 骑马往返：200-300元/人；② 本地摩托车：单程100-150元/人。子梅垭口无门票，自驾越野车可直开山顶。",
+    internalTransit: "【极其硬核高反考验 · 摩托只能送到半山腰】冷嘎措被称为川西身体地狱、眼睛天堂！摩托车或骑马仅能将游客送至海拔4300米的山腰停马坪，最后1.5公里极其陡峭的高海拔碎石烂泥坡必须纯靠双腿徒步拔升至4500米湖畔（单程徒步需爬升1.5-2小时）！等看完日落金山与倒影后，必须在完全漆黑的零下严寒中戴头灯踩碎石下山，对体能、耐寒与抗高反能力要求极高，老人儿童切勿前往！"
+  },
+  {
+    id: "zimeiyakou",
+    name: "子梅垭口",
+    alias: "直面蜀山之王的云海王座",
+    lat: 29.6272,
+    lng: 101.7108,
+    altitude: "约 4600m",
+    location: "甘孜州康定市玉龙西村与上木居交界",
+    category: "pass",
+    categoryName: "雪山垭口",
+    loop: "ganzi",
+    vehicle: "必须高底盘四驱 / 险峻盘山",
+    weatherDep: "极度依赖晴天",
+    bestSeason: "10月中旬 - 次年1月",
+    photos: [
+      { url: "images/zimeiyakou.jpg", title: "4600m 贴脸直面贡嘎雪山主峰" },
+      { url: "images/zimeiyakou_autumn1.jpg", title: "磅礴雪墙与落日翻滚云海" }
+    ],
+    core: "站在海拔 4600 米垭口上，贡嘎雪山主峰主峰近乎触手可及，脚下翻滚浩瀚云海、头顶日照金山。",
+    autumn: "受干燥冷空气控制，云海产生概率高且不过顶，黄昏时刻贡嘎雪墙被落日染成金黄，极其震撼人心。",
+    weather: "大雾天能见度不足五米；大风降温极快，必须选择晴朗无云的傍晚前往。",
+    traffic: "非铺装盘山碎石烂路，弯多坡陡且悬崖无护栏，新手切忌私驾轿车尝试，必须租用当地老司机四驱越野车。",
+    tips: "高反易发点，逗留时间不宜超过 1.5 小时，看完落日金山后立即乘车下山回村留宿。",
+    source: "川西自驾路书 / 越野实测",
+    chengduTraffic: "自驾路线：成都经康定、新都桥、沙德镇至上木居村，转盘山土路上山（全程约460km，自驾约8h）。路面为碎石土路与回头弯，底盘高SUV或四驱越野车方可安全通行。公共交通：新都桥或上木居村包车前往（约500-700元/车）。",
+    feeDetail: "纯野外天然垭口，无门票、无观光车、无任何小交通收费（零费用）。",
+    internalTransit: "【越野车直接开上4550m垭口 · 贴脸贡嘎】车辆沿盘山公路直接开到4550m子梅垭口山脊平地，下车直面近在咫尺的贡嘎主峰（7556m）与巨型云海瀑布。无需任何徒步爬坡，但风力极大且气温极低，高反易发，建议停留不超过40分钟。"
+  },
+  {
+    id: "niubeishan",
+    name: "牛背山",
+    alias: "亚洲最大 360° 观景平台",
+    lat: 29.7431,
+    lng: 102.3275,
+    altitude: "山顶 3666m",
+    location: "雅安荥经县与甘孜泸定县交界",
+    category: "pass",
+    categoryName: "全景大观景台",
+    loop: "small",
+    vehicle: "景区观光车直达 / 极便",
+    weatherDep: "极度依赖晴天",
+    bestSeason: "11月 - 次年4月 (冬春云海最稳)",
+    photos: [
+      { url: "images/niubeishan.jpg", title: "360° 贡嘎云海日照金山全景" },
+      { url: "images/niubeishan_autumn1.jpg", title: "奔腾云海云瀑与佛光星空" }
+    ],
+    core: "360° 环视贡嘎雪山、峨眉山、四姑娘山、二郎山全貌；壮阔奔腾的云海云瀑、佛光、日照金山与无垠星空银河。",
+    autumn: "秋季山脚漫山彩林连绵，山顶云海蒸腾，贡嘎雪峰露出率逐步升高，气候较冬春略温和。",
+    weather: "【依赖晴天】阴雨多雾天在山顶被白茫茫浓雾包裹，白跑一趟；出发前务必查看牛背山天气预报与摄像头实时画面。",
+    traffic: "已全面商业化开发，私家车停在山脚‘长海子游客中心’，换乘封闭式景区观光车安全登顶，舒适省心。",
+    tips: "山顶建有野奢酒店与星空帐篷营地，推门即是雪山云海；门票两日有效，务必提前在公众号‘牛背山景区’预约。",
+    source: "牛背山景区管委会官方通告",
+    chengduTraffic: "自驾路线：成都经成名/雅康高速至荥经县或冷碛镇（全程约270km，耗时3.5-4h，高速费~80元），在山脚游客中心换乘景区接驳车。公共交通：成都石羊场客运站乘大巴至冷碛镇或荥经，换乘景区直通车。",
+    feeDetail: "门票+景区往返摆渡观光大巴约220-260元/人。山顶帐篷酒店住宿需提前预定（价格波动较大，约500-1500元/间）。",
+    internalTransit: "【景区观光车直达山顶接待中心】私家车停在山脚停车场，统一换乘景区专业摆渡车沿盘山公路开行约1.5h直抵3660m山顶平台。在山顶沿木栈道漫步赏360°云海日出与贡嘎群峰，轻度栈道步行约1-2km。"
+  },
+  {
+    id: "moshi",
+    name: "墨石公园",
+    alias: "异星地表 / 中国地质百慕大",
+    lat: 30.4358,
+    lng: 101.5975,
+    altitude: "约 3500m",
+    location: "甘孜州道孚县八美镇",
+    category: "geology",
+    categoryName: "地质奇观",
+    loop: "small",
+    vehicle: "G350国道旁 / 轿车直达",
+    weatherDep: "反常偏好微雨阴天",
+    bestSeason: "四季皆宜 / 9-11月色彩撞击佳",
+    photos: [
+      { url: "images/moshi.jpg", title: "深黑糜棱岩石林异星地貌" },
+      { url: "images/moshi_autumn1.jpg", title: "黑色石林与外围金黄青杨林撞色" }
+    ],
+    core: "世界罕见糜棱岩石林地质，受鲜水河断裂带挤压风化形成刀锋般层叠的黑色石林，科幻荒芜异星感十足。",
+    autumn: "秋季公园外围的青杨林与高山草甸全变成金黄色，与内部嶙峋深黑的石林形成极致强烈的视觉撞击。",
+    weather: "【雨天反常更美】雨水浸润后岩石变为深邃纯黑，极具科幻冷峻暗黑风；大晴天烈日暴晒下石林反而发灰白。",
+    traffic: "紧靠 G350 国道，康定、新都桥、丹巴客运班车和拼车极多，景区门口平整，轿车直接开进停车场。",
+    tips: "适合穿亮色（红、黑风衣、银白机能风）服装拍照；景区不大，游玩 2 小时即可打卡完毕。",
+    source: "道孚县文广旅局 / 中国国家地理",
+    chengduTraffic: "自驾路线：成都出发沿雅叶高速至康定，经折多山、G318至新都桥，转S215经塔公草原直达道孚县八美镇（全程约340km，自驾耗时5-5.5小时，高速过路费约60元，全程优质柏油路，普通家轿畅行）。公共交通：康定客运站乘发往道孚/炉霍班车在八美墨石公园大门下车（票价约45元）；或新都桥拼车至八美约30-40元/人。",
+    feeDetail: "基础门票60元 + 往返观光车20元 = 80元/人。景区内自选项目：宇航员太空服租赁拍照约50-80元/套，骑马代步约50-80元。常规基础花费仅80元/人。",
+    internalTransit: "【平缓异星漫步栈道 · 老少咸宜】游客中心乘坐观光车约5分钟即直达异星地貌石林核心区入口。核心石林区建有完善的木栈道与石板漫游环线，全长约1.5-2公里，海拔约3500米，上下起伏坡度极小。穿行在糜棱岩石林峡谷中如同漫步火星地表，全程游览耗时约1.5-2小时，体力负担轻微。"
+  },
+  {
+    id: "danba",
+    name: "丹巴甲居藏寨",
+    alias: "中国最美乡村 / 千碉之国",
+    lat: 30.9167,
+    lng: 101.8833,
+    altitude: "1800m - 2200m",
+    location: "甘孜州丹巴县高山半坡",
+    category: "culture",
+    categoryName: "嘉绒藏寨田园",
+    loop: "small",
+    vehicle: "水泥硬化路 / 轿车极便",
+    weatherDep: "低依赖（晨雾仙气足）",
+    bestSeason: "3-4月梨花 / 10月下-11月中旬",
+    photos: [
+      { url: "images/danba.jpg", title: "嘉绒藏寨依山而建梯田果林" },
+      { url: "images/danba_autumn1.jpg", title: "金秋漫山红叶金梨与藏房" }
+    ],
+    core: "依山而建的红白相间嘉绒藏寨、千年古碉楼群、隐世田园慢生活、墨尔多神山远眺。",
+    autumn: "满山梨树金黄、枫叶如火，红白藏房点缀在梯田与硕果累累的果林中，炊烟袅袅，如同童话世界。",
+    weather: "晴日明丽温暖，早晚山岚晨雾起时犹如水墨仙境，阴雨亦不影响田园治愈感。",
+    traffic: "丹巴县城海拔仅 1800m（高反绝缘地），县城距各藏寨十余公里平整水泥路，拼车小巴随叫随到，轿车畅行。",
+    tips: "入川西第一晚绝佳留宿地（低海拔适应睡眠）；古朴秀美，瓜果飘香。",
+    source: "丹巴县文体广旅局 / 中国国家地理",
+    chengduTraffic: "自驾路线：成都经蓉昌高速至汶川、理县，转理小路至小金县，或经雅康高速转瓦丹路直达丹巴县甲居镇（全程约330km，自驾5-6h，全线柏油路）。公共交通：成都茶店子汽车站每日有直发丹巴县大巴（约110元，6h），县城拼车至甲居藏寨约15-20元/人。",
+    feeDetail: "甲居藏寨门票50元/人。若自驾车直接开进藏寨（需配合寨内交通指引），观光车费自选35元/人。藏家民宿客栈食宿人均约120-200元/天。",
+    internalTransit: "【自驾车或观光车穿梭梯田藏寨】藏寨沿大金川河谷山坡层叠分布，公路硬化直通各观景台（1-3号观景台）。车辆可开至观景台下，在梨树与碉楼梯田间石板小道漫步穿梭，坡度缓和，体力要求轻微。"
+  },
+  {
+    id: "zhonglu",
+    name: "丹巴中路藏寨",
+    alias: "墨尔多神山下的守望者",
+    lat: 30.8950,
+    lng: 101.9320,
+    altitude: "1900m - 2300m",
+    location: "甘孜州丹巴县中路乡",
+    category: "culture",
+    categoryName: "嘉绒古碉群",
+    loop: "small",
+    vehicle: "柏油村道 / 轿车畅行",
+    weatherDep: "低依赖",
+    bestSeason: "3-4月梨花 / 10月下旬-11月中旬",
+    photos: [
+      { url: "images/zhonglu.jpg", title: "百年石碉楼与高山村落" },
+      { url: "images/zhonglu_autumn1.jpg", title: "墨尔多神山夕阳金光与碉楼" }
+    ],
+    core: "比甲居更原始静谧的藏寨碉楼群，墨尔多神山正面视角，高耸的十余座百年古碉楼巍峨伫立。",
+    autumn: "秋季梨树红叶与田畴金黄，古碉楼在夕阳金光中极具沧桑感与宁静出世之美。",
+    weather: "晨雾弥漫时神山若隐若现，晴天视野极其辽阔通透。",
+    traffic: "距丹巴县城约 10 公里，全程平整硬化水泥路，拼车每人十多元，极方便。",
+    tips: "推荐住在寨子里的精品藏家庭院，早晨看神山日出云海，宁静悠然。",
+    source: "甘孜文旅 / 丹巴非遗调查",
+    chengduTraffic: "自驾路线：成都经四姑娘山镇或泸定至丹巴县城，由县城过桥沿盘山水泥硬化路行驶约8km即抵中路乡（全程约335km，耗时5.5-6h，轿车通行良好）。公共交通：丹巴县城打车或面包车拼车至中路乡（约15-25元/人）。",
+    feeDetail: "【完全免大门票】目前保持原生态开放，不收门票与观光车费！部分民办私人观景台或停车位收取5-10元卫生停车费。",
+    internalTransit: "【水泥盘山路贯穿各寨组 · 徒步摄影自选】村道平整硬化通达各碉楼组群与观景台。漫步在古碉楼群与玉米青稞田间，仰望墨尔多神山，原生态静谧舒适，无任何强制徒步，老少皆宜。"
+  },
+  {
+    id: "dangling",
+    name: "党岭（葫芦海）",
+    alias: "川西原生态轻户外徒步天花板",
+    lat: 31.1067,
+    lng: 101.5714,
+    altitude: "3200m - 4200m",
+    location: "甘孜州丹巴县党岭村",
+    category: "lake",
+    categoryName: "原生态海子",
+    loop: "ganzi",
+    vehicle: "碎石路需SUV + 徒步/骑马",
+    weatherDep: "中高依赖晴天",
+    bestSeason: "9月下旬 - 10月底 (彩林封神)",
+    photos: [
+      { url: "images/dangling.jpg", title: "葫芦海纯净水色倒映雪山" },
+      { url: "images/dangling_autumn1.jpg", title: "高山海子万山红遍纯野性" }
+    ],
+    core: "葫芦海（大小葫芦海）倒映夏羌拉雪山（5470m）、高山原始冷杉松萝林、天然野温泉、卓雍措。",
+    autumn: "四川秋季野性与美感兼具的彩林天花板！万山红遍，红黄叶密密麻麻倒映在碧蓝葫芦海中，游人稀少。",
+    weather: "晴天雪山与湖水碧蓝倒影绝美；阴雨天徒步山路泥泞湿滑，体验感下降。",
+    traffic: "丹巴县城至党岭村约 60km 为乡村土石路，轿车易托底，建议 SUV；村内到海子需徒步 3-4 小时或租骑当地马匹。",
+    tips: "目前无大门票（仅收村保洁费约20元），原生态未深度开发，需自备干粮热水，穿专业登山徒步鞋。",
+    source: "丹巴县文广旅局 / 户外驴友实测",
+    chengduTraffic: "自驾与包车：成都经丹巴县城，由县城沿河谷碎石烂路开行60km深入党岭村（全程约400km，自驾耗时约7-8h）。后半段为泥石坑洼路段，轿车易托底，建议SUV或越野车。公共交通：丹巴县城客运站包拼越野车往返党岭村（单程约80-100元/人）。",
+    feeDetail: "党岭村卫生保洁费20元/人。村民骑马小交通：党岭村至飞机坪约100元，至葫芦海往返约200-300元（马匹只送到飞机坪，最后陡坡仍需徒步）。",
+    internalTransit: "【未开发原始高山秘境 · 硬核山路徒步】景区无观光车与水泥路。从党岭村（3300m）徒步至葫芦海（4160m）单程约7公里纯原始泥泞马道与石块陡坡，拔升860米，单程徒步需3-4小时！对体力和耐力有较高要求，适合户外徒步爱好者。"
+  },
+  {
+    id: "seda",
+    name: "色达佛学院",
+    alias: "喇荣五明佛学院 / 红色信仰海洋",
+    lat: 32.1481,
+    lng: 100.7508,
+    altitude: "3900m - 4100m",
+    location: "甘孜州色达县洛若镇",
+    category: "culture",
+    categoryName: "宗教人文奇观",
+    loop: "big",
+    vehicle: "客运班车直通 / 需官方预约",
+    weatherDep: "完全无影响",
+    bestSeason: "5月 - 10月",
+    photos: [
+      { url: "images/seda.jpg", title: "数万间红房子依山铺展全景" },
+      { url: "images/seda_autumn1.jpg", title: "坛城转经与夜景万家灯火" }
+    ],
+    core: "数万间红色木质藏房依山漫布铺满整个山谷的庞大视觉震撼，坛城转经人潮，脱离世俗凡尘的信仰力量与夜景万家灯火。",
+    autumn: "气候凉爽干燥，早晚偶有初雪；红木房屋覆盖薄雪时红白相间，庄严静穆，神圣非凡。",
+    weather: "【0影响】晴天红房鲜亮耀眼，阴雨天苍茫肃穆，下雪时更具佛国净土之美，任何天气均有其深刻感染力。",
+    traffic: "成都、康定、马尔康有长途客运到色达县城；进入佛学院核心区严禁自驾，必须在集散中心换乘专线摆渡车。",
+    tips: "进入必须提前在官方小程序（如‘云上喇荣’或‘色达县游客集散中心’）实名抢票；严禁携带违禁品，尊重宗教礼仪。",
+    source: "色达县文体旅局 / 官方预约平台公告",
+    chengduTraffic: "自驾路线：成都出发经蓉昌高速至马尔康，沿G317经观音桥、翁达镇转入色达洛若镇（全程约580km，耗时8.5-10h，过路费约60元，全线铺装柏油路，普通轿车畅达）。公共交通：成都茶店子汽车站每日早班有直发色达大巴（约240元，耗时13-14h）；或拼车专线直达（约260-320元/人）。",
+    feeDetail: "【免景区大门票】佛学院不收取大门票。但实行严格实名制预约：需提前通过‘喇荣沟’官方小程序预约观光车票（洛若中转站至坛城单程约30元往返）。",
+    internalTransit: "【观光摆渡车直达山顶坛城 · 3900m缓步慢行】外部社会车辆严禁进入红房子核心区。统一在洛若集散中心乘坐官方观光车，直接送抵山顶金碧辉煌的坛城（3950m）。在坛城下车后顺着红房子台阶步道缓慢漫步下山，海拔较高需放慢脚步避免高反，体力消耗中等。"
+  },
+  {
+    id: "lianbaoyeze",
+    name: "莲宝叶则",
+    alias: "魔戒中土世界 / 黑色石峰群",
+    lat: 33.2500,
+    lng: 101.4833,
+    altitude: "3700m - 4520m",
+    location: "阿坝州阿坝县与青海久治交界",
+    category: "geology",
+    categoryName: "奇峰地质",
+    loop: "aba",
+    vehicle: "内部全线柏油 / 轿车可自驾",
+    weatherDep: "中度依赖（阴天更魔幻）",
+    bestSeason: "6月 - 10月下旬",
+    photos: [
+      { url: "images/lianbaoyeze.jpg", title: "如刀劈斧削般的黑色花岗岩奇峰" },
+      { url: "images/lianbaoyeze_autumn1.jpg", title: "扎尕尔天池与魔幻中土荒原" }
+    ],
+    core: "陡峭如刀砍斧削的黑色花岗岩峰林绝壁群，扎尕尔天池，落霞湖，苍茫荒凉宛如《指环王》中土世界魔多废墟。",
+    autumn: "天池碧绿冷冽，山体黑冷挺拔，周边高山草甸全变成金黄色，荒原苍凉感拉满。",
+    weather: "晴天蓝天白云能见度高；多云甚至阴沉小雪天气更显黑色石峰冷酷肃杀、魔幻苍茫的气场。",
+    traffic: "阿坝县城拼车直达；最良心的是景区内部道路已全铺优质沥青，私家轿车可直接自驾开入各观景点。",
+    tips: "海拔超 4000 米走栈道容易喘，注意保暖防风；可与阿坝县格尔登寺、各莫寺人文连游。",
+    source: "阿坝县文旅局 / 景区公告",
+    chengduTraffic: "自驾路线：成都出发沿蓉昌高速至理县，翻鹧鸪山隧道沿G317经刷经寺至阿坝县城，转S513省道直达景区（全程约480km，耗时7-8h，高速费约60元，全线平整沥青路）。公共交通：成都茶店子客运站早班大巴直达阿坝县（约160元，8h），县城拼车至景区约40-50元/人。",
+    feeDetail: "景区门票120元/人。独家自驾特权：【私家车特许自驾入园直开核心湖泊下】（免观光车费，仅收入园门票）。若不开车入园，可自选乘坐景区内部观光车30元/人。",
+    internalTransit: "【私家车直开天池脚下 · 绝壁栈道轻度徒步】自驾车沿园区平整硬化路开行20km直抵扎尕尔天池生态停车场。下车后沿木栈道阶梯向上漫步攀登约1km（海拔从4000m拔升至4200m），俯瞰黑色魔幻花岗岩峰林倒映在碧蓝天池中，体力消耗中等。"
+  },
+  {
+    id: "ruoergai",
+    name: "若尔盖花湖",
+    alias: "中国最美高寒湿地 / 水天一色",
+    lat: 33.9167,
+    lng: 102.8333,
+    altitude: "约 3468m",
+    location: "阿坝州若尔盖县热尔大坝",
+    category: "pasture",
+    categoryName: "高寒湿地",
+    loop: "aba",
+    vehicle: "全线柏油路 / 轿车畅行",
+    weatherDep: "高依赖晴天",
+    bestSeason: "6-8月野花 / 9月-10月中旬",
+    photos: [
+      { url: "images/ruoergai.jpg", title: "天然泥炭湿地与木栈道水天一色" },
+      { url: "images/ruoergai_autumn1.jpg", title: "深秋金黄水草与南迁候鸟" }
+    ],
+    core: "高原天然泥炭沼泽湿地、国家一级保护动物黑颈鹤栖息地、蜿蜒千米的木栈道深入湖心水天一色。",
+    autumn: "湿地水草全线变为耀眼的金黄色，大批水鸟在此停留集结南迁，湖光天色深沉透彻。",
+    weather: "晴天水面倒影纯净无瑕；阴雨天草甸湿冷多风。",
+    traffic: "G213 国道旁，大巴与拼车方便，路况极好。",
+    tips: "紫外线极其强烈，木栈道防晒需做好；高原风大常备冲锋衣。",
+    source: "若尔盖文体广旅局",
+    chengduTraffic: "自驾路线：成都经成万高速至松潘，北上G213经若尔盖县城直达花湖景区（全程约490km，自驾约7-8h，全线柏油大路，轿车极便畅行）。公共交通：茶店子大巴至若尔盖县城（约180元，8h），县城拼车至花湖约30-40元/人。",
+    feeDetail: "旺季门票70元 + 景区往返大巴接驳车30元 = 100元/人（淡季门票约40元+车30元=70元）。",
+    internalTransit: "【观光大巴直抵湖畔 · 平整无障碍木栈道】观光大巴将游客从大门送至湿地湖畔。湖面建有长达数公里的无障碍悬空木栈道，地势极其平坦（海拔3460m），漫步在黑颈鹤栖息的水草天泽间，老少皆宜，轻松惬意。"
+  },
+  {
+    id: "jiuqu",
+    name: "黄河九曲第一湾",
+    alias: "母亲河的唯美大拐弯 / 落日熔金",
+    lat: 33.7250,
+    lng: 102.4833,
+    altitude: "约 3450m",
+    location: "阿坝州若尔盖县唐克镇",
+    category: "pasture",
+    categoryName: "大河蛇曲",
+    loop: "aba",
+    vehicle: "全线柏油路 / 轿车畅行",
+    weatherDep: "极度依赖晴天（落日）",
+    bestSeason: "6-8月绿草 / 9月-10月中旬落日",
+    photos: [
+      { url: "images/jiuqu.jpg", title: "S型大拐弯落日熔金金色缎带" },
+      { url: "images/jiuqu_autumn1.jpg", title: "山顶法螺观景台俯瞰辽阔晚霞" }
+    ],
+    core: "黄河与白河在此交汇形成壮美恢弘的 S 型大转弯，站在山顶法螺观景台俯瞰【落日熔金】晚霞。",
+    autumn: "草滩尽显金黄，黄河水波光粼粼如一条金色的巨龙在草原上舒展，日落景象极其震撼。",
+    weather: "【落日必须晴天】若阴云密布则无落日反光，体验大打折扣。",
+    traffic: "唐克镇旁，自驾与拼车方便，景区配有自动手扶电梯直上山顶观景台。",
+    tips: "傍晚太阳落山后气温骤降，务必穿厚羽绒服防风。",
+    source: "若尔盖县文旅局 / 现场实测",
+    chengduTraffic: "自驾路线：成都经蓉昌高速至红原大草原，转S209至唐克镇九曲黄河第一湾（全程约470km，自驾约7.5h，路况优良平坦）。公共交通：成都茶店子乘大巴至若尔盖或红原，转唐克镇班车或拼车。",
+    feeDetail: "景区大门票60元/人。登顶落日观景台观光自动扶手电梯单程60元/人（强烈建议购买，免去爬升近200米高海拔木栈道之苦）。总计约120元/人。",
+    internalTransit: "【观光扶梯直升山顶观景台】私家车可停山下停车场。建议乘坐多段露天高山观光自动扶梯直接送达山顶最高观景台（3600m），俯瞰黄河在草原上九曲回肠的壮阔晚霞；下山可沿景观木栈道缓慢步行漫游，体力消耗极低。"
+  },
+  {
+    id: "ganbai",
+    name: "甘白路",
+    alias: "沙鲁里山脉的荒野史诗",
+    lat: 31.4167,
+    lng: 99.4500,
+    altitude: "3500m - 4200m",
+    location: "甘孜州甘孜县至白玉县公路",
+    category: "road",
+    categoryName: "高原风光道",
+    loop: "ganzi",
+    vehicle: "全新铺装柏油 / 轿车无忧",
+    weatherDep: "中度依赖",
+    bestSeason: "9月下旬 - 10月底",
+    photos: [
+      { url: "images/ganbai.jpg", title: "沙鲁里山脉宽谷与亚木日海子" }
+    ],
+    core: "沙鲁里山脉腹地宽谷风光，亚木日高山海子，连绵金黄起伏草坡，零星藏寨与成群牦牛，原汁原味的川西荒原。",
+    autumn: "高山草甸全变成深金色，远方连绵雪山挂雪，天高云淡，视野极其宽广辽阔，自驾心旷神怡。",
+    weather: "晴空下视野宏阔；阴天下高原风骨冷峻，但不影响安全通行。",
+    traffic: "全线新铺平整沥青，弯道护栏完备，轿车通行毫无阻碍；无旅游班车，适合甘孜县自驾一日往返。",
+    tips: "沿途几乎无商业补给站，甘孜县城出发前加满油箱，备齐随车干粮饮水。",
+    source: "四川省交通厅公路局 / 自驾路书",
+    chengduTraffic: "自驾路线：甘孜县城出发沿S314向西经卓达拉山隧道至白玉县（全程约215km，耗时约4.5-5h，全线为高标准柏油景观大道，家轿畅通无阻）。公共交通：甘孜客运站每日有发往白玉县的中巴班车（约60元）。",
+    feeDetail: "【全线零门票】甘白路为全开放式川西顶级景观大道，沿途不设任何收费站卡，纯免费自由自驾。",
+    internalTransit: "【车在画中游 · 随处安全停车带】全程柏油路况极佳，翻越卓达拉雪山建有通畅隧道，沿途设有多个安全观景台与停车港湾。自驾沿途随停随拍高山草甸、红层丹霞、雪山林海与藏式白塔，完全无强制徒步。"
+  },
+  {
+    id: "genie",
+    name: "格聂南线（格聂之眼）",
+    alias: "川西顶级越野大海道 / 铁匠山与神山",
+    lat: 29.8167,
+    lng: 99.6667,
+    altitude: "3800m - 4770m",
+    location: "甘孜州理塘县至巴塘县",
+    category: "road",
+    categoryName: "自驾越野线",
+    loop: "ganzi",
+    vehicle: "部分碎石涉水 / 建议四驱SUV",
+    weatherDep: "中高依赖晴天",
+    bestSeason: "6-8月花海 / 9月下-10月下旬",
+    photos: [
+      { url: "images/genie.jpg", title: "格聂之眼清澈倒映格聂神山" },
+      { url: "images/genie_autumn1.jpg", title: "热梯河谷秋季红柳灌木金黄" }
+    ],
+    core: "铁匠山远古冰帽古冰川遗迹巨石、宛如大自然泪珠的‘格聂之眼’倒映神山、热梯河谷的金黄红柳与原木藏房。",
+    autumn: "热梯河谷灌木丛金黄火红，与格聂神山（6204m）纯白积雪形成鲜明对比，跌宕起伏气势磅礴。",
+    weather: "晴天蓝天雪山开阔壮美；阴雨天泥地碎石路段容易打滑，且神山常被云层遮挡。",
+    traffic: "大部分路段已完成硬化，但仍有部分未完全修缮的碎石坑洼与涉水路，不建议低底盘轿车盲目穿越。",
+    tips: "理塘或巴塘为起终点；沿途信号较弱，需提前离线下载地图导航，结伴而行。",
+    source: "甘孜州文化广播电视和旅游局",
+    chengduTraffic: "自驾路线：理塘县城出发西行进入格聂南线，经铁匠山垭口、下则通村、格聂之眼、冷达至巴塘县（全程约230km，南线穿越需1.5-2天）。部分路段为非铺装碎石便道与涉水涉坑路段，底盘低家轿切勿尝试，必须四驱高底盘越野车或硬派SUV！公共交通：理塘包专业四驱越野车（约1000-1500元/天）。",
+    feeDetail: "全线无景区大门票。格聂之眼草甸由当地村庄收取卫生维护费约20元/人，天然野温泉泡脚自选约10-20元。",
+    internalTransit: "【越野车深入腹地 · 秘境高海拔自驾】格聂南线为极致越野自驾体验，车辆直开至格聂之眼草甸旁和下则通村（丁真家乡）。格聂神山（6204m）常年相伴车窗外。在草甸漫步平缓无大坡度，但平均海拔3800-4100m，需防范高反风寒。"
+  },
+  {
+    id: "yulonglacuo",
+    name: "玉隆拉措（新路海）",
+    alias: "川西第一静美神湖 / 雀儿山泪珠",
+    lat: 31.8150,
+    lng: 99.1633,
+    altitude: "湖面约 4040m",
+    location: "甘孜州德格县马尼干戈镇",
+    category: "lake",
+    categoryName: "冰川神湖",
+    loop: "big",
+    vehicle: "G317国道旁 / 轿车直通",
+    weatherDep: "中高依赖（秋晴最佳）",
+    bestSeason: "9月下旬 - 11月 (强推秋季)",
+    photos: [
+      { url: "images/yulonglacuo.jpg", title: "雀儿山雪峰冰川下的翡翠神湖" }
+    ],
+    core: "雀儿山雪峰冰川融雪汇聚而成的翡翠色神湖，湖畔布满巨大玛尼石雕刻，苍劲冷杉倒映湖心，宁静神圣。",
+    autumn: "雀儿山积雪深厚，湖畔冷杉金黄与常绿交织，湖水呈现最纯净的翡翠蓝绿，美得不可方物。",
+    weather: "夏季多雨时水质浑浊；秋季雨水骤减天晴气爽，湖水最为清澈透亮，晴日日晒时湖水如绿宝石。",
+    traffic: "紧挨 G317 国道旁，大门停车方便，轿车直接开到大门；入内为平缓木栈道，甘孜县拼车前往便利。",
+    tips: "湖水严禁下水或投掷杂物，保护脆弱的高原生态；早晨无风时倒影最为纯净。",
+    source: "德格县文旅局 / 中国地理学会",
+    chengduTraffic: "自驾路线：成都经G317北线经马尔康、炉霍、甘孜县，再西行约100km抵雀儿山脚下景区大门（全程约830km，自驾需1.5天，全线平整柏油路，雀儿山隧道通畅，轿车畅达）。公共交通：甘孜县客运站乘发往德格班车在中途新路海大门下车（约30元）。",
+    feeDetail: "景区大门票50元/人。自选环保电瓶车或骑马单程约30-50元（可代步至湖边玛尼石滩）。",
+    internalTransit: "【平缓冰碛森林小径 · 纯净海子漫步】从景区大门步行约1.5公里穿过静谧的冷杉原始森林和玛尼石滩，即抵海拔4040m的碧蓝巨型冰川融水湖。沿湖建有平缓土路与碎石栈道，远眺雀儿山现代冰川倾泻入湖，体力消耗轻微。"
+  },
+  {
+    id: "cuopugou",
+    name: "措普沟",
+    alias: "川西六边形战士 / 浓缩版小亚丁",
+    lat: 30.4917,
+    lng: 99.5583,
+    altitude: "3300m - 4100m",
+    location: "甘孜州巴塘县茶洛乡",
+    category: "lake",
+    categoryName: "自然全能复合",
+    loop: "big",
+    vehicle: "紧靠318 / 景区车通达",
+    weatherDep: "中度依赖",
+    bestSeason: "5月 - 10月 (10月金秋最佳)",
+    photos: [
+      { url: "images/cuopugou.jpg", title: "扎金甲博绝壁与措普神湖" },
+      { url: "images/cuopugou_autumn1.jpg", title: "环湖落叶松金秋灿灿与寺庙" }
+    ],
+    core: "扎金甲博神山（怪石绝壁）、措普翡翠湖、热坑温泉群（可体验泉水煮鸡蛋）、高山花海、野生旱獭（土拨鼠）与寺庙。",
+    autumn: "环湖落叶松变成纯金黄色，倒映在清亮湖水与雪山绝壁下，游人远少于亚丁，体验舒适惬意。",
+    weather: "晴天看神山绝壁倒影；阴雨天热坑温泉蒸汽弥漫与藏传寺院相映，亦具风味。",
+    traffic: "紧邻 G318 国道，新修平整柏油路直达景区大门，内部乘坐环保观光车，巴塘县城拼车十分方便。",
+    tips: "在温泉区可买生鸡蛋体验地热烫蛋；措普湖畔常有不怕人的土拨鼠和喊鱼奇观。",
+    source: "巴塘县文旅局 / 318联盟",
+    chengduTraffic: "自驾路线：成都经康定、雅江、理塘，沿G318向西往巴塘方向开行，在茶洛乡路口转入景区专用硬化公路（全程约720km，自驾耗时10-11h，G318全线优质沥青路）。公共交通：理塘拼车往巴塘方向在茶洛乡下车（约80-100元），换乘景区大巴。",
+    feeDetail: "大门票100元 + 往返观光大巴90元 = 190元/人。热坑地热温泉煮鸡蛋约10元/3个，喊泉鱼食5元/包。常规花费190~205元/人。",
+    internalTransit: "【全程观光大巴逐站接驳 · 原生态轻漫步】景区全长40km禁止私家车驶入。大巴依次接驳热坑地热沸泉群（看气孔喷涌与地热煮蛋）、措普湖与措普寺。在措普湖畔沿平缓亲水木栈道漫步（单程1-2km），与土拨鼠互动、呼喊引群鱼游来，悠闲惬意。"
+  },
+  {
+    id: "cuokahu",
+    name: "措卡湖",
+    alias: "九天瑶池 / 人间微缩绿宝石",
+    lat: 30.8667,
+    lng: 100.2833,
+    altitude: "约 3980m",
+    location: "甘孜州新龙县麻日乡",
+    category: "lake",
+    categoryName: "高山瑶池",
+    loop: "big",
+    vehicle: "硬化盘山路 / 轿车谨慎慢行",
+    weatherDep: "中低依赖",
+    bestSeason: "6月 - 10月下旬",
+    photos: [
+      { url: "images/cuokahu.jpg", title: "措卡寺红墙白塔倒映翡翠绿水" },
+      { url: "images/cuokahu_autumn1.jpg", title: "湖畔秋林尽染与万尾神鱼" }
+    ],
+    core: "面积虽袖珍但水质绿如翡翠如镜面，措卡寺红墙白塔倒映水中，数万尾成群的高原冷水鱼（藏民视为神鱼不捕）。",
+    autumn: "湖畔山林金黄红火，倒映在翡翠绿水里，水天一色，落叶漂浮水面，宛如人间幻境。",
+    weather: "即使阴天无大太阳，湖水依然呈现深幽翡翠绿，晴天则波光粼粼寺庙倒影更生动。",
+    traffic: "从新龙县城拼车或包车前往约 40 分钟；上山道路虽已全硬化但弯道多坡陡，驾驶需细心慢行。",
+    tips: "可以带些面包饼干在湖边喂神鱼；湖边建有平整木质环湖步道，绕湖一周约 40 分钟非常轻松。",
+    source: "新龙县文旅局 / 川西秘境指南",
+    chengduTraffic: "自驾路线：成都经康定、理塘南下新龙县，在麻日乡转入盘山水泥村道爬升至山顶湖畔（全程约650km，自驾约10h）。盘山路上山弯急坡陡，路面较窄需谨慎会车，SUV或轿车慢行可达。公共交通：新龙县城包车往返（约150-200元/车）。",
+    feeDetail: "【目前免大门票】当地村民收取停车与卫生管理费约20-30元/车。投喂湖中高山高原鱼饼干鱼食约5元/包。",
+    internalTransit: "【车直接开到湖边木栈道】车辆沿盘山公路开到山顶寺庙旁的停车场，下车即是森林环抱的措卡天池（海拔3800m）。沿环湖木栈道散步一圈仅需40分钟，湖面平静如翡翠镜面，倒映白塔寺庙，老少皆宜。"
+  },
+  {
+    id: "dege",
+    name: "德格印经院",
+    alias: "藏文化大百科全书 / 活态手工印刷",
+    lat: 31.8083,
+    lng: 98.5767,
+    altitude: "约 3200m",
+    location: "甘孜州德格县城内",
+    category: "culture",
+    categoryName: "纯人文非遗国宝",
+    loop: "big",
+    vehicle: "G317直达 / 县城步行",
+    weatherDep: "完全无影响（0依赖）",
+    bestSeason: "5月 - 10月 (四季皆宜)",
+    photos: [
+      { url: "images/dege.jpg", title: "32万块传统古老雕版库房" },
+      { url: "images/dege_autumn1.jpg", title: "工匠调朱砂墨手工刷印拓版" }
+    ],
+    core: "保存有 32 万块传统手工雕刻经版、300年历史，全人工调朱砂墨、手工刷印、烘干、装订的全流程活态非遗。",
+    autumn: "德格县城气候温和适宜慢步，秋风送爽，屋顶晒经纸红黄飞舞，古建筑墨香浓郁。",
+    weather: "【全室内0影响】室内参观感受传承数百年的手工匠心与厚重历史，完全不受外界刮风下雨影响。",
+    traffic: "位于德格县城中心，G317 国道平整畅达；甘孜县每天有多班客运班车或拼车直达德格，县城内步行可达。",
+    tips: "内部禁止拍照以保护古老经版与工匠；印经院下午闭馆较早，建议上午 9:00-11:30 前往参观印刷现场。",
+    source: "德格印经院文保所 / 四川非遗保护中心",
+    chengduTraffic: "自驾路线：成都沿G317经甘孜县、穿雀儿山隧道直达金沙江畔德格县城（全程约930km，自驾需2天，雀儿山隧道打通后路况良好，轿车通行无阻）。公共交通：成都茶店子汽车站每日早班大巴直发德格县城（约280元，需开行近2天）；或甘孜格萨尔机场乘机后转车。",
+    feeDetail: "德格印经院大门票50元/人（含院内讲解参观）。院内经版库禁止拍照闪光灯。",
+    internalTransit: "【县城中心步行直达 · 藏文化活化石】印经院位于德格县城中心地带，街道平缓无需爬山。步入朱红色古建筑内部，顺木质回廊缓慢步行，近距离观摩数百名工人纯手工雕版印刷藏经的千年活态传承，老少皆宜。"
+  },
+  {
+    id: "lixiaolu",
+    name: "理小路",
+    alias: "米亚罗与四姑娘山的彩林捷径",
+    lat: 31.3200,
+    lng: 102.7500,
+    altitude: "2400m - 3980m",
+    location: "阿坝州理县朴头镇至小金县结斯乡",
+    category: "road",
+    categoryName: "景观快线",
+    loop: "small",
+    vehicle: "全线新铺柏油 / 轿车畅行",
+    weatherDep: "中度依赖",
+    bestSeason: "10月中旬 - 11月上旬",
+    photos: [
+      { url: "images/lixiaolu.jpg", title: "峡谷红石滩与高山彩林公路" },
+      { url: "images/lixiaolu_autumn1.jpg", title: "远眺大雪塘雪山与金秋峡谷" }
+    ],
+    core: "峡谷溪流、红石滩、大雪塘雪山远景、秋日层林尽染的高山彩林，直接打通毕棚沟与四姑娘山避免折返绕行。",
+    autumn: "整条公路穿梭在金黄与绯红的峡谷彩林中，雪山与红石交相呼应，自驾体验感绝佳。",
+    weather: "阴天起雾雪山不显，但沿途红石与彩林不受影响；秋末冬初注意早晚暗冰。",
+    traffic: "全线新铺柏油通车，家用小轿车可顺畅通行；无固定旅游班车，多为自驾或定制包车路线。",
+    tips: "穿过高海拔垭口路段时注意减速，秋冬季常备防滑链以防高山暗冰。",
+    source: "理县公路局 / 小金交警路况通报",
+    chengduTraffic: "自驾路线：成都经蓉昌高速至朴头/米亚罗，沿理小路专用公路穿越鹧鸪山与双桥沟背面至小金县四姑娘山镇（全程约250km，自驾仅3-4h，高速费约50元，2024全新通车双向沥青路，家轿通行极顺）。公共交通：目前以自驾和拼车为主，理县与小金间有拼车班车。",
+    feeDetail: "【全线零门票 · 全新通车景观走廊】理小路为连接理县与小金县的旅游公路线路，无任何门票与收费站卡，全天候免费自驾通行。",
+    internalTransit: "【双向沥青顶级公路 · 沿途雪山彩林随停】全线铺装柏油平整，穿越原始森林、雪山冰川、海子峡谷，沿途规划了凉台沟观景台、结斯沟观景点等多个平整停车休息区，下车拍照安全便捷，无任何登山门槛。"
+  },
+  {
+    id: "hailuogou",
+    name: "海螺沟",
+    alias: "贡嘎东坡大冰瀑布与雪山温泉",
+    lat: 29.5858,
+    lng: 102.0461,
+    altitude: "1600m - 3600m",
+    location: "甘孜州泸定县磨西镇",
+    category: "snow",
+    categoryName: "冰川温泉复合",
+    loop: "small",
+    vehicle: "高速直达 / 极便利",
+    weatherDep: "高依赖季节与天气",
+    bestSeason: "11月 - 次年3月 (秋冬季佳)",
+    photos: [
+      { url: "images/hailuogou.jpg", title: "现代低海拔大冰瀑布与雪峰" },
+      { url: "images/hailuogou_autumn1.jpg", title: "原始森林红石滩与高山彩林" }
+    ],
+    core: "现代低海拔海洋性大冰瀑布、原始森林红石滩、雪山脚下天然露天高山温泉群、贡嘎主峰东坡仰角。",
+    autumn: "深秋看漫山彩林与红石滩相映；初冬看纯白冰川与飘雪泡露天高山温泉，“冰火两重天”。",
+    weather: "夏季雨多雾重且冰川融化发灰发黑；秋冬晴天降雪后银装素裹最美。",
+    traffic: "雅康高速直通泸定磨西镇，成都新南门客运站大巴直达，全程柏油铺装，轿车通行极便利。",
+    tips: "磨西镇海拔仅 1600 米（无高反极度舒适），可作为入川西第一晚留宿站，顺带品尝特色牦牛肉与泡汤。",
+    source: "海螺沟国家级风景名胜区管理局",
+    chengduTraffic: "自驾路线：成都出发经雅康高速直达泸定出口，转海螺沟专用快速连接线直达磨西古镇（全程285km，全线高标准高速与柏油路，耗时仅3.5-4h，高速费约110元，川西大景区中路况最优，轿车极快畅达）。公共交通：新南门汽车站每日多班直发海螺沟磨西镇大巴（约120元，4h）。",
+    feeDetail: "大门票90元 + 往返观光大巴70元 = 160元/人。三号营地干河坝至四号营地大冰瀑布索道缆车：往返135元/人（强烈建议乘坐，贴面贡嘎与冰瀑唯一航线）。高品质天然森林温泉：约120-180元/人。总口径预算：295~450元/人。",
+    internalTransit: "【观光大巴+大索道双重代步】磨西游客中心乘观光大巴45分钟直达三号营地干河坝；换乘大索道直飞四号营地观景台，近距离贴面观赏高1080米的世界最大高山冰瀑布。若不坐索道，仅能步行2小时穿行原始森林看冰舌末端（路滑费力且景观有限）。"
+  },
+  {
+    id: "yuke",
+    name: "玉科草原",
+    alias: "川西阿勒泰 / 森林与高山牧场",
+    lat: 31.2500,
+    lng: 101.2167,
+    altitude: "3500m - 3800m",
+    location: "甘孜州道孚县玉科镇",
+    category: "pasture",
+    categoryName: "林间高山牧场",
+    loop: "ganzi",
+    vehicle: "乡村柏油路 / 轿车慢行",
+    weatherDep: "低依赖（阴晴皆治愈）",
+    bestSeason: "6-8月野花满山 / 9月下-10月下旬",
+    photos: [
+      { url: "images/yuke.jpg", title: "平缓林间草甸与悠闲牛羊" },
+      { url: "images/yuke_autumn1.jpg", title: "秋季高山牧场金黄风吹草低" }
+    ],
+    core: "平缓林间草甸、小河穿林而过、融汇川西与新疆阿勒泰风格的高原牧场，宁静原生态无商业气息。",
+    autumn: "草甸泛起暖金，冷杉青黄相间，牧民牛羊散落其间，风吹草低，静谧空旷。",
+    weather: "阴天云低风轻、溪水潺潺，依然极度治愈解压。",
+    traffic: "需从道孚或丹巴拼车/包车前往，乡村柏油硬化路面，轿车慢速可通。",
+    tips: "配套商业较少，适合自备露营装备与零食轻野餐，体验无游人打扰的旷野宁静。",
+    source: "道孚县文旅局 / 现场实测",
+    chengduTraffic: "自驾路线：成都经蓉昌高速至马尔康，经金川或党坝乡沿S211深入道孚县玉科镇（全程约460km，自驾约7-8h，柏油铺装）。公共交通：道孚县城或金川县拼车前往（约50-70元/人）。",
+    feeDetail: "【完全零门票 · 康巴阿勒泰】全开放式巨型天然牧场与湿地草甸，无门票与观光车。部分溪边露营基地收取场地保洁费20元/车。",
+    internalTransit: "【省道穿行万亩草甸 · 溪流林海漫步】公路沿着宽阔平缓的河谷延伸，溪水潺潺、云杉挺拔、黑帐篷与牦牛点缀其间。车停路边草甸即可平地散步野餐，海拔约3500m，地势平缓舒适，老少皆宜。"
+  },
+  {
+    id: "mugecuo",
+    name: "康定木格措 (情歌风景区)",
+    alias: "野人海 / 离康定最近的湖泊森林",
+    lat: 30.1611,
+    lng: 101.8722,
+    altitude: "2800m - 3780m",
+    location: "甘孜州康定市雅拉乡",
+    category: "lake",
+    categoryName: "雪山圣湖",
+    loop: "small",
+    vehicle: "康定打车/大巴极便 / 轿车畅达",
+    weatherDep: "中度依赖",
+    bestSeason: "10月中旬 - 11月上旬",
+    photos: [
+      { url: "images/mugecuo.jpg", title: "七色海倒映红海草原与彩林" }
+    ],
+    core: "木格措（野人海）、七色海（冷水温水交融水草变色）、杜鹃峡、药池沸泉（可泡脚吃温泉蛋）、红海草原。",
+    autumn: "七色海周边彩林倒映水面，木格措雪山倒影分明，红海草原泛金。",
+    weather: "晴天看湖光山色倒影；阴天有雾气微醺，温泉区不受天气干扰。",
+    traffic: "距康定市区仅 17 公里，打车或拼车半小时即达，全程柏油好路。",
+    tips: "高低落差 1000 米，观光车直达最高处木格措，然后向下游览较省体力。",
+    source: "康定情歌风景区管委会",
+    chengduTraffic: "自驾路线：成都出发沿雅康高速直达康定市区，向北沿专用公路行驶17km即达景区大门（全程约290km，耗时3.5-4h，过路费约95元，全程铺装公路，轿车畅达）。公共交通：成都新南门/茶店子大巴至康定客运站（约110元，3.5h），客运站门口打车或拼车至景区仅20分钟（约15-20元/人）。",
+    feeDetail: "大门票105元 + 景区往返观光大巴90元 = 195元/人。野人海自选游船70元/人，七色海药池沸泉泡脚35元/人。",
+    internalTransit: "【观光大巴直达最高海子 · 步行平缓木栈道】景区观光车一路爬升直抵海拔3780m的野人海（木格措湖畔）。游客可乘船游湖或在金沙滩漫步，之后可乘坐观光车逐站下行游览红海草原、药池沸泉、七色海，或沿千瀑峡瀑布木栈道下行徒步（约3km下坡栈道），轻松老少皆宜。"
+  },
+  {
+    id: "xinlonghongshan",
+    name: "新龙红山",
+    alias: "川西罕见高原丹霞秘境",
+    lat: 31.0667,
+    lng: 100.3500,
+    altitude: "3900m - 4200m",
+    location: "甘孜州新龙县银多乡",
+    category: "geology",
+    categoryName: "高原丹霞",
+    loop: "big",
+    vehicle: "碎石土路 / 建议高底盘SUV",
+    weatherDep: "低依赖（湿水色更艳）",
+    bestSeason: "5月 - 10月",
+    photos: [
+      { url: "images/xinlonghongshan.jpg", title: "赤壁丹霞如火与金黄草甸相撞" }
+    ],
+    core: "赤壁丹霞如火，山谷中冷杉常青、高山草甸泛金，三种鲜明色块在高原极境交织。",
+    autumn: "红山赤壁、金黄草甸与青绿森林构成强烈的三重撞色大片。",
+    weather: "雨水冲刷后红砂岩色彩饱和度反而更高更浓烈，不挑天气。",
+    traffic: "较偏远，乡村土石路面，底盘低的小轿车易刮底盘，建议四驱或高底盘 SUV。",
+    tips: "完全原生态未开发景点，需备足随身饮用水与干粮。",
+    source: "新龙县文化旅游局",
+    chengduTraffic: "自驾路线：成都经康定、理塘或甘孜转G227国道穿越新龙县大盖乡（全程约680km，自驾需1.5天，G227柏油路况良好，家轿可达）。公共交通：新龙县城拼车往甘孜方向在大盖乡红山下车（约30-40元）。",
+    feeDetail: "【完全零门票 · 原生态野性丹霞】天然未开发奇观，不设门票与观光车，完全免费自由参观。",
+    internalTransit: "【国道紧贴红色丹霞峡谷 · 路边观景台拍照】G227国道直接从巍峨赭红色的丹霞巨石群与峡谷中穿过，雅砻江水在谷底奔流。路侧设有开阔停车观景带，下车即可平地拍照观赏丹霞绝壁，无需任何爬山徒步。"
+  },
+  {
+    id: "ganzixian",
+    name: "甘孜县城及田园",
+    alias: "雪山下的小城 / 317枢纽",
+    lat: 31.6247,
+    lng: 100.0019,
+    altitude: "约 3390m",
+    location: "甘孜州甘孜县（雅砻江畔）",
+    category: "culture",
+    categoryName: "人文雪山田园",
+    loop: "big",
+    vehicle: "317干道 / 机场班车极便",
+    weatherDep: "中低依赖",
+    bestSeason: "9月中旬 - 10月下旬",
+    photos: [
+      { url: "images/ganzixian.jpg", title: "甘孜寺居高俯瞰金黄青稞田与雪山" }
+    ],
+    core: "甘孜寺居高俯瞰白塔与县城、开阔田园风光、远眺卓达拉雪山与大金寺，深厚的格萨尔文化底蕴。",
+    autumn: "雅砻江畔青稞翻滚金浪，农耕秋收与白色雪山同框，安详惬意。",
+    weather: "晴天雪山显露震撼；阴雨下小城依然烟火气十足。",
+    traffic: "G317 北线核心枢纽，有甘孜格萨尔机场直飞成都，班车四通八达，柏油路优良。",
+    tips: "317 大环线绝佳住宿补给站，物资丰富，餐饮医疗条件优良。",
+    source: "甘孜县文化旅游局",
+    chengduTraffic: "自驾路线：成都出发沿G317北线经马尔康、炉霍直达甘孜县城（全程约730km，自驾约11-12h，高速+优质国道柏油路，轿车极便通行）。公共交通：成都茶店子汽车站大巴直达甘孜县城（约230元，13h）；或成都乘机直飞甘孜格萨尔机场（机场距县城仅50km，机场大巴30分钟直达）。",
+    feeDetail: "甘孜县城全境免费开放。甘孜寺免费参观（登上寺顶俯瞰全城与雪山无门票）。",
+    internalTransit: "【城区柏油路直通甘孜寺山门】自驾车或县城出租车可直接沿着水泥道路开到依山而建的甘孜寺白塔广场。在此俯瞰雅砻江谷地万亩金黄青稞田与远方卓达拉雪山，步道平缓，生活便利，是川西大环线极佳休整站。"
+  }
+];
+
+// ==================== 2. ROUTE LINES DATA ====================
+const ROUTES_DATA = {
+  smallLoop: [
+    [30.6586, 104.0648], [30.9880, 103.6069], [30.9989, 103.1492],
+    [31.0022, 102.8364], [30.9167, 101.8833], [30.4358, 101.5975],
+    [30.3244, 101.5283], [30.0450, 101.5833], [29.8333, 101.4833],
+    [30.0450, 101.5833], [30.0514, 101.9619], [29.9800, 102.9900],
+    [30.6586, 104.0648]
+  ],
+  g318: [
+    [30.6586, 104.0648], [29.9800, 102.9900], [29.9144, 102.2344],
+    [30.0514, 101.9619], [30.0450, 101.5833], [30.0333, 101.0167],
+    [30.0000, 100.2667], [29.0333, 100.3000], [28.4385, 100.3547],
+    [30.0000, 100.2667], [30.4917, 99.5583],  [30.0033, 99.1067]
+  ],
+  g317: [
+    [30.6586, 104.0648], [31.4700, 103.5800], [31.4300, 103.1500],
+    [31.9000, 102.2200], [32.1481, 100.7508], [31.4000, 100.6700],
+    [31.6247, 100.0019], [31.8150, 99.1633],  [31.8083, 98.5767]
+  ],
+  abaLoop: [
+    [30.6586, 104.0648], [31.4700, 103.5800], [31.6800, 103.8500],
+    [32.1884, 102.8392], [32.6400, 103.6000], [32.7483, 103.8276],
+    [33.2600, 103.9186], [33.9167, 102.8333], [33.7250, 102.4833],
+    [33.2500, 101.4833], [31.9000, 102.2200], [30.6586, 104.0648]
+  ],
+  lixiao: [
+    [31.2589, 102.9463], [31.3200, 102.7500], [31.0022, 102.8364]
+  ]
+};
+
+// ==================== 3. INITIALIZE LEAFLET MAP & CHINESE BASEMAPS ====================
+const tileGaoDeVector = L.tileLayer('https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}', {
+  subdomains: ['1', '2', '3', '4'],
+  maxZoom: 18,
+  attribution: '&copy; 高德地图 AutoNavi'
+});
+
+const tileGaoDeSatImage = L.tileLayer('https://webst0{s}.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}', {
+  subdomains: ['1', '2', '3', '4'],
+  maxZoom: 18,
+  attribution: '&copy; 高德卫星'
+});
+const tileGaoDeSatLabel = L.tileLayer('https://webst0{s}.is.autonavi.com/appmaptile?style=8&x={x}&y={y}&z={z}', {
+  subdomains: ['1', '2', '3', '4'],
+  maxZoom: 18
+});
+const layerGaoDeSatellite = L.layerGroup([tileGaoDeSatImage, tileGaoDeSatLabel]);
+
+const tileTopo = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', {
+  maxZoom: 18,
+  attribution: 'Tiles &copy; Esri World Topo'
+});
+
+const map = L.map('map', {
+  center: [31.1, 101.6],
+  zoom: 7.2,
+  layers: [tileGaoDeVector],
+  zoomControl: false
+});
+
+L.control.zoom({ position: 'topright' }).addTo(map);
+
+const baseMaps = {
+  "🇨🇳 高德全中文标准地图 (推荐)": tileGaoDeVector,
+  "🛰️ 高德卫星影像 (含中文标注)": layerGaoDeSatellite,
+  "🏔️ Esri 地形起伏图": tileTopo
+};
+L.control.layers(baseMaps, null, { position: 'topright' }).addTo(map);
+
+// ==================== 4. PROVINCIAL & PREFECTURAL BOUNDARIES LAYER ====================
+const boundaryGroup = L.layerGroup();
+
+function getBoundaryStyle(feature) {
+  const name = feature.properties.name || '';
+  if (name.includes('甘孜')) {
+    return { color: '#0284c7', weight: 2.2, dashArray: '6, 6', fillOpacity: 0.04, fillColor: '#0284c7' };
+  } else if (name.includes('阿坝')) {
+    return { color: '#059669', weight: 2.2, dashArray: '6, 6', fillOpacity: 0.04, fillColor: '#059669' };
+  } else if (name.includes('成都')) {
+    return { color: '#dc2626', weight: 2.2, dashArray: '4, 4', fillOpacity: 0.05, fillColor: '#dc2626' };
+  } else if (name.includes('雅安')) {
+    return { color: '#ea580c', weight: 2.2, dashArray: '5, 5', fillOpacity: 0.04, fillColor: '#ea580c' };
+  } else if (name.includes('凉山')) {
+    return { color: '#7c3aed', weight: 2.0, dashArray: '6, 6', fillOpacity: 0.03, fillColor: '#7c3aed' };
+  }
+  return { color: '#64748b', weight: 1.5, dashArray: '4, 4', fillOpacity: 0.02, fillColor: '#94a3b8' };
+}
+
+const PREFECTURE_CENTERS = [
+  { name: "甘孜藏族自治州", lat: 30.65, lng: 100.15, color: "#0284c7" },
+  { name: "阿坝藏族羌族自治州", lat: 32.10, lng: 102.35, color: "#059669" },
+  { name: "雅安市", lat: 29.98, lng: 102.98, color: "#ea580c" },
+  { name: "成都市", lat: 30.65, lng: 104.06, color: "#dc2626" },
+  { name: "凉山彝族自治州", lat: 27.90, lng: 102.25, color: "#7c3aed" }
+];
+
+function initBoundaries() {
+  if (window.SICHUAN_GEOJSON) {
+    const geoLayer = L.geoJSON(window.SICHUAN_GEOJSON, {
+      style: getBoundaryStyle,
+      onEachFeature: function(feature, layer) {
+        const name = feature.properties.name || '';
+        layer.bindTooltip(`<strong>${name}</strong>`, {
+          sticky: true,
+          direction: 'center'
+        });
+      }
+    });
+    boundaryGroup.addLayer(geoLayer);
+
+    PREFECTURE_CENTERS.forEach(item => {
+      const badgeIcon = L.divIcon({
+        className: 'prefecture-badge-icon',
+        html: `<div class="prefecture-label-badge" style="border-left: 4px solid ${item.color};">${item.name}</div>`,
+        iconSize: [120, 26],
+        iconAnchor: [60, 13]
+      });
+      const badgeMarker = L.marker([item.lat, item.lng], { icon: badgeIcon, interactive: false });
+      boundaryGroup.addLayer(badgeMarker);
+    });
+  }
+}
+
+initBoundaries();
+
+document.getElementById('toggleBoundary').addEventListener('click', function() {
+  this.classList.toggle('active');
+  if (this.classList.contains('active')) boundaryGroup.addTo(map);
+  else map.removeLayer(boundaryGroup);
+});
+
+// ==================== 5. COMPACT MARKERS WITH SPOT NAMES ====================
+const markerGroup = L.layerGroup().addTo(map);
+const markersMap = new Map();
+
+function getCategoryColor(cat) {
+  switch(cat) {
+    case 'snow': return '#0284c7';
+    case 'lake': return '#0d9488';
+    case 'pass': return '#ea580c';
+    case 'culture': return '#be123c';
+    case 'pasture': return '#16a34a';
+    case 'road': return '#475569';
+    case 'geology': return '#334155';
+    default: return '#2563eb';
+  }
+}
+
+function getCategoryIcon(cat) {
+  switch(cat) {
+    case 'snow': return '🏔️';
+    case 'lake': return '💧';
+    case 'pass': return '🌄';
+    case 'culture': return '🏯';
+    case 'pasture': return '🌿';
+    case 'road': return '🛣️';
+    case 'geology': return '🗿';
+    default: return '📍';
+  }
+}
+
+function createCompactMarker(spot) {
+  const color = getCategoryColor(spot.category);
+  const icon = getCategoryIcon(spot.category);
+  const isSelected = spot.id === currentSelectedSpotId ? 'selected' : '';
+  
+  const html = `
+    <div class="spot-marker-wrap ${isSelected}" id="marker-${spot.id}">
+      <div class="marker-pin-compact" style="background: ${color};">
+        <span class="marker-icon-compact">${icon}</span>
+      </div>
+      <div class="marker-label-tag">${spot.name}</div>
+    </div>
+  `;
+  
+  return L.divIcon({
+    className: 'custom-spot-marker',
+    html: html,
+    iconSize: [70, 42],
+    iconAnchor: [35, 20]
+  });
+}
+
+function renderMarkers(spotsToRender) {
+  markerGroup.clearLayers();
+  markersMap.clear();
+
+  spotsToRender.forEach(spot => {
+    const marker = L.marker([spot.lat, spot.lng], {
+      icon: createCompactMarker(spot),
+      title: spot.name,
+      zIndexOffset: 100
+    });
+
+    marker.on('click', () => {
+      openSpotDetail(spot.id);
+    });
+
+    markerGroup.addLayer(marker);
+    markersMap.set(spot.id, marker);
+  });
+}
+
+// ==================== 6. ROUTE OVERLAYS ====================
+const routeLines = {
+  smallLoop: L.polyline(ROUTES_DATA.smallLoop, { color: '#2563eb', weight: 4.5, opacity: 0.85, dashArray: '8, 8' }),
+  g318: L.polyline(ROUTES_DATA.g318, { color: '#e11d48', weight: 4.5, opacity: 0.85 }),
+  g317: L.polyline(ROUTES_DATA.g317, { color: '#d97706', weight: 4.5, opacity: 0.85 }),
+  abaLoop: L.polyline(ROUTES_DATA.abaLoop, { color: '#059669', weight: 4.5, opacity: 0.85, dashArray: '6, 6' }),
+  lixiao: L.polyline(ROUTES_DATA.lixiao, { color: '#7c3aed', weight: 5, opacity: 0.9 })
+};
+
+document.getElementById('toggleSmallLoop').addEventListener('click', function() {
+  this.classList.toggle('active');
+  if (this.classList.contains('active')) routeLines.smallLoop.addTo(map);
+  else map.removeLayer(routeLines.smallLoop);
+});
+document.getElementById('toggle318').addEventListener('click', function() {
+  this.classList.toggle('active');
+  if (this.classList.contains('active')) routeLines.g318.addTo(map);
+  else map.removeLayer(routeLines.g318);
+});
+document.getElementById('toggle317').addEventListener('click', function() {
+  this.classList.toggle('active');
+  if (this.classList.contains('active')) routeLines.g317.addTo(map);
+  else map.removeLayer(routeLines.g317);
+});
+document.getElementById('toggleAbaLoop').addEventListener('click', function() {
+  this.classList.toggle('active');
+  if (this.classList.contains('active')) routeLines.abaLoop.addTo(map);
+  else map.removeLayer(routeLines.abaLoop);
+});
+document.getElementById('toggleLixiao').addEventListener('click', function() {
+  this.classList.toggle('active');
+  if (this.classList.contains('active')) routeLines.lixiao.addTo(map);
+  else map.removeLayer(routeLines.lixiao);
+});
+
+// ==================== 7. STREAMLINED SIDEBAR LOGIC ====================
+let currentFilterType = 'all';
+let currentFilterLoop = 'all';
+let currentSearchQuery = '';
+let currentSelectedSpotId = null;
+
+function filterSpots() {
+  return SPOTS_DATA.filter(spot => {
+    const matchType = (currentFilterType === 'all') || (spot.category === currentFilterType);
+    const matchLoop = (currentFilterLoop === 'all') || (spot.loop === currentFilterLoop);
+    const query = currentSearchQuery.trim().toLowerCase();
+    const matchQuery = !query || 
+      spot.name.toLowerCase().includes(query) ||
+      spot.location.toLowerCase().includes(query) ||
+      spot.core.toLowerCase().includes(query) ||
+      spot.altitude.toLowerCase().includes(query);
+
+    return matchType && matchLoop && matchQuery;
+  });
+}
+
+function renderSidebarList() {
+  const filtered = filterSpots();
+  const listEl = document.getElementById('spotsList');
+  document.getElementById('statsCount').textContent = `${filtered.length} 个点位`;
+
+  if (filtered.length === 0) {
+    listEl.innerHTML = `
+      <div style="text-align: center; padding: 40px 16px; color: #94a3b8;">
+        <div style="font-size: 28px; margin-bottom: 6px;">🔍</div>
+        <div style="font-size: 12px;">未找到匹配景点</div>
+      </div>
+    `;
+    renderMarkers([]);
+    return;
+  }
+
+  let html = '';
+  filtered.forEach(spot => {
+    const isSelected = spot.id === currentSelectedSpotId ? 'selected' : '';
+    const badgeClass = `badge-${spot.category}`;
+    const firstImg = (spot.photos && spot.photos.length > 0) ? spot.photos[0].url : `images/${spot.id}.jpg`;
+    
+    html += `
+      <div class="spot-card ${isSelected}" data-id="${spot.id}">
+        <img src="${firstImg}" alt="${spot.name}" class="spot-card-thumb" loading="lazy" onerror="this.src='images/yading.jpg'" />
+        <div class="spot-card-info">
+          <div class="spot-card-top">
+            <span class="spot-card-title">${spot.name}</span>
+            <span class="spot-badge ${badgeClass}">${spot.categoryName}</span>
+          </div>
+          <div class="spot-meta">
+            <span>⛰️ ${spot.altitude.split(' ')[0]}</span>
+            <span>📍 ${spot.location.split('（')[0].replace('甘孜州','').replace('阿坝州','')}</span>
+          </div>
+        </div>
+      </div>
+    `;
+  });
+
+  listEl.innerHTML = html;
+  renderMarkers(filtered);
+
+  listEl.querySelectorAll('.spot-card').forEach(card => {
+    card.addEventListener('click', () => {
+      openSpotDetail(card.dataset.id);
+    });
+  });
+}
+
+// Type chip clicks
+document.querySelectorAll('#typeFilters .chip').forEach(btn => {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('#typeFilters .chip').forEach(c => c.classList.remove('active'));
+    this.classList.add('active');
+    currentFilterType = this.dataset.type;
+    renderSidebarList();
+  });
+});
+
+// Loop filter clicks
+document.querySelectorAll('#loopFilters .loop-btn').forEach(btn => {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('#loopFilters .loop-btn').forEach(c => c.classList.remove('active'));
+    this.classList.add('active');
+    currentFilterLoop = this.dataset.loop;
+    renderSidebarList();
+  });
+});
+
+// Search input
+const searchInput = document.getElementById('searchInput');
+const searchClear = document.getElementById('searchClear');
+
+searchInput.addEventListener('input', function() {
+  currentSearchQuery = this.value;
+  searchClear.style.display = this.value ? 'block' : 'none';
+  renderSidebarList();
+});
+
+searchClear.addEventListener('click', function() {
+  searchInput.value = '';
+  currentSearchQuery = '';
+  this.style.display = 'none';
+  renderSidebarList();
+});
+
+const sidebar = document.getElementById('spotsSidebar');
+document.getElementById('btnToggleSidebar').addEventListener('click', () => {
+  sidebar.classList.remove('auto-mini');
+  sidebar.classList.toggle('collapsed');
+});
+
+// ==================== 8. EXPANDED DETAIL DRAWER (TWO-COLUMN & PHOTO MANAGEMENT) ====================
+const drawer = document.getElementById('detailDrawer');
+let currentPhotoIndex = 0;
+let currentPhotosList = [];
+
+// Toast notification helper
+function showToast(msg) {
+  const container = document.getElementById('toastContainer');
+  if (!container) return;
+  const el = document.createElement('div');
+  el.className = 'toast-popup';
+  el.textContent = msg;
+  container.appendChild(el);
+  setTimeout(() => {
+    if (el.parentNode) el.parentNode.removeChild(el);
+  }, 2600);
+}
+
+// Get effective photos for a spot, combining defaults and localStorage custom/deleted
+function getSpotPhotos(spotId) {
+  const spot = SPOTS_DATA.find(s => s.id === spotId);
+  if (!spot) return [];
+
+  const defaultPhotos = (spot.photos && spot.photos.length > 0)
+    ? spot.photos.map(p => ({ url: p.url, title: p.title, isCustom: false }))
+    : [{ url: `images/${spot.id}.jpg`, title: "景区代表实拍", isCustom: false }];
+
+  let customPhotos = [];
+  try {
+    const rawCustom = localStorage.getItem('custom_photos_' + spotId);
+    if (rawCustom) customPhotos = JSON.parse(rawCustom);
+  } catch (e) { console.error(e); }
+
+  let deletedPhotos = [];
+  try {
+    const rawDeleted = localStorage.getItem('deleted_photos_' + spotId);
+    if (rawDeleted) deletedPhotos = JSON.parse(rawDeleted);
+  } catch (e) { console.error(e); }
+
+  // Filter out deleted photos
+  const filteredDefaults = defaultPhotos.filter(p => !deletedPhotos.includes(p.url));
+  const filteredCustoms = customPhotos.filter(p => !deletedPhotos.includes(p.url));
+
+  return [...filteredDefaults, ...filteredCustoms];
+}
+
+function updateResetButtonVisibility(spotId) {
+  const btnReset = document.getElementById('btnResetPhotos');
+  if (!btnReset) return;
+  const hasCustom = !!localStorage.getItem('custom_photos_' + spotId);
+  const hasDeleted = !!localStorage.getItem('deleted_photos_' + spotId);
+  btnReset.style.display = (hasCustom || hasDeleted) ? 'inline-flex' : 'none';
+}
+
+function switchGalleryPhoto(index) {
+  const mainPhoto = document.getElementById('drawerMainPhoto');
+  const captionText = document.getElementById('photoCaptionText');
+  const counterBadge = document.getElementById('photoCounterBadge');
+  const btnDelete = document.getElementById('btnDeleteCurrentPhoto');
+
+  if (!currentPhotosList || currentPhotosList.length === 0) {
+    currentPhotoIndex = 0;
+    mainPhoto.style.opacity = '0.4';
+    mainPhoto.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" fill="%23334155"><rect width="100%" height="100%" fill="%231e293b"/><text x="50%" y="50%" fill="%2394a3b8" font-size="16" text-anchor="middle" dominant-baseline="middle">画廊暂无图片，请点击下方添加</text></svg>';
+    captionText.textContent = "暂无实拍照片";
+    counterBadge.textContent = "0 / 0";
+    if (btnDelete) btnDelete.disabled = true;
+    return;
+  }
+
+  if (btnDelete) btnDelete.disabled = false;
+  if (index < 0) index = 0;
+  if (index >= currentPhotosList.length) index = currentPhotosList.length - 1;
+  currentPhotoIndex = index;
+
+  const p = currentPhotosList[index];
+  mainPhoto.style.opacity = '0.3';
+  setTimeout(() => {
+    mainPhoto.src = p.url;
+    mainPhoto.style.opacity = '1';
+  }, 100);
+
+  captionText.textContent = p.title || `视角 ${index + 1}`;
+  counterBadge.textContent = `${index + 1} / ${currentPhotosList.length}`;
+
+  // Update active thumbnail in grid
+  document.querySelectorAll('.thumb-card').forEach((card, idx) => {
+    card.classList.toggle('active', idx === index);
+  });
+}
+
+function renderGalleryThumbs() {
+  const thumbsGrid = document.getElementById('galleryThumbsGrid');
+  const countText = document.getElementById('galleryCountText');
+  if (!thumbsGrid) return;
+
+  countText.textContent = `共 ${currentPhotosList.length} 张`;
+
+  if (currentPhotosList.length === 0) {
+    thumbsGrid.innerHTML = `
+      <div style="grid-column: 1 / -1; text-align: center; padding: 20px 8px; color: #94a3b8; font-size: 11.5px;">
+        已删除所有照片，可点击【粘贴外链】或【恢复默认】
+      </div>
+    `;
+    return;
+  }
+
+  let html = '';
+  currentPhotosList.forEach((p, idx) => {
+    const isActive = idx === currentPhotoIndex ? 'active' : '';
+    let tag = idx === 0 ? '主视角' : (p.title && p.title.includes('秋') ? '金秋' : (p.isCustom ? '自定义' : `视角${idx+1}`));
+    html += `
+      <div class="thumb-card ${isActive}" data-idx="${idx}" title="${p.title}">
+        <img src="${p.url}" alt="${p.title}" referrerpolicy="no-referrer" onerror="this.src='images/yading.jpg'" />
+        <span class="thumb-tag-badge">${tag}</span>
+        <div class="thumb-delete-icon" data-del-idx="${idx}" title="从画廊中删除此图">✕</div>
+      </div>
+    `;
+  });
+
+  thumbsGrid.innerHTML = html;
+
+  // Bind clicks to switch photo
+  thumbsGrid.querySelectorAll('.thumb-card').forEach(card => {
+    card.addEventListener('click', function(e) {
+      if (e.target.classList.contains('thumb-delete-icon')) return;
+      const idx = parseInt(this.dataset.idx, 10);
+      switchGalleryPhoto(idx);
+    });
+  });
+
+  // Bind delete icon clicks
+  thumbsGrid.querySelectorAll('.thumb-delete-icon').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      const idx = parseInt(this.dataset.delIdx, 10);
+      deletePhotoAt(idx);
+    });
+  });
+}
+
+function deletePhotoAt(index) {
+  if (!currentSelectedSpotId) return;
+  if (!currentPhotosList || index < 0 || index >= currentPhotosList.length) return;
+
+  const photoToDelete = currentPhotosList[index];
+  const confirmMsg = `确定要从当前景点画廊中删除【${photoToDelete.title || '该照片'}】吗？\n（系统内置照片删除后随时可点击“恢复默认”找回）`;
+  if (!confirm(confirmMsg)) return;
+
+  // Track deletion in localStorage
+  let deletedPhotos = [];
+  try {
+    const rawDeleted = localStorage.getItem('deleted_photos_' + currentSelectedSpotId);
+    if (rawDeleted) deletedPhotos = JSON.parse(rawDeleted);
+  } catch (e) {}
+
+  if (!deletedPhotos.includes(photoToDelete.url)) {
+    deletedPhotos.push(photoToDelete.url);
+    localStorage.setItem('deleted_photos_' + currentSelectedSpotId, JSON.stringify(deletedPhotos));
+  }
+
+  // If it was a custom photo, also remove from custom_photos_
+  if (photoToDelete.isCustom) {
+    try {
+      const rawCustom = localStorage.getItem('custom_photos_' + currentSelectedSpotId);
+      if (rawCustom) {
+        let customList = JSON.parse(rawCustom);
+        customList = customList.filter(cp => cp.url !== photoToDelete.url);
+        localStorage.setItem('custom_photos_' + currentSelectedSpotId, JSON.stringify(customList));
+      }
+    } catch (e) {}
+  }
+
+  // Re-fetch and re-render
+  currentPhotosList = getSpotPhotos(currentSelectedSpotId);
+  if (currentPhotoIndex >= currentPhotosList.length) {
+    currentPhotoIndex = Math.max(0, currentPhotosList.length - 1);
+  }
+
+  renderGalleryThumbs();
+  switchGalleryPhoto(currentPhotoIndex);
+  updateResetButtonVisibility(currentSelectedSpotId);
+  showToast('🗑️ 照片已成功从画廊中移除');
+}
+
+function addCustomPhoto(url, title) {
+  if (!currentSelectedSpotId) return;
+  const cleanUrl = url.trim();
+  if (!cleanUrl) return;
+
+  const cleanTitle = title.trim() || '自选实拍图';
+
+  let customPhotos = [];
+  try {
+    const rawCustom = localStorage.getItem('custom_photos_' + currentSelectedSpotId);
+    if (rawCustom) customPhotos = JSON.parse(rawCustom);
+  } catch (e) {}
+
+  // Remove from deleted list if it was deleted previously
+  try {
+    const rawDeleted = localStorage.getItem('deleted_photos_' + currentSelectedSpotId);
+    if (rawDeleted) {
+      let deletedList = JSON.parse(rawDeleted);
+      deletedList = deletedList.filter(u => u !== cleanUrl);
+      localStorage.setItem('deleted_photos_' + currentSelectedSpotId, JSON.stringify(deletedList));
+    }
+  } catch (e) {}
+
+  customPhotos.push({
+    url: cleanUrl,
+    title: cleanTitle,
+    isCustom: true
+  });
+  localStorage.setItem('custom_photos_' + currentSelectedSpotId, JSON.stringify(customPhotos));
+
+  // Reload photos
+  currentPhotosList = getSpotPhotos(currentSelectedSpotId);
+  currentPhotoIndex = currentPhotosList.length - 1;
+  renderGalleryThumbs();
+  switchGalleryPhoto(currentPhotoIndex);
+  updateResetButtonVisibility(currentSelectedSpotId);
+  showToast('✅ 成功添加新照片并持久保存在本地！');
+}
+
+function resetSpotPhotos(spotId) {
+  if (!spotId) return;
+  if (!confirm('确定要恢复该景点的初始默认实拍照片吗？\n（将清除针对该景点的自定义添加和删除记录）')) return;
+
+  localStorage.removeItem('custom_photos_' + spotId);
+  localStorage.removeItem('deleted_photos_' + spotId);
+
+  currentPhotosList = getSpotPhotos(spotId);
+  currentPhotoIndex = 0;
+  renderGalleryThumbs();
+  switchGalleryPhoto(0);
+  updateResetButtonVisibility(spotId);
+  showToast('↺ 已恢复系统初始默认实拍照片！');
+}
+
+function openSpotDetail(spotId) {
+  const spot = SPOTS_DATA.find(s => s.id === spotId);
+  if (!spot) return;
+
+  currentSelectedSpotId = spotId;
+
+  // Auto-minimize left sidebar so focus is on detail & map!
+  sidebar.classList.add('auto-mini');
+  document.getElementById('sidebarToggleLabel').textContent = '展开列表';
+
+  // Highlight card in sidebar list
+  document.querySelectorAll('.spot-card').forEach(c => {
+    c.classList.toggle('selected', c.dataset.id === spotId);
+  });
+
+  // Highlight marker on map
+  document.querySelectorAll('.spot-marker-wrap').forEach(m => {
+    m.classList.remove('selected');
+  });
+  const elMarker = document.getElementById(`marker-${spotId}`);
+  if (elMarker) elMarker.classList.add('selected');
+
+  // Load photos from data repository + localStorage overrides
+  currentPhotosList = getSpotPhotos(spotId);
+  currentPhotoIndex = 0;
+
+  renderGalleryThumbs();
+  switchGalleryPhoto(0);
+  updateResetButtonVisibility(spotId);
+
+  // Header texts
+  document.getElementById('drawerTitle').textContent = spot.name;
+  document.getElementById('drawerAlias').textContent = spot.alias;
+  
+  const tagsHtml = `
+    <span class="spot-badge badge-${spot.category}" style="font-size: 11px; padding: 2px 8px;">${spot.categoryName}</span>
+    <span style="font-size: 11px; background: #e0f2fe; color: #0284c7; padding: 2px 8px; border-radius: 6px; font-weight: 600;">秋季重点推荐</span>
+    <span style="font-size: 11px; background: #f1f5f9; color: #475569; padding: 2px 7px; border-radius: 6px; font-weight: 500;">${spot.loop === 'small' ? '川西小环' : spot.loop === 'big' ? '川西大环' : spot.loop === 'aba' ? '阿坝北线' : '甘孜深环'}</span>
+  `;
+  document.getElementById('drawerTags').innerHTML = tagsHtml;
+
+  document.getElementById('specAltitude').textContent = spot.altitude;
+  document.getElementById('specLocation').textContent = spot.location;
+  document.getElementById('specWeather').textContent = spot.weatherDep;
+  document.getElementById('specVehicle').textContent = spot.vehicle.split('/')[0];
+
+  document.getElementById('descCore').textContent = spot.core;
+  document.getElementById('descAutumn').innerHTML = `<strong>🍁 最佳季节与秋季特色：</strong> ${spot.autumn}`;
+
+  // Decision dimensions: Chengdu Route, Fees, Internal Hiking
+  const elChengdu = document.getElementById('descChengdu');
+  if (elChengdu) {
+    elChengdu.innerHTML = spot.chengduTraffic 
+      ? `<strong>🚗 从成都出发路线与耗时：</strong> ${spot.chengduTraffic}`
+      : `<strong>🚗 从成都出发：</strong> ${spot.traffic}`;
+  }
+
+  const elFees = document.getElementById('descFees');
+  if (elFees) {
+    elFees.innerHTML = spot.feeDetail
+      ? `<strong>💰 门票与交通费用清单：</strong> ${spot.feeDetail}`
+      : `<strong>💰 门票费用：</strong> 以景区现场和官方平台公示为准。`;
+  }
+
+  const elInternalTransit = document.getElementById('descInternalTransit');
+  if (elInternalTransit) {
+    elInternalTransit.innerHTML = spot.internalTransit
+      ? `<strong>⚠️ 通达性与硬核徒步判定：</strong> ${spot.internalTransit}`
+      : `<strong>⚠️ 内部交通：</strong> 景区内常规道路步行或摆渡。`;
+  }
+
+  // Standalone guide banner trigger
+  const standaloneBanner = document.getElementById('standaloneBanner');
+  const standalonePath = STANDALONE_PAGES[spotId];
+  if (standaloneBanner) {
+    if (standalonePath) {
+      standaloneBanner.style.display = 'block';
+      const btnOpen = document.getElementById('btnOpenStandalonePage');
+      if (btnOpen) {
+        btnOpen.onclick = () => window.open(standalonePath, '_blank');
+      }
+    } else {
+      standaloneBanner.style.display = 'none';
+    }
+  }
+
+  document.getElementById('descWeather').innerHTML = `<strong>☀️ 天气与能见度：</strong> ${spot.weather}`;
+  document.getElementById('descTraffic').innerHTML = `<strong>🚗 交通与路况：</strong> ${spot.traffic}`;
+  document.getElementById('descTips').innerHTML = `<strong>⚠️ 预约与避坑提示：</strong> ${spot.tips}`;
+  document.getElementById('descSource').innerHTML = `📌 <strong>权威调研来源：</strong> ${spot.source}`;
+
+  // Smart fly to: Shift map center so marker sits in the middle of the VISIBLE left canvas!
+  flyToSpotWithOffset(spot.lat, spot.lng, 10.5);
+
+  // Open drawer
+  drawer.classList.add('open');
+}
+
+// Offset map center so spot is nicely centered in the left visible map area
+function flyToSpotWithOffset(lat, lng, zoom = 10.5) {
+  const isDesktop = window.innerWidth > 820;
+  const drawerW = isDesktop ? (drawer.offsetWidth || 840) : 0;
+  
+  if (drawerW > 0) {
+    const targetPx = map.project([lat, lng], zoom);
+    // Shift center right by drawerW/2 -> marker appears centered in the visible left map area
+    const offsetPx = targetPx.add([drawerW / 2, 0]);
+    const offsetLatLng = map.unproject(offsetPx, zoom);
+    map.flyTo(offsetLatLng, zoom, { duration: 1.1 });
+  } else {
+    map.flyTo([lat, lng], zoom, { duration: 1.1 });
+  }
+}
+
+function closeSpotDetail() {
+  drawer.classList.remove('open');
+  currentSelectedSpotId = null;
+  document.querySelectorAll('.spot-card').forEach(c => c.classList.remove('selected'));
+  document.querySelectorAll('.spot-marker-wrap').forEach(m => m.classList.remove('selected'));
+
+  // Restore left sidebar when drawer is closed
+  sidebar.classList.remove('auto-mini');
+  document.getElementById('sidebarToggleLabel').textContent = '☰ 列表';
+}
+
+document.getElementById('drawerCloseBtn').addEventListener('click', closeSpotDetail);
+
+// FlyTo Button in Drawer
+document.getElementById('btnFlyTo').addEventListener('click', () => {
+  if (!currentSelectedSpotId) return;
+  const spot = SPOTS_DATA.find(s => s.id === currentSelectedSpotId);
+  if (spot) flyToSpotWithOffset(spot.lat, spot.lng, 11.5);
+});
+
+// External Map navigation
+document.getElementById('btnExternalMap').addEventListener('click', () => {
+  if (!currentSelectedSpotId) return;
+  const spot = SPOTS_DATA.find(s => s.id === currentSelectedSpotId);
+  if (spot) {
+    const url = `https://uri.amap.com/marker?position=${spot.lng},${spot.lat}&name=${encodeURIComponent(spot.name)}`;
+    window.open(url, '_blank');
+  }
+});
+
+// Delete Current Photo button
+document.getElementById('btnDeleteCurrentPhoto').addEventListener('click', () => {
+  deletePhotoAt(currentPhotoIndex);
+});
+
+// Reset Photos button
+document.getElementById('btnResetPhotos').addEventListener('click', () => {
+  resetSpotPhotos(currentSelectedSpotId);
+});
+
+// Local File Upload Input
+document.getElementById('localFileInput').addEventListener('change', function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(evt) {
+    const dataUrl = evt.target.result;
+    const title = `本地实拍: ${file.name.replace(/\.[^/.]+$/, '')}`;
+    addCustomPhoto(dataUrl, title);
+  };
+  reader.readAsDataURL(file);
+  this.value = ''; // Reset input so same file can be re-selected if needed
+});
+
+// Paste Image URL Modal logic
+const photoModal = document.getElementById('photoUrlModal');
+const inputPhotoUrl = document.getElementById('inputPhotoUrl');
+const inputPhotoTitle = document.getElementById('inputPhotoTitle');
+
+document.getElementById('btnPasteImageUrl').addEventListener('click', () => {
+  inputPhotoUrl.value = '';
+  inputPhotoTitle.value = '';
+  photoModal.style.display = 'flex';
+  setTimeout(() => inputPhotoUrl.focus(), 100);
+});
+
+function closePhotoModal() {
+  photoModal.style.display = 'none';
+}
+
+document.getElementById('btnClosePhotoModal').addEventListener('click', closePhotoModal);
+document.getElementById('btnCancelPhotoModal').addEventListener('click', closePhotoModal);
+
+photoModal.addEventListener('click', (e) => {
+  if (e.target === photoModal) closePhotoModal();
+});
+
+document.getElementById('btnConfirmPhotoAdd').addEventListener('click', () => {
+  const url = inputPhotoUrl.value.trim();
+  const title = inputPhotoTitle.value.trim();
+  if (!url) {
+    alert('请输入有效的图片链接 URL！');
+    inputPhotoUrl.focus();
+    return;
+  }
+  addCustomPhoto(url, title);
+  closePhotoModal();
+});
+
+// Enter key submit in modal
+inputPhotoUrl.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    document.getElementById('btnConfirmPhotoAdd').click();
+  }
+});
+inputPhotoTitle.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    document.getElementById('btnConfirmPhotoAdd').click();
+  }
+});
+
+// Escape key closes modal or drawer
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    if (photoModal.style.display === 'flex') {
+      closePhotoModal();
+    } else {
+      closeSpotDetail();
+    }
+  }
+});
+
+// Initialize on Load
+renderSidebarList();
+
+// Auto-navigate and focus on spot if URL contains ?spot=<id>
+(function checkUrlSpotParam() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const targetSpot = urlParams.get('spot');
+  if (targetSpot) {
+    setTimeout(() => {
+      openSpotDetail(targetSpot);
+    }, 350);
+  }
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>稻城亚丁深度决策手账与内部子景点路书 - 川西自驾指南</title>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --accent-gold: #d97706;
+      --bg-light: #f8fafc;
+      --card-bg: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --danger: #e11d48;
+      --success: #16a34a;
+      --shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.06);
+      --shadow-md: 0 10px 25px -4px rgba(15, 23, 42, 0.1);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      color: var(--text-main);
+      background: var(--bg-light);
+      line-height: 1.65;
+      padding-bottom: 80px;
+    }
+    /* Top Sticky Navigation Bar */
+    .top-nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: var(--shadow-sm);
+    }
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 15px;
+      color: #0f172a;
+    }
+    .nav-back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      background: #eff6ff;
+      color: var(--primary);
+      border: 1px solid #bfdbfe;
+      border-radius: 9999px;
+      font-size: 13px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .nav-back-btn:hover {
+      background: var(--primary);
+      color: #ffffff;
+      transform: translateY(-1px);
+    }
+
+    /* Container */
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 20px 16px;
+    }
+
+    /* Hero Banner */
+    .spot-hero {
+      position: relative;
+      width: 100%;
+      height: 380px;
+      border-radius: 20px;
+      overflow: hidden;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow-md);
+      background: #0f172a;
+    }
+    .spot-hero img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0.92;
+    }
+    .hero-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 30px 24px 20px;
+      background: linear-gradient(180deg, transparent 0%, rgba(15, 23, 42, 0.88) 100%);
+      color: #ffffff;
+    }
+    .hero-title {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      margin-bottom: 6px;
+    }
+    .hero-subtitle {
+      font-size: 14px;
+      color: #cbd5e1;
+      margin-bottom: 12px;
+    }
+    .hero-tags-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .hero-badge {
+      font-size: 11.5px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-weight: 600;
+      backdrop-filter: blur(8px);
+    }
+    .badge-alt { background: rgba(255,255,255,0.22); color: #ffffff; }
+    .badge-diff { background: rgba(225, 29, 72, 0.85); color: #ffffff; }
+    .badge-autumn { background: rgba(217, 119, 6, 0.9); color: #ffffff; }
+
+    /* Quick Decision Metric Grid */
+    .decision-summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .summary-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 16px;
+      box-shadow: var(--shadow-sm);
+    }
+    .summary-card-title {
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+    .summary-card-value {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    /* Content Modules */
+    .content-section {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 24px 22px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow-sm);
+    }
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    .section-icon {
+      font-size: 22px;
+      line-height: 1;
+    }
+    .section-heading {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    /* Route Box */
+    .traffic-box {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .traffic-item {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 14px 16px;
+    }
+    .traffic-item-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #1e293b;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .traffic-item-desc {
+      font-size: 13px;
+      color: #475569;
+      line-height: 1.6;
+    }
+
+    /* Fee Table */
+    .fee-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0;
+      font-size: 13px;
+    }
+    .fee-table th {
+      background: #f1f5f9;
+      padding: 10px 12px;
+      text-align: left;
+      font-weight: 700;
+      color: #334155;
+      border: 1px solid #e2e8f0;
+    }
+    .fee-table td {
+      padding: 10px 12px;
+      border: 1px solid #e2e8f0;
+      color: #334155;
+    }
+    .fee-table tr:nth-child(even) { background: #fafbfc; }
+    .fee-badge-must {
+      background: #fee2e2;
+      color: #b91c1c;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 10.5px;
+      font-weight: 700;
+    }
+    .fee-badge-opt {
+      background: #dbeafe;
+      color: #1d4ed8;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 10.5px;
+      font-weight: 700;
+    }
+
+    /* Internal Route Flow Chart */
+    .route-flow-box {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: 14px;
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+    .flow-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      position: relative;
+      padding-bottom: 16px;
+    }
+    .flow-step:last-child { padding-bottom: 0; }
+    .flow-step::before {
+      content: '';
+      position: absolute;
+      left: 14px;
+      top: 26px;
+      bottom: -2px;
+      width: 2px;
+      background: #86efac;
+    }
+    .flow-step:last-child::before { display: none; }
+    .step-node {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: #16a34a;
+      color: #ffffff;
+      font-size: 13px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      z-index: 2;
+    }
+    .step-node.node-danger {
+      background: #e11d48;
+    }
+    .step-content {
+      flex: 1;
+    }
+    .step-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 2px;
+    }
+    .step-meta {
+      font-size: 12px;
+      color: #64748b;
+    }
+    .step-transit-tag {
+      display: inline-block;
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      margin-top: 4px;
+    }
+    .transit-bus { background: #e0f2fe; color: #0369a1; }
+    .transit-cart { background: #fef3c7; color: #92400e; }
+    .transit-hike { background: #fee2e2; color: #991b1b; }
+
+    /* Sub-Spots Photo & Text Cards */
+    .subspots-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+    .subspot-card {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+    }
+    @media(min-width: 720px) {
+      .subspot-card {
+        flex-direction: row;
+      }
+      .subspot-img-box {
+        width: 380px;
+        flex-shrink: 0;
+      }
+    }
+    .subspot-img-box {
+      position: relative;
+      height: 240px;
+      background: #0f172a;
+    }
+    .subspot-img-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .subspot-badge {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(15, 23, 42, 0.8);
+      color: #ffffff;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .subspot-body {
+      padding: 16px 18px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .subspot-title {
+      font-size: 17px;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .subspot-desc {
+      font-size: 13px;
+      color: #334155;
+      line-height: 1.6;
+      margin-bottom: 10px;
+    }
+    .subspot-tips {
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      color: #92400e;
+      line-height: 1.5;
+    }
+
+    /* Warning Callout Box */
+    .warning-box {
+      background: #fff1f2;
+      border: 1px solid #fecdd3;
+      border-radius: 14px;
+      padding: 16px 18px;
+      margin-bottom: 24px;
+    }
+    .warning-title {
+      font-size: 14.5px;
+      font-weight: 700;
+      color: #be123c;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .warning-desc {
+      font-size: 13px;
+      color: #881337;
+      line-height: 1.6;
+    }
+
+    /* Bottom Floating Bar */
+    .bottom-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 99;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(12px);
+      border-top: 1px solid var(--border);
+      padding: 12px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 -4px 16px rgba(0,0,0,0.06);
+    }
+    .bottom-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 18px;
+      background: var(--primary);
+      color: #ffffff;
+      border-radius: 10px;
+      font-size: 13.5px;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+    .bottom-btn:hover { background: var(--primary-dark); }
+  </style>
+</head>
+<body>
+
+  <!-- Top Sticky Navigation Bar -->
+  <header class="top-nav">
+    <div class="nav-brand">
+      <span>🏔️ 川西自驾路书</span>
+      <span style="color: #cbd5e1;">|</span>
+      <span>稻城亚丁深度决策手账</span>
+    </div>
+    <a href="../川西自驾与景点交互地图.html?spot=yading" class="nav-back-btn">
+      <span>🗺️ 返回主地图并定位</span>
+    </a>
+  </header>
+
+  <main class="container">
+
+    <!-- Hero Banner -->
+    <section class="spot-hero">
+      <img src="../images/yading.jpg" alt="稻城亚丁洛绒牛场与央迈勇神山" referrerpolicy="no-referrer" onerror="this.src='../images/yading_autumn1.jpg'" />
+      <div class="hero-overlay">
+        <h1 class="hero-title">稻城亚丁国家级自然保护区</h1>
+        <p class="hero-subtitle">水蓝色的星球上的最后一片净土 · 三怙主神山金秋圣境</p>
+        <div class="hero-tags-row">
+          <span class="hero-badge badge-alt">⛰️ 海拔 2900m ~ 4700m</span>
+          <span class="hero-badge badge-diff">⚠️ 徒步强度：地狱级（高反长线10-12km）</span>
+          <span class="hero-badge badge-autumn">🍁 最佳季节：10月中旬 ~ 11月上旬</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Quick Decision Metric Cards -->
+    <section class="decision-summary-grid">
+      <div class="summary-card">
+        <div class="summary-card-title">🚗 成都出发车程</div>
+        <div class="summary-card-value">12-14h / 780km (过路费~95元)</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-card-title">💰 门票及小交通全预算</div>
+        <div class="summary-card-value">¥336 ~ ¥640 /人</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-card-title">☀️ 天气依赖程度</div>
+        <div class="summary-card-value">极度依赖晴天（阴雨体验归零）</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-card-title">🥾 观光车通达限制</div>
+        <div class="summary-card-value" style="color: var(--danger);">洛绒牛场后无车！长线必须徒步</div>
+      </div>
+    </section>
+
+    <!-- Critical Alert Box -->
+    <div class="warning-box">
+      <div class="warning-title">⚠️ 稻城亚丁核心决策第一原则：体能与通达性预警</div>
+      <div class="warning-desc">
+        从景区大门乘坐大巴只能到达【扎灌崩(3800m)】，换乘电瓶车只能到达【洛绒牛场(4180m)】！<strong>洛绒牛场至牛奶海(4600m)及五色海(4700m)绝对无机动车与电瓶车通行</strong>！全长往返 10-12 公里，必须纯靠双脚在高海拔缺氧碎石陡坡爬升 520 米，往返耗时 5-7 小时。老人、心脑血管疾病患者、幼儿切勿强行尝试长线！
+      </div>
+    </div>
+
+    <!-- Module 1: How to get from Chengdu -->
+    <section class="content-section">
+      <div class="section-header">
+        <span class="section-icon">🚗</span>
+        <h2 class="section-heading">从成都出发怎么去：路线、车程与公共交通</h2>
+      </div>
+      <div class="traffic-box">
+        <div class="traffic-item">
+          <div class="traffic-item-title">🚘 推荐自驾路线（经典318大环线段）</div>
+          <div class="traffic-item-desc">
+            <strong>路线规划：</strong> 成都 ➔ 雅康高速 ➔ 康定 ➔ G318 (翻越折多山4298m) ➔ 新都桥 ➔ 剪子弯山 ➔ 卡子拉山 ➔ 理塘 (世界高城) ➔ G227 ➔ 稻城县 ➔ 香格里拉镇 (日瓦镇景区大门)。<br/>
+            <strong>里程与耗时：</strong> 全程约 780 公里，净车程约 12-14 小时。雅康高速过路费约 95 元，其余国道免费。<br/>
+            <strong>建议自驾节奏：</strong> 严禁一天飙拢！建议 D1 宿康定或新都桥适应海拔；D2 经雅江、理塘到达香格里拉镇（海拔仅2900m），保障血氧睡眠与第3天充沛体力。
+          </div>
+        </div>
+
+        <div class="traffic-item">
+          <div class="traffic-item-title">🚌 公共客运大巴</div>
+          <div class="traffic-item-desc">
+            <strong>发车站台：</strong> 成都新南门旅游集散中心，隔日发一班直达稻城客运站班车，发车时间为早晨 06:40，票价约 270 元/人。<br/>
+            <strong>行车方式：</strong> 需用时 2 天才能到达，第一晚在大巴指定中转站（通常为康定）自理住宿；到达稻城县客运站后，再乘拼车/乡村客运班车（约50元/人，1.5h）到达香格里拉镇。
+          </div>
+        </div>
+
+        <div class="traffic-item">
+          <div class="traffic-item-title">✈️ 飞机直飞方案（风险提醒）</div>
+          <div class="traffic-item-desc">
+            成都天府机场每天有早班机直飞【稻城亚丁机场】（飞行约1小时，票价约800-1500元）。但<strong>亚丁机场海拔高达 4411 米（世界第一高民用机场）</strong>，一下飞机空气含氧量骤减 40%，极易突发急性脑水肿与剧烈偏头痛。若选择直飞，出机场必须立刻乘机场大巴下撤至日瓦镇（2900m）卧床静养吸氧，切勿盲目直接入园。
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Module 2: Fee Details -->
+    <section class="content-section">
+      <div class="section-header">
+        <span class="section-icon">💰</span>
+        <h2 class="section-heading">景区门票与内部各项费用全透明账单</h2>
+      </div>
+      <p style="font-size: 13px; color: #64748b; margin-bottom: 10px;">门票自购买起 2 天内有效。如需第 2 天二次进沟，第一天出园检票口前必须在人脸识别机完成面部录入。</p>
+      
+      <table class="fee-table">
+        <thead>
+          <tr>
+            <th>收费项目</th>
+            <th>收费标准</th>
+            <th>性质</th>
+            <th>说明与决策建议</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>景区大门票</strong></td>
+            <td>旺季 ¥146 / 淡季 ¥73</td>
+            <td><span class="fee-badge-must">必须购买</span></td>
+            <td>旺季4月1日-11月30日；淡季12月1日-次年3月31日。学生/老人半价。</td>
+          </tr>
+          <tr>
+            <td><strong>大巴观光车</strong></td>
+            <td>¥120 /人 (往返)</td>
+            <td><span class="fee-badge-must">必须购买</span></td>
+            <td>游客中心至扎灌崩单程 34km 险峻盘山公路，车程约 50-60 分钟。第2天二次进沟观光车享半价 ¥60。</td>
+          </tr>
+          <tr>
+            <td><strong>内部电瓶摆渡车</strong></td>
+            <td>往返 ¥70~80 / 单程 ¥40</td>
+            <td><span class="fee-badge-opt">强烈建议买</span></td>
+            <td>扎灌崩/冲古寺至洛绒牛场单程 6.7km。坐车仅需 20 分钟；不坐需徒步 2 小时柏油栈道，会过早耗尽冲顶牛奶海的体能。</td>
+          </tr>
+          <tr>
+            <td><strong>特种马帮骑马</strong></td>
+            <td>往返 ¥305 /人</td>
+            <td><span class="fee-badge-opt">自选限量</span></td>
+            <td>由当地藏民马帮运营，仅限洛绒牛场至舍身崖路段（每天限量约300匹，早晨8点前排空）。<strong>注意：骑马不能直达牛奶海！</strong>最后最陡峭的2km乱石悬崖依然必须纯徒步！</td>
+          </tr>
+        </tbody>
+      </table>
+      <div style="background: #f1f5f9; padding: 10px 14px; border-radius: 8px; font-size: 12.5px; font-weight: 600; color: #1e293b; margin-top: 8px;">
+        💡 <strong>全口径常规预算小计：</strong> 门票146 + 观光车120 + 电瓶车70 = <strong>¥336 元/人</strong>（若骑马则为 ¥641 元/人）。
+      </div>
+    </section>
+
+    <!-- Module 3: Internal Routes and Traffic Constraints -->
+    <section class="content-section">
+      <div class="section-header">
+        <span class="section-icon">🗺️</span>
+        <h2 class="section-heading">内部游览动线与内部交通通达性剖析</h2>
+      </div>
+
+      <div class="route-flow-box">
+        <div class="flow-step">
+          <div class="step-node">1</div>
+          <div class="step-content">
+            <div class="step-name">香格里拉镇游客中心 (海拔2900m)</div>
+            <div class="step-meta">检票入园，必须统一乘坐景区大巴观光车</div>
+            <span class="step-transit-tag transit-bus">🚌 观光大巴 · 单程 34km / 50分钟</span>
+          </div>
+        </div>
+
+        <div class="flow-step">
+          <div class="step-node">2</div>
+          <div class="step-content">
+            <div class="step-name">扎灌崩站 (海拔3800m) ➔ 冲古草甸 (3900m)</div>
+            <div class="step-meta">大巴终点站，平缓步行 500 米到达冲古寺分叉十字路口</div>
+            <span class="step-transit-tag transit-cart">🛺 短线与长线路线决策分叉点</span>
+          </div>
+        </div>
+
+        <div class="flow-step">
+          <div class="step-node">3A</div>
+          <div class="step-content">
+            <div class="step-name">【短线半日游】卓玛拉措/珍珠海 (海拔4080m)</div>
+            <div class="step-meta">从冲古寺沿木栈道爬升 1.5km（爬升约100米），耗时 1.5-2 小时。近距离仰望仙乃日神山与圣湖倒影，老少皆宜。</div>
+            <span class="step-transit-tag transit-hike">🥾 纯木栈道轻徒步 · 往返 3km</span>
+          </div>
+        </div>
+
+        <div class="flow-step">
+          <div class="step-node">3B</div>
+          <div class="step-content">
+            <div class="step-name">【长线全日游】冲古寺 ➔ 洛绒牛场 (海拔4180m)</div>
+            <div class="step-meta">乘坐电瓶车单程 6.7 公里（约20分钟），到达三座神山环抱的开阔平原湿地。</div>
+            <span class="step-transit-tag transit-cart">🛺 景区电瓶车 · 往返 70元</span>
+          </div>
+        </div>
+
+        <div class="flow-step">
+          <div class="step-node node-danger">4</div>
+          <div class="step-content">
+            <div class="step-name" style="color: var(--danger);">【长线冲刺段】洛绒牛场 ➔ 舍身崖 ➔ 牛奶海 ➔ 五色海</div>
+            <div class="step-meta"><strong>⚠️ 观光车/电瓶车绝无法到达！</strong>必须纯高海拔徒步往返 10-12 公里，从 4180m 爬升至 4700m。途经泥泞马道、碎石险坡、金属挂壁栈道。耗时 5-7 小时，14:30 以后洛绒牛场卡口禁止上行。</div>
+            <span class="step-transit-tag transit-hike" style="background: #fee2e2; color: #991b1b;">🥾 严酷高原徒步 · 往返 10-12km / 爬升520m</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Module 4: Sub-Spots Photo Gallery & Review -->
+    <section class="content-section">
+      <div class="section-header">
+        <span class="section-icon">📷</span>
+        <h2 class="section-heading">各内部子景点小红书实拍深度画廊与出片机位</h2>
+      </div>
+
+      <div class="subspots-grid">
+
+        <!-- Subspot 1: Luorong Pasture -->
+        <article class="subspot-card">
+          <div class="subspot-img-box">
+            <img src="../images/yading.jpg" alt="洛绒牛场" referrerpolicy="no-referrer" />
+            <span class="subspot-badge">子景点 1 · 海拔 4180m</span>
+          </div>
+          <div class="subspot-body">
+            <div>
+              <h3 class="subspot-title">洛绒牛场与央迈勇雪峰</h3>
+              <p class="subspot-desc">三座神山怀抱中的高山湿地。贡嘎银河般的冰川溪流在草甸上划出纯美的“S”型回旋，成群牦牛漫步，正前方是如白玉利刃般挺拔的央迈勇雪山。金秋时节草甸全线灿金。</p>
+            </div>
+            <div class="subspot-tips">
+              📸 <strong>出片机位：</strong> 下午 14:00-16:00 顺光，站在木栈道折弯处蹲下，以S型溪流为纵深引导线，央迈勇居中对称构图，大片感扑面而来。
+            </div>
+          </div>
+        </article>
+
+        <!-- Subspot 2: Milk Lake -->
+        <article class="subspot-card">
+          <div class="subspot-img-box">
+            <img src="../images/yading_autumn2.jpg" alt="牛奶海" referrerpolicy="no-referrer" onerror="this.src='../images/yading_autumn1.jpg'" />
+            <span class="subspot-badge">子景点 2 · 海拔 4600m</span>
+          </div>
+          <div class="subspot-body">
+            <div>
+              <h3 class="subspot-title">牛奶海（俄绒措）</h3>
+              <p class="subspot-desc">深锁在央迈勇绝壁下的古冰川湖泊。湖边有一圈天然乳白色的矿物质沙环，中心湖水呈现从 Tiffany 蓝到深邃祖母绿的奇幻渐变，在荒凉冷傲的冰碛石堆中如同天使之泪。</p>
+            </div>
+            <div class="subspot-tips">
+              📸 <strong>出片机位：</strong> 沿通往五色海的碎石陡坡向上攀登 50 米，回首高位俯瞰牛奶海全貌，湖岸白色沙圈清晰可见，极具视觉冲击力。
+            </div>
+          </div>
+        </article>
+
+        <!-- Subspot 3: Five Color Lake -->
+        <article class="subspot-card">
+          <div class="subspot-img-box">
+            <img src="../images/yading_autumn1.jpg" alt="五色海" referrerpolicy="no-referrer" />
+            <span class="subspot-badge">子景点 3 · 海拔 4700m</span>
+          </div>
+          <div class="subspot-body">
+            <div>
+              <h3 class="subspot-title">五色海（丹增措）</h3>
+              <p class="subspot-desc">亚丁整个常规徒步路线的最高点（4700m）。背靠仙乃日直插云霄的千仞绝壁，湖水在强紫外线下折射出深蓝、墨绿与紫绀交织的光芒，湖畔悬挂着无数翻飞的五彩经幡。</p>
+            </div>
+            <div class="subspot-tips">
+              ⚠️ <strong>徒步建议：</strong> 从牛奶海登顶五色海虽然只有约 150 米距离，但属于极限台阶直拔，需慢步缓行，每走 20 步停下深呼吸，谨防剧烈眩晕。
+            </div>
+          </div>
+        </article>
+
+        <!-- Subspot 4: Chonggu Temple & Pearl Lake -->
+        <article class="subspot-card">
+          <div class="subspot-img-box">
+            <img src="../images/yading.jpg" alt="冲古草甸与珍珠海" referrerpolicy="no-referrer" />
+            <span class="subspot-badge">子景点 4 · 海拔 3900m ~ 4080m</span>
+          </div>
+          <div class="subspot-body">
+            <div>
+              <h3 class="subspot-title">冲古寺与卓玛拉措（珍珠海）</h3>
+              <p class="subspot-desc">短线精华所在。藏传古刹冲古寺红墙黄檐，坐落在仙乃日神山脚下。步行至珍珠海，雪山倒影在如翡翠般的碧绿湖水中，秋季四周密布金黄的落叶松林，犹如天然油画。</p>
+            </div>
+            <div class="subspot-tips">
+              📸 <strong>出片机位：</strong> 早晨 09:00 前无风时分，在珍珠海湖边平台拍摄仙乃日神山无死角水上倒影；寺前小溪可拍摄经幡与古刹交叠的宁静人文画面。
+            </div>
+          </div>
+        </article>
+
+      </div>
+    </section>
+
+    <!-- Module 5: Gear & Practical Tips -->
+    <section class="content-section">
+      <div class="section-header">
+        <span class="section-icon">🎒</span>
+        <h2 class="section-heading">亚丁冲顶行前决策装备与避坑守则</h2>
+      </div>
+      <ul style="padding-left: 20px; font-size: 13.5px; color: #334155; line-height: 1.8;">
+        <li><strong>住宿选点黄金法则：</strong> 强烈建议住宿定在【香格里拉镇/日瓦镇】（海拔约2900m），千万不要住在稻城县城（3750m）或亚丁村（3900m），否则极易整夜头痛失眠毁掉行程。</li>
+        <li><strong>长线必备装备：</strong> 2根专业登山杖（上下碎石坡卸掉膝盖40%压力）、中高帮防水登山鞋、2瓶便携氧气罐、保温杯装满热水、高热量巧克力与牛肉干、防风防雨冲锋衣。</li>
+        <li><strong>防寒与防晒：</strong> 4700米高原紫外线极强且狂风凛冽，体感温度可低至 0℃ 以下，墨镜、防晒霜、加绒魔术头巾与防风手套必不可少。</li>
+      </ul>
+    </section>
+
+  </main>
+
+  <!-- Bottom Floating Bar -->
+  <aside class="bottom-bar">
+    <div style="font-size: 13px; font-weight: 600; color: #334155;">
+      <span>🏔️ 稻城亚丁 · 深度出行决策路书</span>
+    </div>
+    <a href="../川西自驾与景点交互地图.html?spot=yading" class="bottom-btn">
+      <span>🗺️ 返回主地图并定位该景点</span>
+    </a>
+  </aside>
+
+</body>
+</html>

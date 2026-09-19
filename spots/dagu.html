@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>达古冰川深度决策手账与4860索道路书 - 川西自驾指南</title>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --bg-light: #f8fafc;
+      --card-bg: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --danger: #e11d48;
+      --success: #16a34a;
+      --shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.06);
+      --shadow-md: 0 10px 25px -4px rgba(15, 23, 42, 0.1);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      color: var(--text-main);
+      background: var(--bg-light);
+      line-height: 1.65;
+      padding-bottom: 80px;
+    }
+    .top-nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 20px;
+      display: flex; justify-content: space-between; align-items: center;
+      box-shadow: var(--shadow-sm);
+    }
+    .nav-brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 15px; color: #0f172a; }
+    .nav-back-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 14px; background: #eff6ff; color: var(--primary);
+      border: 1px solid #bfdbfe; border-radius: 9999px;
+      font-size: 13px; font-weight: 600; text-decoration: none; transition: all 0.2s;
+    }
+    .nav-back-btn:hover { background: var(--primary); color: #ffffff; transform: translateY(-1px); }
+    .container { max-width: 960px; margin: 0 auto; padding: 20px 16px; }
+    .spot-hero {
+      position: relative; width: 100%; height: 380px; border-radius: 20px;
+      overflow: hidden; margin-bottom: 24px; box-shadow: var(--shadow-md); background: #0f172a;
+    }
+    .spot-hero img { width: 100%; height: 100%; object-fit: cover; opacity: 0.92; }
+    .hero-overlay {
+      position: absolute; bottom: 0; left: 0; right: 0; padding: 30px 24px 20px;
+      background: linear-gradient(180deg, transparent 0%, rgba(15, 23, 42, 0.88) 100%);
+      color: #ffffff;
+    }
+    .hero-title { font-size: 28px; font-weight: 800; margin-bottom: 6px; }
+    .hero-subtitle { font-size: 14px; color: #cbd5e1; margin-bottom: 12px; }
+    .hero-tags-row { display: flex; flex-wrap: wrap; gap: 8px; }
+    .hero-badge { font-size: 11.5px; padding: 4px 10px; border-radius: 6px; font-weight: 600; backdrop-filter: blur(8px); }
+    .badge-alt { background: rgba(255,255,255,0.22); color: #ffffff; }
+    .badge-diff { background: rgba(225, 29, 72, 0.85); color: #ffffff; }
+    .badge-autumn { background: rgba(217, 119, 6, 0.9); color: #ffffff; }
+
+    .decision-summary-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px; margin-bottom: 24px;
+    }
+    .summary-card {
+      background: var(--card-bg); border: 1px solid var(--border);
+      border-radius: 14px; padding: 14px 16px; box-shadow: var(--shadow-sm);
+    }
+    .summary-card-title { font-size: 11.5px; font-weight: 600; color: var(--text-muted); margin-bottom: 4px; }
+    .summary-card-value { font-size: 15px; font-weight: 800; color: var(--text-main); }
+
+    .content-section {
+      background: var(--card-bg); border: 1px solid var(--border);
+      border-radius: 18px; padding: 24px 22px; margin-bottom: 24px; box-shadow: var(--shadow-sm);
+    }
+    .section-header {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 16px;
+      padding-bottom: 10px; border-bottom: 1px solid var(--border);
+    }
+    .section-icon { font-size: 22px; line-height: 1; }
+    .section-heading { font-size: 18px; font-weight: 800; color: var(--text-main); }
+
+    .traffic-box { display: flex; flex-direction: column; gap: 14px; }
+    .traffic-item {
+      background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px 16px;
+    }
+    .traffic-item-title { font-size: 14px; font-weight: 700; color: #1e293b; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+    .traffic-item-desc { font-size: 13px; color: #475569; line-height: 1.6; }
+
+    .fee-table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 13px; }
+    .fee-table th { background: #f1f5f9; padding: 10px 12px; text-align: left; font-weight: 700; color: #334155; border: 1px solid #e2e8f0; }
+    .fee-table td { padding: 10px 12px; border: 1px solid #e2e8f0; color: #334155; }
+    .fee-table tr:nth-child(even) { background: #fafbfc; }
+
+    .subspots-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
+    .subspot-card {
+      background: #ffffff; border: 1px solid var(--border); border-radius: 16px;
+      overflow: hidden; box-shadow: var(--shadow-sm); display: flex; flex-direction: column;
+    }
+    @media(min-width: 720px) {
+      .subspot-card { flex-direction: row; }
+      .subspot-img-box { width: 380px; flex-shrink: 0; }
+    }
+    .subspot-img-box { position: relative; height: 240px; background: #0f172a; }
+    .subspot-img-box img { width: 100%; height: 100%; object-fit: cover; }
+    .subspot-badge {
+      position: absolute; top: 10px; left: 10px; background: rgba(15, 23, 42, 0.8);
+      color: #ffffff; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 600;
+    }
+    .subspot-body { padding: 16px 18px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
+    .subspot-title { font-size: 17px; font-weight: 800; color: #0f172a; margin-bottom: 6px; }
+    .subspot-desc { font-size: 13px; color: #334155; line-height: 1.6; margin-bottom: 10px; }
+    .subspot-tips {
+      background: #fffbeb; border: 1px solid #fde68a; padding: 8px 12px;
+      border-radius: 8px; font-size: 12px; color: #92400e; line-height: 1.5;
+    }
+
+    .bottom-bar {
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 99;
+      background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px);
+      border-top: 1px solid var(--border); padding: 12px 20px;
+      display: flex; justify-content: space-between; align-items: center;
+      box-shadow: 0 -4px 16px rgba(0,0,0,0.06);
+    }
+    .bottom-btn {
+      display: inline-flex; align-items: center; gap: 6px; padding: 8px 18px;
+      background: var(--primary); color: #ffffff; border-radius: 10px;
+      font-size: 13.5px; font-weight: 700; text-decoration: none; transition: background 0.2s;
+    }
+    .bottom-btn:hover { background: var(--primary-dark); }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation -->
+  <header class="top-nav">
+    <div class="nav-brand">
+      <span>🏔️ 川西自驾路书</span>
+      <span style="color: #cbd5e1;">|</span>
+      <span>达古冰川深度决策手账</span>
+    </div>
+    <a href="../川西自驾与景点交互地图.html?spot=dagu" class="nav-back-btn">
+      <span>🗺️ 返回主地图并定位</span>
+    </a>
+  </header>
+
+  <main class="container">
+
+    <!-- Hero Banner -->
+    <section class="spot-hero">
+      <img src="../images/dagu.jpg" alt="达古冰川" referrerpolicy="no-referrer" onerror="this.src='../images/dagu_autumn1.jpg'" />
+      <div class="hero-overlay">
+        <h1 class="hero-title">达古冰川风景名胜区</h1>
+        <p class="hero-subtitle">最近的遥远 · 世界最高客运索道与4860米最孤独的咖啡馆</p>
+        <div class="hero-tags-row">
+          <span class="hero-badge badge-alt">⛰️ 海拔 2400m ~ 4860m (索道顶峰)</span>
+          <span class="hero-badge badge-diff">⚠️ 极高海拔警惕：防突发高反</span>
+          <span class="hero-badge badge-autumn">🍁 最佳季节：10月中旬 ~ 次年4月</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Quick Metric Cards -->
+    <section class="decision-summary-grid">
+      <div class="summary-card">
+        <div class="summary-card-title">🚗 成都出发车程</div>
+        <div class="summary-card-value">5-6h / 310km (过路费~60元)</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-card-title">💰 门票+观光车+索道全套</div>
+        <div class="summary-card-value">旺季 ¥370 / 淡季 ¥290~310</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-card-title">☀️ 天气依赖程度</div>
+        <div class="summary-card-value">高度依赖晴天 (阴大雾无景)</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-card-title">🚡 交通通达性</div>
+        <div class="summary-card-value" style="color: var(--success);">索道直拔4860m！0徒步难度</div>
+      </div>
+    </section>
+
+    <!-- Warning Box -->
+    <div style="background: #fff1f2; border: 1px solid #fecdd3; border-radius: 14px; padding: 16px 18px; margin-bottom: 24px;">
+      <div style="font-size: 14.5px; font-weight: 700; color: #be123c; margin-bottom: 6px;">
+        ⚠️ 核心决策高反预警：十几分钟拔升 1200 米！
+      </div>
+      <div style="font-size: 13px; color: #881337; line-height: 1.6;">
+        索道下站为 3600 米，乘坐世界最高索道在仅 15 分钟内垂直爬升至 <strong>4860 米</strong>！人体短时间内很难适应剧烈的气压与氧气骤降，极易突发剧烈头胀偏头痛。出缆车站后<strong>切忌兴奋奔跑或跳跃拍照</strong>，必须放慢脚步、随时深呼吸，备好便携氧气罐。
+      </div>
+    </div>
+
+    <!-- Module 1: Chengdu Route -->
+    <section class="content-section">
+      <div class="section-header">
+        <span class="section-icon">🚗</span>
+        <h2 class="section-heading">从成都出发怎么走：路线规划与大巴方案</h2>
+      </div>
+      <div class="traffic-box">
+        <div class="traffic-item">
+          <div class="traffic-item-title">🚘 自驾路线指南</div>
+          <div class="traffic-item-desc">
+            <strong>推荐路线：</strong> 成都 ➔ 蓉昌高速 (成灌/都汶段) ➔ 汶川出口 ➔ G213 ➔ 茂县 ➔ G347 ➔ 黑水县芦花镇 ➔ 达古冰川大门。<br/>
+            <strong>用时与里程：</strong> 全程约 310 公里，车程约 5.5 - 6 小时。都汶高速段过路费约 60 元，下高速后全为双向平整柏油国道，普通轿车通行顺畅。
+          </div>
+        </div>
+        <div class="traffic-item">
+          <div class="traffic-item-title">🚌 公共客运大巴</div>
+          <div class="traffic-item-desc">
+            <strong>茶店子客运站：</strong> 每天早晨 07:30、09:00 有班车直达黑水县客运站（票价约 105 元/人，用时约 5-6 小时）。黑水县城距离达古冰川大门仅 7 公里，出站后打车或拼车 15-20 元即达景区门口。
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Module 2: Fee Table -->
+    <section class="content-section">
+      <div class="section-header">
+        <span class="section-icon">💰</span>
+        <h2 class="section-heading">全口径透明费用账单</h2>
+      </div>
+      <table class="fee-table">
+        <thead>
+          <tr>
+            <th>项目</th>
+            <th>挂牌价格</th>
+            <th>线上套票价</th>
+            <th>重要说明</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>景区大门票</strong></td>
+            <td>旺季 ¥120 / 淡季 ¥60</td>
+            <td rowspan="3" style="vertical-align: middle; font-weight: 800; color: #2563eb; background: #eff6ff;">
+              旺季全套套票：<br/><strong>¥370 /人</strong><br/><br/>
+              淡季全套套票：<br/><strong>¥290~310 /人</strong>
+            </td>
+            <td>旺季4月1日-11月30日；淡季12月1日-次年3月31日。</td>
+          </tr>
+          <tr>
+            <td><strong>景区大巴观光车</strong></td>
+            <td>¥70 /人 (往返)</td>
+            <td>从大门至索道下站，单程 33 公里盘山路，车程约 45-50 分钟。</td>
+          </tr>
+          <tr>
+            <td><strong>4860高空索道</strong></td>
+            <td>¥180 /人 (往返)</td>
+            <td>世界海拔最高索道（下站3600m，上站4860m）。<strong>不坐索道无法登上冰川！</strong></td>
+          </tr>
+          <tr>
+            <td><strong>4860咖啡馆消费</strong></td>
+            <td colspan="2">现磨咖啡 ¥45~60 /杯 (自选)</td>
+            <td>二楼全景落地窗，打卡“全世界最孤独的咖啡馆”。</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Module 3: Internal Flow -->
+    <section class="content-section">
+      <div class="section-header">
+        <span class="section-icon">🗺️</span>
+        <h2 class="section-heading">内部游览路线与通达性</h2>
+      </div>
+      <div style="background: #f8fafc; border: 1px solid var(--border); border-radius: 12px; padding: 16px; font-size: 13.5px; line-height: 1.8;">
+        <strong>典型游览流程：</strong><br/>
+        1. <strong>景区大门</strong> ➔ 乘坐观光大巴（车程45分钟，沿途停靠金猴海、达古湖，秋季两旁万亩彩林倒映）；<br/>
+        2. <strong>索道下站 (海拔3600m)</strong> ➔ 换乘高空缆车直上云霄（车程仅15分钟）；<br/>
+        3. <strong>索道上站 (海拔4860m)</strong> ➔ 出站即达雪峰之巅！步入木栈道观景台、五星红旗打卡点、4860海拔标、最孤独咖啡馆；<br/>
+        4. <strong>高山停留建议：</strong> 山顶严寒缺氧，建议游玩拍照时间控制在 <strong>1 ~ 1.5 小时</strong> 内即乘索道下撤，避免高反加剧。
+      </div>
+    </section>
+
+    <!-- Module 4: Sub-Spots Gallery -->
+    <section class="content-section">
+      <div class="section-header">
+        <span class="section-icon">📷</span>
+        <h2 class="section-heading">内部子景点小红书实拍画廊与打卡机位</h2>
+      </div>
+
+      <div class="subspots-grid">
+        <article class="subspot-card">
+          <div class="subspot-img-box">
+            <img src="../images/dagu.jpg" alt="达古冰川4860咖啡馆" referrerpolicy="no-referrer" />
+            <span class="subspot-badge">顶峰核心 · 海拔4860m</span>
+          </div>
+          <div class="subspot-body">
+            <div>
+              <h3 class="subspot-title">4860观景台与“最孤独咖啡馆”</h3>
+              <p class="subspot-desc">坐落在世界最高客运索道终点的玻璃木屋咖啡厅。全景落地窗外是翻滚如海的浩瀚云海与万仞冰峰雪原。即使窗外零下二十度狂风呼啸，屋内温暖如春，手捧一杯热咖啡凝望无垠极境。</p>
+            </div>
+            <div class="subspot-tips">
+              📸 <strong>出片机位：</strong> 坐靠二楼临窗吧台，逆光拍摄手持咖啡杯眺望窗外雪山云海；室外 4860m 标志石碑与国家地理相框合影。建议穿亮银色机能风或红色围巾对比极佳。
+            </div>
+          </div>
+        </article>
+
+        <article class="subspot-card">
+          <div class="subspot-img-box">
+            <img src="../images/dagu_autumn1.jpg" alt="金猴海与彩林" referrerpolicy="no-referrer" />
+            <span class="subspot-badge">观光车沿途 · 森林湖泊</span>
+          </div>
+          <div class="subspot-body">
+            <div>
+              <h3 class="subspot-title">金猴海与达古湖彩林</h3>
+              <p class="subspot-desc">观光大巴必经的低海拔湖泊。秋季湖畔落叶松全线金黄，碧蓝湖水倒映着远处雪峰。这里经常有成群不怕人的野生藏酋猴出没在栈道旁，充满生机野趣。</p>
+            </div>
+            <div class="subspot-tips">
+              📸 <strong>游玩提示：</strong> 观赏猴群请保持 2 米安全距离，切勿手提塑料袋或故意逗弄，谨防猴群抢食。
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+  </main>
+
+  <aside class="bottom-bar">
+    <div style="font-size: 13px; font-weight: 600; color: #334155;">
+      <span>🏔️ 达古冰川 · 深度出行决策路书</span>
+    </div>
+    <a href="../川西自驾与景点交互地图.html?spot=dagu" class="bottom-btn">
+      <span>🗺️ 返回主地图并定位该景点</span>
+    </a>
+  </aside>
+
+</body>
+</html>

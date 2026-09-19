@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>四姑娘山深度决策手账与双桥沟长坪沟路书 - 川西自驾指南</title>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --accent-gold: #d97706;
+      --bg-light: #f8fafc;
+      --card-bg: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --danger: #e11d48;
+      --success: #16a34a;
+      --shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.06);
+      --shadow-md: 0 10px 25px -4px rgba(15, 23, 42, 0.1);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      color: var(--text-main);
+      background: var(--bg-light);
+      line-height: 1.65;
+      padding-bottom: 80px;
+    }
+    .top-nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: var(--shadow-sm);
+    }
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 15px;
+      color: #0f172a;
+    }
+    .nav-back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      background: #eff6ff;
+      color: var(--primary);
+      border: 1px solid #bfdbfe;
+      border-radius: 9999px;
+      font-size: 13px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .nav-back-btn:hover {
+      background: var(--primary);
+      color: #ffffff;
+      transform: translateY(-1px);
+    }
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 20px 16px;
+    }
+    .spot-hero {
+      position: relative;
+      width: 100%;
+      height: 380px;
+      border-radius: 20px;
+      overflow: hidden;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow-md);
+      background: #0f172a;
+    }
+    .spot-hero img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0.92;
+    }
+    .hero-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 30px 24px 20px;
+      background: linear-gradient(180deg, transparent 0%, rgba(15, 23, 42, 0.88) 100%);
+      color: #ffffff;
+    }
+    .hero-title {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      margin-bottom: 6px;
+    }
+    .hero-subtitle {
+      font-size: 14px;
+      color: #cbd5e1;
+      margin-bottom: 12px;
+    }
+    .hero-tags-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .hero-badge {
+      font-size: 11.5px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-weight: 600;
+      backdrop-filter: blur(8px);
+    }
+    .badge-alt { background: rgba(255,255,255,0.22); color: #ffffff; }
+    .badge-diff { background: rgba(22, 163, 74, 0.88); color: #ffffff; }
+    .badge-autumn { background: rgba(217, 119, 6, 0.9); color: #ffffff; }
+
+    .decision-summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .summary-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 16px;
+      box-shadow: var(--shadow-sm);
+    }
+    .summary-card-title {
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+    .summary-card-value {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .content-section {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 24px 22px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow-sm);
+    }
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    .section-icon { font-size: 22px; line-height: 1; }
+    .section-heading { font-size: 18px; font-weight: 800; color: var(--text-main); }
+
+    .traffic-box { display: flex; flex-direction: column; gap: 14px; }
+    .traffic-item {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 14px 16px;
+    }
+    .traffic-item-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #1e293b;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .traffic-item-desc { font-size: 13px; color: #475569; line-height: 1.6; }
+
+    .fee-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0;
+      font-size: 13px;
+    }
+    .fee-table th {
+      background: #f1f5f9;
+      padding: 10px 12px;
+      text-align: left;
+      font-weight: 700;
+      color: #334155;
+      border: 1px solid #e2e8f0;
+    }
+    .fee-table td {
+      padding: 10px 12px;
+      border: 1px solid #e2e8f0;
+      color: #334155;
+    }
+    .fee-table tr:nth-child(even) { background: #fafbfc; }
+
+    .comparison-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin: 16px 0;
+    }
+    @media(max-width: 680px) {
+      .comparison-grid { grid-template-columns: 1fr; }
+    }
+    .comp-col {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      background: #f8fafc;
+    }
+    .comp-col.highlight {
+      border-color: #93c5fd;
+      background: #eff6ff;
+    }
+    .comp-col-title {
+      font-size: 16px;
+      font-weight: 800;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .subspots-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+    .subspot-card {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+    }
+    @media(min-width: 720px) {
+      .subspot-card { flex-direction: row; }
+      .subspot-img-box { width: 380px; flex-shrink: 0; }
+    }
+    .subspot-img-box {
+      position: relative;
+      height: 240px;
+      background: #0f172a;
+    }
+    .subspot-img-box img { width: 100%; height: 100%; object-fit: cover; }
+    .subspot-badge {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(15, 23, 42, 0.8);
+      color: #ffffff;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .subspot-body {
+      padding: 16px 18px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .subspot-title {
+      font-size: 17px;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 6px;
+    }
+    .subspot-desc { font-size: 13px; color: #334155; line-height: 1.6; margin-bottom: 10px; }
+    .subspot-tips {
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      color: #92400e;
+      line-height: 1.5;
+    }
+
+    .bottom-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 99;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(12px);
+      border-top: 1px solid var(--border);
+      padding: 12px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 -4px 16px rgba(0,0,0,0.06);
+    }
+    .bottom-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 18px;
+      background: var(--primary);
+      color: #ffffff;
+      border-radius: 10px;
+      font-size: 13.5px;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+    .bottom-btn:hover { background: var(--primary-dark); }
+  
+    /* Subspot Gallery Slider (Multi-photo Carousel) */
+    .subspot-gallery-slider {
+      position: relative;
+      width: 100%;
+      height: 250px;
+      background: #0f172a;
+      overflow: hidden;
+      display: flex;
+    }
+    @media(min-width: 720px) {
+      .subspot-gallery-slider {
+        width: 380px;
+        height: auto;
+        min-height: 250px;
+        flex-shrink: 0;
+      }
+    }
+    .subspot-slider-track {
+      display: flex;
+      width: 100%;
+      height: 100%;
+      transition: transform 0.32s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+    .subspot-slide {
+      min-width: 100%;
+      width: 100%;
+      height: 100%;
+      position: relative;
+      flex-shrink: 0;
+    }
+    .subspot-slide img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .slider-nav-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(15, 23, 42, 0.72);
+      backdrop-filter: blur(4px);
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 18px;
+      font-weight: 700;
+      line-height: 1;
+      user-select: none;
+      z-index: 10;
+      transition: background 0.15s, transform 0.15s;
+    }
+    .slider-nav-btn:hover {
+      background: rgba(15, 23, 42, 0.95);
+      transform: translateY(-50%) scale(1.08);
+    }
+    .slider-prev { left: 8px; }
+    .slider-next { right: 8px; }
+    .slider-counter {
+      position: absolute;
+      bottom: 8px;
+      right: 10px;
+      background: rgba(15, 23, 42, 0.78);
+      backdrop-filter: blur(4px);
+      color: #ffffff;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      z-index: 10;
+      letter-spacing: 0.5px;
+    }
+    .slider-dots {
+      position: absolute;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 5px;
+      z-index: 10;
+    }
+    .slider-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.45);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .slider-dot.active {
+      width: 16px;
+      border-radius: 3px;
+      background: #ffffff;
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation -->
+  <header class="top-nav">
+    <div class="nav-brand">
+      <span>🏔️ 川西自驾路书</span>
+      <span style="color: #cbd5e1;">|</span>
+      <span>四姑娘山深度决策手账</span>
+    </div>
+    <a href="../川西自驾与景点交互地图.html?spot=siguniangshan" class="nav-back-btn">
+      <span>🗺️ 返回主地图并定位</span>
+    </a>
+  </header>
+
+  <main class="container">
+
+    <!-- Hero Banner -->
+    <section class="spot-hero">
+      <img src="../images/siguniangshan.jpg" alt="四姑娘山双桥沟布达拉峰" referrerpolicy="no-referrer" onerror="this.src='../images/siguniangshan_autumn1.jpg'" />
+      <div class="hero-overlay">
+        <h1 class="hero-title">四姑娘山国家级风景名胜区</h1>
+        <p class="hero-subtitle">蜀山之后 · 东方阿尔卑斯 · 双桥沟与长坪沟深度决策全指南</p>
+        <div class="hero-tags-row">
+          <span class="hero-badge badge-alt">⛰️ 海拔 2500m ~ 3840m (沟内)</span>
+          <span class="hero-badge badge-diff">🌲 双桥沟全车接驳 · 极度舒适</span>
+          <span class="hero-badge badge-autumn">🍁 最佳季节：10月中旬 ~ 11月中旬</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Quick Metric Cards -->
+    <section class="decision-summary-grid">
+      <div class="summary-card">
+        <div class="summary-card-title">🚗 成都出发车程</div>
+        <div class="summary-card-value">3.5-4h / 210km (过路费~35元)</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-card-title">💰 双桥沟全预算</div>
+        <div class="summary-card-value">¥150 /人 (门票80+观光车70)</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-card-title">☀️ 天气依赖程度</div>
+        <div class="summary-card-value">中度依赖 (晴看倒影/阴看水墨)</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-card-title">🚌 观光车通达情况</div>
+        <div class="summary-card-value" style="color: var(--success);">双桥沟全线通车！老少皆宜</div>
+      </div>
+    </section>
+
+    <!-- Module 1: Chengdu Traffic -->
+    <section class="content-section">
+      <div class="section-header">
+        <span class="section-icon">🚗</span>
+        <h2 class="section-heading">从成都去四姑娘山怎么走：自驾路线与客运大巴</h2>
+      </div>
+      <div class="traffic-box">
+        <div class="traffic-item">
+          <div class="traffic-item-title">🚘 推荐自驾路线（离成都最近的雪山彩林高地）</div>
+          <div class="traffic-item-desc">
+            <strong>自驾路线：</strong> 成都 ➔ 蓉昌高速 (成灌/都汶段) ➔ 映秀出口 ➔ G350 中国熊猫大道 ➔ 卧龙中华大熊猫苑 ➔ 巴朗山隧道 (穿越巴朗山，避开老盘山险路) ➔ 猫鼻梁观景台 (停车俯瞰四峰全景) ➔ 四姑娘山镇。<br/>
+            <strong>用时与路况：</strong> 全长仅 210 公里，车程约 3.5 - 4 小时，高速过路费约 35-40 元。全线为双向平整高等级沥青公路，路况极好，任何普通家用车甚至新能源纯电轿车均可轻松往返。
+          </div>
+        </div>
+
+        <div class="traffic-item">
+          <div class="traffic-item-title">🚌 公共客运与直通大巴</div>
+          <div class="traffic-item-desc">
+            <strong>茶店子大巴：</strong> 成都茶店子客运站每天上午 07:30、09:00、12:00 发出多趟前往小金县的班车（在四姑娘山镇下车），票价约 65-90 元/人。<br/>
+            <strong>平台直通拼车：</strong> 携程、去哪儿、小红书均有每日早晨从成都市区三环内上门接送的拼车/商务车，直达四姑娘山镇客栈门口，单程票价约 120-150 元/人。
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Module 2: Fees -->
+    <section class="content-section">
+      <div class="section-header">
+        <span class="section-icon">💰</span>
+        <h2 class="section-heading">三条沟门票及小交通透明价格对比</h2>
+      </div>
+      <table class="fee-table">
+        <thead>
+          <tr>
+            <th>沟域名称</th>
+            <th>门票 (旺/淡)</th>
+            <th>观光车费</th>
+            <th>二次自选费用</th>
+            <th>游玩特性与决策建议</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>双桥沟 (力推必去)</strong></td>
+            <td>¥80 / ¥50</td>
+            <td>¥70 (必买)</td>
+            <td>漂流自选 ¥90/人</td>
+            <td><strong>性价比之王</strong>：全程观光大巴串联，景点间平地木栈道漫步，无二次车费，老少皆宜。</td>
+          </tr>
+          <tr>
+            <td><strong>长坪沟 (户外轻徒步)</strong></td>
+            <td>¥70 / ¥50</td>
+            <td>¥20 (仅前段7km)</td>
+            <td>骑马往返 ¥150~360</td>
+            <td>观光车仅到喇嘛寺，深入木骡子看幺妹峰全靠徒步(单程14km)或骑马，适合徒步爱好者。</td>
+          </tr>
+          <tr>
+            <td><strong>海子沟 (纯硬核探险)</strong></td>
+            <td>¥60 / ¥40</td>
+            <td>无观光车</td>
+            <td>骑马全天约 ¥300~400</td>
+            <td>无机动车，纯徒步或骑马看高原海子（大海子/花海子），通常为重装登山露营者路线。</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Module 3: Valley Decision Comparison -->
+    <section class="content-section">
+      <div class="section-header">
+        <span class="section-icon">⚖️</span>
+        <h2 class="section-heading">核心决策：双桥沟 vs 长坪沟 到底该选哪个？</h2>
+      </div>
+
+      <div class="comparison-grid">
+        <div class="comp-col highlight">
+          <div class="comp-col-title">
+            <span>双桥沟 (95%游客首选)</span>
+            <span style="font-size: 11px; background: #2563eb; color: #fff; padding: 2px 6px; border-radius: 4px;">全车接驳</span>
+          </div>
+          <p style="font-size: 13px; color: #334155; margin-bottom: 8px;"><strong>通达模式：</strong> 观光车一站直达最高点【红杉林(3840m)】，自上而下逐站下车游玩（布达拉峰 ➔ 四姑娜措 ➔ 撵鱼坝 ➔ 盆景滩 ➔ 人参果坪），各站大巴招手即停。</p>
+          <p style="font-size: 13px; color: #166534; font-weight: 600;">✅ 优势：0难度、不耗体力、全景观赏雪山彩林公路、带老人小孩无压力、仅需半天即可游完。</p>
+        </div>
+
+        <div class="comp-col">
+          <div class="comp-col-title">
+            <span>长坪沟 (户外摄影专线)</span>
+            <span style="font-size: 11px; background: #d97706; color: #fff; padding: 2px 6px; border-radius: 4px;">重度徒步/骑马</span>
+          </div>
+          <p style="font-size: 13px; color: #334155; margin-bottom: 8px;"><strong>通达模式：</strong> 观光车仅到喇嘛寺(3200m)，往后深入枯树滩、木骡子(3800m)全靠双脚或马帮，往返长达 28 公里高海拔泥土路，需耗时 6-8 小时。</p>
+          <p style="font-size: 13px; color: #991b1b; font-weight: 600;">⚠️ 劣势：体能要求高、耗费整天时间；若不走到木骡子，前段仅在密林中行进视野受限。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Module 4: Shuangqiaogou tested route -->
+    <section class="content-section">
+      <div class="section-header">
+        <span class="section-icon">🗺️</span>
+        <h2 class="section-heading">双桥沟 4 小时实测动线：先上后下，只保留高价值停靠</h2>
+      </div>
+      <div style="font-size: 13.5px; color: #334155; line-height: 1.85;">
+        <strong>参考时间轴：</strong>09:24 入园 → 10:09 红杉林 → 10:37 布达拉峰 → 12:06 四姑娜措（亦写作四姑拉措）→ 12:40 云端服务中心 → 13:00 人参果坪 → 13:26 出沟。景交车往返本身约占 1.5-2 小时，若一日团只给 4-5 小时，必须控制停站数量。<br/>
+        <strong>第一优先：布达拉峰—珠噶纳措。</strong>往返约 2 公里，实测连拍照约 1.5 小时；雪山、溪流、草坪、栈道和倒影集中，是全程最不应压缩的一段。<br/>
+        <strong>第二优先：红杉林、四姑娜措。</strong>红杉林适合短停约 20-30 分钟；四姑娜措环湖约 15 分钟，主看枯木与雪山倒影。<br/>
+        <strong>有余量再去：</strong>隆珠措可下车徒步约 900 米至云端服务中心；撵鱼坝漂流和人参果坪适合时间宽裕者。云端服务中心需下车步行穿过商业区换乘下段车辆。<br/>
+        <strong>推荐顺序：</strong>景区门口 → 红杉林 → 布达拉峰 → 珠噶纳措 → 四姑娜措 → 云端服务中心 → 人参果坪 → 出沟。旺季排队、天气和调度会改变用时，4 小时只能视为低排队样本，不是保底承诺。
+      </div>
+      <p style="font-size: 12.5px; color: #64748b; margin-top: 12px; line-height: 1.7;">
+        📌 <strong>游客实测样本（博主 Suburb. 于 2024 年五一假期实地游玩，2026-09-19 整理）：</strong>
+        <a href="https://www.xiaohongshu.com/explore/69f9d362000000001a02de42?xsec_token=ABREE96rlytJaIOcsP-ZgP7PTFUhYbXIt-7uvNwQOoqIo=&amp;xsec_source=pc_user" target="_blank" rel="noopener noreferrer">双桥沟四小时速通攻略</a>。个人笔记用于补充停靠节奏，票价、开放点位与末班车以景区当日公告为准。
+      </p>
+    </section>
+
+    <!-- Module 5: Sub-Spots Gallery -->
+    <section class="content-section">
+      <div class="section-header">
+        <span class="section-icon">📷</span>
+        <h2 class="section-heading">各内部子景点小红书实拍图文与出片机位</h2>
+      </div>
+
+      <div class="subspots-grid">
+
+<article class="subspot-card">
+                    <div class="subspot-gallery-slider">
+            <div class="subspot-slider-track">
+              <div class="subspot-slide"><img src="../images/siguniangshan/siguniangshan-fig3.webp" alt="帖子图3：红杉林" /></div>
+              <div class="subspot-slide"><img src="../images/siguniangshan/siguniangshan-fig4.webp" alt="帖子图4：红杉林" /></div>
+            </div>
+            <span class="subspot-badge">游览第 1 站 · 红杉林 (3840m大巴终点)</span>
+            <button class="slider-nav-btn slider-prev" aria-label="上一张">‹</button>
+            <button class="slider-nav-btn slider-next" aria-label="下一张">›</button>
+            <div class="slider-counter">1 / 2</div>
+            <div class="slider-dots">
+              <div class="slider-dot active"></div>
+              <div class="slider-dot"></div>
+            </div>
+          </div>
+          <div class="subspot-body">
+            <div>
+              <h3 class="subspot-title">红杉林（金秋彩林之王）</h3>
+              <p class="subspot-desc">观光大巴的最高终点站。三面被巍峨陡峭的雪峰巨壁环抱，谷底生长着成片的四川红杉。每年 10 月中旬到 11 月上旬，万亩红杉针叶全部变成璀璨夺目的金红色，与山尖初雪相映成趣。</p>
+            </div>
+            <div class="subspot-tips">
+              📸 <strong>机位与技巧：</strong> 沿木栈道环绕一周（平缓散步约 30 分钟），用广角仰拍金红树冠与背后湛蓝天空、雪白冰峰的色彩撞击。
+            </div>
+          </div>
+        </article>
+
+<article class="subspot-card">
+                    <div class="subspot-gallery-slider">
+            <div class="subspot-slider-track">
+              <div class="subspot-slide"><img src="../images/siguniangshan/siguniangshan-fig5.webp" alt="帖子图5：布达拉峰段" /></div>
+              <div class="subspot-slide"><img src="../images/siguniangshan/siguniangshan-fig6.webp" alt="帖子图6：布达拉峰段" /></div>
+              <div class="subspot-slide"><img src="../images/siguniangshan/siguniangshan-fig7.webp" alt="帖子图7：布达拉峰段" /></div>
+            </div>
+            <span class="subspot-badge">游览第 2 站 · 布达拉峰段公路</span>
+            <button class="slider-nav-btn slider-prev" aria-label="上一张">‹</button>
+            <button class="slider-nav-btn slider-next" aria-label="下一张">›</button>
+            <div class="slider-counter">1 / 3</div>
+            <div class="slider-dots">
+              <div class="slider-dot active"></div>
+              <div class="slider-dot"></div>
+              <div class="slider-dot"></div>
+            </div>
+          </div>
+          <div class="subspot-body">
+            <div>
+              <h3 class="subspot-title">布达拉峰公路与雪峰倒影</h3>
+              <p class="subspot-desc">四姑娘山最火爆的小红书封面机位。笔直平整的沥青公路伸向视野尽头，正前方是拔地而起的布达拉峰（因极似西藏布达拉宫金字塔造型而得名）。两旁彩林环抱，雪山压迫感扑面而来。</p>
+            </div>
+            <div class="subspot-tips">
+              📸 <strong>机位与参数：</strong> 位于布达拉峰站下车处。用中长焦（70-200mm）压缩空间，蹲在路中双黄线上仰拍；公路旁侧小水洼可拍摄布达拉峰在水中的平静倒影。穿卡其风衣或户外冲锋衣极其出片。
+            </div>
+          </div>
+        </article>
+
+<article class="subspot-card">
+                    <div class="subspot-img-box">
+            <img src="../images/siguniangshan/siguniangshan-fig8.webp" alt="帖子图8：珠噶纳措" />
+            <span class="subspot-badge">游览第 3 站 · 珠噶纳措 (布达拉峰深入)</span>
+          </div>
+          <div class="subspot-body"><div><h3 class="subspot-title">珠噶纳措</h3><p class="subspot-desc">从布达拉峰徒步抵达的独立子景点，正文明确对应图8，现从布达拉峰组合卡中拆出单独展示。</p></div></div>
+        </article>
+
+<article class="subspot-card">
+                    <div class="subspot-gallery-slider">
+            <div class="subspot-slider-track">
+              <div class="subspot-slide"><img src="../images/siguniangshan/siguniangshan-fig9.webp" alt="帖子图9：四姑娜措" /></div>
+              <div class="subspot-slide"><img src="../images/siguniangshan/siguniangshan-fig10.webp" alt="帖子图10：四姑娜措" /></div>
+            </div>
+            <span class="subspot-badge">游览第 4 站 · 四姑娜措 (枯木倒影)</span>
+            <button class="slider-nav-btn slider-prev" aria-label="上一张">‹</button>
+            <button class="slider-nav-btn slider-next" aria-label="下一张">›</button>
+            <div class="slider-counter">1 / 2</div>
+            <div class="slider-dots">
+              <div class="slider-dot active"></div>
+              <div class="slider-dot"></div>
+            </div>
+          </div>
+          <div class="subspot-body">
+            <div>
+              <h3 class="subspot-title">四姑娜措与隆珠措</h3>
+              <p class="subspot-desc">清澈宁静的高山海子中，伫立着成群历经数百年不腐的冷杉枯木。碧绿如玉的湖水倒映着阿妣山与猎人峰的险峻身姿，水草随微波摇曳，充满超凡脱俗的静谧与水墨意境。</p>
+            </div>
+            <div class="subspot-tips">
+              📸 <strong>出片机位：</strong> 晴天上午无风时光线最佳，利用湖边木栈道低角度拍摄枯木与雪山倒影。
+            </div>
+          </div>
+        </article>
+
+<article class="subspot-card">
+                    <div class="subspot-img-box">
+            <img src="../images/siguniangshan/siguniangshan-fig11.webp" alt="帖子图11：阿妣山" />
+            <span class="subspot-badge">游览第 5 站 · 阿妣山 (四姑娜措远眺)</span>
+          </div>
+          <div class="subspot-body">
+            <div>
+              <h3 class="subspot-title">阿妣山（图11）</h3>
+              <p class="subspot-desc">四姑娘的外婆山，在四姑娜措远眺可见。山峰险峻巍峨，山尖积雪与云雾交织，是双桥沟深处极具辨识度的高山雪峰背景。</p>
+            </div>
+            <div class="subspot-tips">
+              📸 <strong>观景机位：</strong> 在四姑娜措湖边栈道抬头远眺，可将湖泊枯木与阿妣山同框收入镜头。
+            </div>
+          </div>
+        </article>
+
+<article class="subspot-card">
+                    <div class="subspot-img-box">
+            <img src="../images/siguniangshan/siguniangshan-fig12.webp" alt="帖子图12：银瀑雍措" />
+            <span class="subspot-badge">游览第 6 站 · 银瀑雍措与云端服务中心</span>
+          </div>
+          <div class="subspot-body">
+            <div>
+              <h3 class="subspot-title">银瀑雍措与云端服务中心（图12）</h3>
+              <p class="subspot-desc">云端服务中心中转站所在处。高山瀑布跌落汇聚成海，四周山色秀丽。此处为全沟重要交通节点，需在此步行换乘前往人参果坪的景交车。</p>
+            </div>
+          </div>
+        </article>
+
+<article class="subspot-card">
+                    <div class="subspot-gallery-slider">
+            <div class="subspot-slider-track">
+              <div class="subspot-slide"><img src="../images/siguniangshan/siguniangshan-fig13.webp" alt="帖子图13：人参果坪" /></div>
+              <div class="subspot-slide"><img src="../images/siguniangshan/siguniangshan-fig14.webp" alt="帖子图14：人参果坪" /></div>
+            </div>
+            <span class="subspot-badge">游览第 7 站 · 人参果坪 (近沟口草甸)</span>
+            <button class="slider-nav-btn slider-prev" aria-label="上一张">‹</button>
+            <button class="slider-nav-btn slider-next" aria-label="下一张">›</button>
+            <div class="slider-counter">1 / 2</div>
+            <div class="slider-dots">
+              <div class="slider-dot active"></div>
+              <div class="slider-dot"></div>
+            </div>
+          </div>
+          <div class="subspot-body">
+            <div>
+              <h3 class="subspot-title">人参果坪（图13–14）</h3>
+              <p class="subspot-desc">双桥沟出沟前的宽阔高山草甸。清澈溪流在草滩中蜿蜒穿流，牦牛悠闲漫步，远处雪峰连绵，展现出恬静的高原牧场风光。</p>
+            </div>
+            <div class="subspot-tips">
+              📸 <strong>打卡建议：</strong> 适合轻松漫步拍照，注意与牦牛保持安全距离。
+            </div>
+          </div>
+        </article>
+
+      </div>
+      <p style="font-size: 12.5px; color: #64748b; margin-top: 12px; line-height: 1.7;">
+        已按小红书博主 Suburb. 正文完整展示全部下载完成的子景点实拍照片（拍摄于 2024 年五一假期）：图3–4＝红杉林，图5–7＝布达拉峰段，图8＝珠噶纳措，图9–10＝四姑娜措，图11＝阿妣山，图12＝银瀑雍措，图13–14＝人参果坪。图片来自五一春雪期实拍，用于佐证景区子景点归属与真实动线。
+      </p>
+    </section>
+
+  </main>
+
+  <!-- Bottom Bar -->
+  <aside class="bottom-bar">
+    <div style="font-size: 13px; font-weight: 600; color: #334155;">
+      <span>🏔️ 四姑娘山 · 深度出行决策路书</span>
+    </div>
+    <a href="../川西自驾与景点交互地图.html?spot=siguniangshan" class="bottom-btn">
+      <span>🗺️ 返回主地图并定位该景点</span>
+    </a>
+  </aside>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.subspot-gallery-slider').forEach(slider => {
+        const track = slider.querySelector('.subspot-slider-track');
+        const slides = slider.querySelectorAll('.subspot-slide');
+        const prevBtn = slider.querySelector('.slider-prev');
+        const nextBtn = slider.querySelector('.slider-next');
+        const counter = slider.querySelector('.slider-counter');
+        const dots = slider.querySelectorAll('.slider-dot');
+        const total = slides.length;
+        if (total <= 1) return;
+
+        let currentIndex = 0;
+
+        function updateSlider(index) {
+          currentIndex = (index + total) % total;
+          track.style.transform = `translateX(-${currentIndex * 100}%)`;
+          if (counter) counter.textContent = `${currentIndex + 1} / ${total}`;
+          dots.forEach((dot, i) => {
+            dot.classList.toggle('active', i === currentIndex);
+          });
+        }
+
+        if (prevBtn) {
+          prevBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            updateSlider(currentIndex - 1);
+          });
+        }
+        if (nextBtn) {
+          nextBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            updateSlider(currentIndex + 1);
+          });
+        }
+        dots.forEach((dot, i) => {
+          dot.addEventListener('click', (e) => {
+            e.stopPropagation();
+            updateSlider(i);
+          });
+        });
+      });
+    });
+  </script>
+</body>
+</html>

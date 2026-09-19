@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>冷嘎措与子梅垭口深度决策手账与徒步路书 - 川西自驾指南</title>
+  <style>
+    :root {
+      --primary: #2563eb; --primary-dark: #1d4ed8; --bg-light: #f8fafc;
+      --card-bg: #ffffff; --text-main: #0f172a; --text-muted: #64748b;
+      --border: #e2e8f0; --danger: #e11d48; --shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.06);
+      --shadow-md: 0 10px 25px -4px rgba(15, 23, 42, 0.1);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; color: var(--text-main); background: var(--bg-light); line-height: 1.65; padding-bottom: 80px; }
+    .top-nav { position: sticky; top: 0; z-index: 100; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow-sm); }
+    .nav-brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 15px; color: #0f172a; }
+    .nav-back-btn { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; background: #eff6ff; color: var(--primary); border: 1px solid #bfdbfe; border-radius: 9999px; font-size: 13px; font-weight: 600; text-decoration: none; transition: all 0.2s; }
+    .nav-back-btn:hover { background: var(--primary); color: #ffffff; transform: translateY(-1px); }
+    .container { max-width: 960px; margin: 0 auto; padding: 20px 16px; }
+    .spot-hero { position: relative; width: 100%; height: 380px; border-radius: 20px; overflow: hidden; margin-bottom: 24px; box-shadow: var(--shadow-md); background: #0f172a; }
+    .spot-hero img { width: 100%; height: 100%; object-fit: cover; opacity: 0.92; }
+    .hero-overlay { position: absolute; bottom: 0; left: 0; right: 0; padding: 30px 24px 20px; background: linear-gradient(180deg, transparent 0%, rgba(15, 23, 42, 0.88) 100%); color: #ffffff; }
+    .hero-title { font-size: 28px; font-weight: 800; margin-bottom: 6px; }
+    .hero-subtitle { font-size: 14px; color: #cbd5e1; margin-bottom: 12px; }
+    .hero-tags-row { display: flex; flex-wrap: wrap; gap: 8px; }
+    .hero-badge { font-size: 11.5px; padding: 4px 10px; border-radius: 6px; font-weight: 600; backdrop-filter: blur(8px); }
+    .badge-alt { background: rgba(255,255,255,0.22); color: #ffffff; }
+    .badge-diff { background: rgba(225, 29, 72, 0.9); color: #ffffff; }
+    .badge-autumn { background: rgba(217, 119, 6, 0.9); color: #ffffff; }
+    .decision-summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 24px; }
+    .summary-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; box-shadow: var(--shadow-sm); }
+    .summary-card-title { font-size: 11.5px; font-weight: 600; color: var(--text-muted); margin-bottom: 4px; }
+    .summary-card-value { font-size: 15px; font-weight: 800; color: var(--text-main); }
+    .content-section { background: var(--card-bg); border: 1px solid var(--border); border-radius: 18px; padding: 24px 22px; margin-bottom: 24px; box-shadow: var(--shadow-sm); }
+    .section-header { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+    .section-icon { font-size: 22px; line-height: 1; }
+    .section-heading { font-size: 18px; font-weight: 800; color: var(--text-main); }
+    .traffic-box { display: flex; flex-direction: column; gap: 14px; }
+    .traffic-item { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px 16px; }
+    .traffic-item-title { font-size: 14px; font-weight: 700; color: #1e293b; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+    .traffic-item-desc { font-size: 13px; color: #475569; line-height: 1.6; }
+    .subspots-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
+    .subspot-card { background: #ffffff; border: 1px solid var(--border); border-radius: 16px; overflow: hidden; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; }
+    @media(min-width: 720px) { .subspot-card { flex-direction: row; } .subspot-img-box { width: 380px; flex-shrink: 0; } }
+    .subspot-img-box { position: relative; height: 240px; background: #0f172a; }
+    .subspot-img-box img { width: 100%; height: 100%; object-fit: cover; }
+    .subspot-badge { position: absolute; top: 10px; left: 10px; background: rgba(15, 23, 42, 0.8); color: #ffffff; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; }
+    .subspot-body { padding: 16px 18px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
+    .subspot-title { font-size: 17px; font-weight: 800; color: #0f172a; margin-bottom: 6px; }
+    .subspot-desc { font-size: 13px; color: #334155; line-height: 1.6; margin-bottom: 10px; }
+    .subspot-tips { background: #fffbeb; border: 1px solid #fde68a; padding: 8px 12px; border-radius: 8px; font-size: 12px; color: #92400e; line-height: 1.5; }
+    .bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; z-index: 99; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); border-top: 1px solid var(--border); padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 -4px 16px rgba(0,0,0,0.06); }
+    .bottom-btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 18px; background: var(--primary); color: #ffffff; border-radius: 10px; font-size: 13.5px; font-weight: 700; text-decoration: none; transition: background 0.2s; }
+    .bottom-btn:hover { background: var(--primary-dark); }
+  </style>
+</head>
+<body>
+
+  <header class="top-nav">
+    <div class="nav-brand">
+      <span>🏔️ 川西自驾路书</span>
+      <span style="color: #cbd5e1;">|</span>
+      <span>冷嘎措 & 子梅垭口深度决策手账</span>
+    </div>
+    <a href="../川西自驾与景点交互地图.html?spot=lenggacuo" class="nav-back-btn">
+      <span>🗺️ 返回主地图并定位</span>
+    </a>
+  </header>
+
+  <main class="container">
+
+    <section class="spot-hero">
+      <img src="../images/lenggacuo.jpg" alt="冷嘎措倒影" referrerpolicy="no-referrer" onerror="this.src='../images/lenggacuo_autumn1.jpg'" />
+      <div class="hero-overlay">
+        <h1 class="hero-title">冷嘎措 & 子梅垭口</h1>
+        <p class="hero-subtitle">直面蜀山之王7556m主峰殿堂级视点 · 圣湖双金山倒影与千仞云海</p>
+        <div class="hero-tags-row">
+          <span class="hero-badge badge-alt">⛰️ 海拔 4500m ~ 4550m</span>
+          <span class="hero-badge badge-diff">⚠️ 徒步强度：高难度碎石爬升</span>
+          <span class="hero-badge badge-autumn">☀️ 极度看天吃饭 (阴天无景)</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="decision-summary-grid">
+      <div class="summary-card">
+        <div class="summary-card-title">🚗 成都出发车程</div>
+        <div class="summary-card-value">7 - 8h / 450km (砂石越野路)</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-card-title">💰 进山包车+摩托预算</div>
+        <div class="summary-card-value">¥220 ~ ¥320 /人</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-card-title">🥾 冷嘎措通达限制</div>
+        <div class="summary-card-value" style="color: var(--danger);">摩托仅送半山！最后1.5km必走</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-card-title">🚘 车辆要求</div>
+        <div class="summary-card-value">强越野底盘 (轿车绝不可上)</div>
+      </div>
+    </section>
+
+    <!-- Hard Warning Box -->
+    <div style="background: #fff1f2; border: 1px solid #fecdd3; border-radius: 14px; padding: 16px 18px; margin-bottom: 24px;">
+      <div style="font-size: 14.5px; font-weight: 700; color: #be123c; margin-bottom: 6px;">
+        ⚠️ 核心决策硬核预警：下山摸黑与极限温差！
+      </div>
+      <div style="font-size: 13px; color: #881337; line-height: 1.6;">
+        1. <strong>冷嘎措摩托车不是直达！</strong> 摩托车（单程100-150元）只能送至半山腰 4300m 平台，最后最陡峭的 1.5-2 公里必须在缺氧状态下徒步爬升 200 米，耗时约 1 小时。<br/>
+        2. <strong>下山摸黑危险：</strong> 拍摄完 19:20 的日落金山后，天色在 15 分钟内全黑，必须自备专业强光头灯踩着碎石陡坡下山，狂风大作，气温骤降至零下 5-10℃，务必带足羽绒服、手套、防滑登山鞋。
+      </div>
+    </div>
+
+    <!-- Module 1: Route -->
+    <section class="content-section">
+      <div class="section-header">
+        <span class="section-icon">🚗</span>
+        <h2 class="section-heading">交通、包车与大本营选址</h2>
+      </div>
+      <div class="traffic-box">
+        <div class="traffic-item">
+          <div class="traffic-item-title">🚘 自驾路线规划</div>
+          <div class="traffic-item-desc">
+            成都 ➔ 康定 ➔ 新都桥 ➔ 甲根坝 ➔ 沙德镇 ➔ 贡嘎山镇（上木居村 / 玉龙西村），全程约 450 公里。沙德至玉龙西村为水泥硬化路，但从村子通往冷嘎措山脚与子梅垭口全为险峻碎石悬崖烂路，<strong>普通轿车必须将车停在村里，换乘当地四驱越野车</strong>。
+          </div>
+        </div>
+        <div class="traffic-item">
+          <div class="traffic-item-title">🚐 当地包车方案</div>
+          <div class="traffic-item-desc">
+            以上木居村或玉龙西村客栈为大本营，包当地四驱越野车（普拉多/陆巡/坦克300，约 600-800 元/车/天），可同日串联子梅垭口（看云海）与冷嘎措（看日落倒影）。
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Module 2: Sub-Spots Gallery -->
+    <section class="content-section">
+      <div class="section-header">
+        <span class="section-icon">📷</span>
+        <h2 class="section-heading">殿堂级出片机位深度解析</h2>
+      </div>
+
+      <div class="subspots-grid">
+        <article class="subspot-card">
+          <div class="subspot-img-box">
+            <img src="../images/lenggacuo.jpg" alt="冷嘎措双金山" referrerpolicy="no-referrer" />
+            <span class="subspot-badge">摄影圣殿 · 海拔4500m</span>
+          </div>
+          <div class="subspot-body">
+            <div>
+              <h3 class="subspot-title">冷嘎措·贡嘎双金山倒影</h3>
+              <p class="subspot-desc">湖畔直面 7556 米蜀山之王庞大的冰川主峰。晴朗无风的黄昏，湖面宛如一面深蓝明镜，金光四射的贡嘎雪山与湖中倒影交相辉映，中国风光摄影的无上皇冠机位。</p>
+            </div>
+            <div class="subspot-tips">
+              📸 <strong>拍摄时机：</strong> 10月中下旬至11月降水最少、风浪最小。必须携带三脚架与减光镜；靠近湖边找一处风浪死角小水洼进行低角度对称构图。
+            </div>
+          </div>
+        </article>
+
+        <article class="subspot-card">
+          <div class="subspot-img-box">
+            <img src="../images/lenggacuo_autumn1.jpg" alt="子梅垭口云海" referrerpolicy="no-referrer" />
+            <span class="subspot-badge">直面贡嘎 · 海拔4550m</span>
+          </div>
+          <div class="subspot-body">
+            <div>
+              <h3 class="subspot-title">子梅垭口·千仞云海与雪山贴脸</h3>
+              <p class="subspot-desc">越野车可直接开上垭口公路边缘，下车即直面近在咫尺、垂直拔起千米的贡嘎巨壁。脚下是翻滚汹涌的浩瀚云海，视觉震撼压迫感无与伦比。</p>
+            </div>
+            <div class="subspot-tips">
+              📸 <strong>通达优点：</strong> 全车直达，完全没有徒步负担，体能一般的长辈可在此无痛打卡贡嘎雪山。
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+  </main>
+
+  <aside class="bottom-bar">
+    <div style="font-size: 13px; font-weight: 600; color: #334155;">
+      <span>🏔️ 冷嘎措 & 子梅垭口 · 深度决策路书</span>
+    </div>
+    <a href="../川西自驾与景点交互地图.html?spot=lenggacuo" class="bottom-btn">
+      <span>🗺️ 返回主地图并定位该景点</span>
+    </a>
+  </aside>
+
+</body>
+</html>

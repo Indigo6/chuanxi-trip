@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>毕棚沟深度决策手账与两段电瓶车路书 - 川西自驾指南</title>
+  <style>
+    :root {
+      --primary: #2563eb; --primary-dark: #1d4ed8; --bg-light: #f8fafc;
+      --card-bg: #ffffff; --text-main: #0f172a; --text-muted: #64748b;
+      --border: #e2e8f0; --shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.06);
+      --shadow-md: 0 10px 25px -4px rgba(15, 23, 42, 0.1);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; color: var(--text-main); background: var(--bg-light); line-height: 1.65; padding-bottom: 80px; }
+    .top-nav { position: sticky; top: 0; z-index: 100; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow-sm); }
+    .nav-brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 15px; color: #0f172a; }
+    .nav-back-btn { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; background: #eff6ff; color: var(--primary); border: 1px solid #bfdbfe; border-radius: 9999px; font-size: 13px; font-weight: 600; text-decoration: none; transition: all 0.2s; }
+    .nav-back-btn:hover { background: var(--primary); color: #ffffff; transform: translateY(-1px); }
+    .container { max-width: 960px; margin: 0 auto; padding: 20px 16px; }
+    .spot-hero { position: relative; width: 100%; height: 380px; border-radius: 20px; overflow: hidden; margin-bottom: 24px; box-shadow: var(--shadow-md); background: #0f172a; }
+    .spot-hero img { width: 100%; height: 100%; object-fit: cover; opacity: 0.92; }
+    .hero-overlay { position: absolute; bottom: 0; left: 0; right: 0; padding: 30px 24px 20px; background: linear-gradient(180deg, transparent 0%, rgba(15, 23, 42, 0.88) 100%); color: #ffffff; }
+    .hero-title { font-size: 28px; font-weight: 800; margin-bottom: 6px; }
+    .hero-subtitle { font-size: 14px; color: #cbd5e1; margin-bottom: 12px; }
+    .hero-tags-row { display: flex; flex-wrap: wrap; gap: 8px; }
+    .hero-badge { font-size: 11.5px; padding: 4px 10px; border-radius: 6px; font-weight: 600; backdrop-filter: blur(8px); }
+    .badge-alt { background: rgba(255,255,255,0.22); color: #ffffff; }
+    .badge-diff { background: rgba(22, 163, 74, 0.88); color: #ffffff; }
+    .badge-autumn { background: rgba(217, 119, 6, 0.9); color: #ffffff; }
+    .decision-summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 24px; }
+    .summary-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; box-shadow: var(--shadow-sm); }
+    .summary-card-title { font-size: 11.5px; font-weight: 600; color: var(--text-muted); margin-bottom: 4px; }
+    .summary-card-value { font-size: 15px; font-weight: 800; color: var(--text-main); }
+    .content-section { background: var(--card-bg); border: 1px solid var(--border); border-radius: 18px; padding: 24px 22px; margin-bottom: 24px; box-shadow: var(--shadow-sm); }
+    .section-header { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+    .section-icon { font-size: 22px; line-height: 1; }
+    .section-heading { font-size: 18px; font-weight: 800; color: var(--text-main); }
+    .traffic-box { display: flex; flex-direction: column; gap: 14px; }
+    .traffic-item { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px 16px; }
+    .traffic-item-title { font-size: 14px; font-weight: 700; color: #1e293b; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+    .traffic-item-desc { font-size: 13px; color: #475569; line-height: 1.6; }
+    .fee-table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 13px; }
+    .fee-table th { background: #f1f5f9; padding: 10px 12px; text-align: left; font-weight: 700; color: #334155; border: 1px solid #e2e8f0; }
+    .fee-table td { padding: 10px 12px; border: 1px solid #e2e8f0; color: #334155; }
+    .fee-table tr:nth-child(even) { background: #fafbfc; }
+    .subspots-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
+    .subspot-card { background: #ffffff; border: 1px solid var(--border); border-radius: 16px; overflow: hidden; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; }
+    @media(min-width: 720px) { .subspot-card { flex-direction: row; } .subspot-img-box { width: 380px; flex-shrink: 0; } }
+    .subspot-img-box { position: relative; height: 240px; background: #0f172a; }
+    .subspot-img-box img { width: 100%; height: 100%; object-fit: cover; }
+    .subspot-badge { position: absolute; top: 10px; left: 10px; background: rgba(15, 23, 42, 0.8); color: #ffffff; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; }
+    .subspot-body { padding: 16px 18px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
+    .subspot-title { font-size: 17px; font-weight: 800; color: #0f172a; margin-bottom: 6px; }
+    .subspot-desc { font-size: 13px; color: #334155; line-height: 1.6; margin-bottom: 10px; }
+    .subspot-tips { background: #fffbeb; border: 1px solid #fde68a; padding: 8px 12px; border-radius: 8px; font-size: 12px; color: #92400e; line-height: 1.5; }
+    .bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; z-index: 99; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); border-top: 1px solid var(--border); padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 -4px 16px rgba(0,0,0,0.06); }
+    .bottom-btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 18px; background: var(--primary); color: #ffffff; border-radius: 10px; font-size: 13.5px; font-weight: 700; text-decoration: none; transition: background 0.2s; }
+    .bottom-btn:hover { background: var(--primary-dark); }
+  
+    /* Route Flow Timeline */
+    .route-flow-box { display: flex; flex-direction: column; gap: 14px; position: relative; padding-left: 20px; }
+    .route-flow-box::before { content: ''; position: absolute; left: 15px; top: 12px; bottom: 12px; width: 2px; background: #cbd5e1; }
+    .flow-step { position: relative; display: flex; gap: 14px; align-items: flex-start; }
+    .step-node { width: 32px; height: 32px; border-radius: 50%; background: var(--primary); color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; flex-shrink: 0; z-index: 2; box-shadow: 0 0 0 4px #eff6ff; }
+    .step-node.node-danger { background: #d97706; }
+    .step-content { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px 16px; flex: 1; }
+    .step-name { font-size: 14.5px; font-weight: 700; color: #0f172a; margin-bottom: 4px; }
+    .step-meta { font-size: 12.5px; color: #475569; line-height: 1.5; margin-bottom: 6px; }
+    .step-transit-tag { display: inline-block; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 4px; }
+    .transit-bus { background: #e0f2fe; color: #0369a1; }
+    .transit-cart { background: #fef3c7; color: #92400e; }
+    .transit-hike { background: #dcfce7; color: #166534; }
+
+  
+    
+
+  
+    /* Subspot Gallery Slider (Multi-photo Carousel) */
+    .subspot-gallery-slider {
+      position: relative;
+      width: 100%;
+      height: 250px;
+      background: #0f172a;
+      overflow: hidden;
+      display: flex;
+    }
+    @media(min-width: 720px) {
+      .subspot-gallery-slider {
+        width: 380px;
+        height: auto;
+        min-height: 250px;
+        flex-shrink: 0;
+      }
+    }
+    .subspot-slider-track {
+      display: flex;
+      width: 100%;
+      height: 100%;
+      transition: transform 0.32s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+    .subspot-slide {
+      min-width: 100%;
+      width: 100%;
+      height: 100%;
+      position: relative;
+      flex-shrink: 0;
+    }
+    .subspot-slide img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .slider-nav-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(15, 23, 42, 0.72);
+      backdrop-filter: blur(4px);
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 18px;
+      font-weight: 700;
+      line-height: 1;
+      user-select: none;
+      z-index: 10;
+      transition: background 0.15s, transform 0.15s;
+    }
+    .slider-nav-btn:hover {
+      background: rgba(15, 23, 42, 0.95);
+      transform: translateY(-50%) scale(1.08);
+    }
+    .slider-prev { left: 8px; }
+    .slider-next { right: 8px; }
+    .slider-counter {
+      position: absolute;
+      bottom: 8px;
+      right: 10px;
+      background: rgba(15, 23, 42, 0.78);
+      backdrop-filter: blur(4px);
+      color: #ffffff;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      z-index: 10;
+      letter-spacing: 0.5px;
+    }
+    .slider-dots {
+      position: absolute;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 5px;
+      z-index: 10;
+    }
+    .slider-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.45);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .slider-dot.active {
+      width: 16px;
+      border-radius: 3px;
+      background: #ffffff;
+    }
+
+  </style>
+</head>
+<body>
+
+  <header class="top-nav">
+    <div class="nav-brand">
+      <span>🏔️ 川西自驾路书</span>
+      <span style="color: #cbd5e1;">|</span>
+      <span>毕棚沟深度决策手账</span>
+    </div>
+    <a href="../川西自驾与景点交互地图.html?spot=bipenggou" class="nav-back-btn">
+      <span>🗺️ 返回主地图并定位</span>
+    </a>
+  </header>
+
+  <main class="container">
+
+    <section class="spot-hero">
+      <img src="../images/bipenggou/panyanghu-fig6.webp" alt="帖子图6：毕棚沟磐羊湖雪山与瀑布" referrerpolicy="no-referrer" onerror="this.src='../images/bipenggou_autumn1.jpg'" />
+      <div class="hero-overlay">
+        <h1 class="hero-title">毕棚沟国家级生态旅游区</h1>
+        <p class="hero-subtitle">离成都最近的高性价比冰川彩林秘境 · 大巴与两段电瓶车换乘规则全解析</p>
+        <div class="hero-tags-row">
+          <span class="hero-badge badge-alt">⛰️ 海拔 2000m ~ 3800m (燕子岩窝)</span>
+          <span class="hero-badge badge-diff">🚗 成都3h畅达 · 全程高速路况极佳</span>
+          <span class="hero-badge badge-autumn">🍁 最佳季节：10月中旬 ~ 11月中旬</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="decision-summary-grid">
+      <div class="summary-card">
+        <div class="summary-card-title">🚗 成都出发车程</div>
+        <div class="summary-card-value">3 - 3.5h / 198km (过路费~50元)</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-card-title">💰 全口径总费用</div>
+        <div class="summary-card-value">约 ¥200 /人（常见口径，临行核价）</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-card-title">☀️ 天气依赖程度</div>
+        <div class="summary-card-value">中度 (初雪金秋同框极惊艳)</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-card-title">🛺 内部小交通规则</div>
+        <div class="summary-card-value">大巴至上海子，再换2段电瓶车</div>
+      </div>
+    </section>
+
+    <!-- Module 1: Route -->
+    <section class="content-section">
+      <div class="section-header">
+        <span class="section-icon">🚗</span>
+        <h2 class="section-heading">从成都出发怎么去：自驾路线与客运直通车</h2>
+      </div>
+      <div class="traffic-box">
+        <div class="traffic-item">
+          <div class="traffic-item-title">🚘 自驾路线指南</div>
+          <div class="traffic-item-desc">
+            <strong>路线规划：</strong> 成都 ➔ 蓉昌高速 (成灌/都汶段) ➔ 汶川 ➔ 汶马高速 ➔ 理县出口 ➔ 朴头镇 ➔ 毕棚沟景区游客中心。<br/>
+            <strong>用时与里程：</strong> 全程仅 198 公里，车程约 3 - 3.5 小时，单程高速过路费约 50 元。全线高速加平整柏油路，普通家轿甚至纯电新能源毫无续航压力，是成都人周末吸氧看雪看彩林的最快捷首选。
+          </div>
+        </div>
+        <div class="traffic-item">
+          <div class="traffic-item-title">🚌 客运与直通大巴</div>
+          <div class="traffic-item-desc">
+            <strong>茶店子客运站：</strong> 可在“茶店子客运站”公众号或“天府出行”查询到【毕棚沟口】的班次；一篇游客实测样本为 15:30 发车、约 3 小时抵达、114 元，但班次与价格会变，请按出行日查询结果为准。<br/>
+            <strong>直通车与拼车：</strong> 成都往返产品较多，预订时要确认终点究竟是理县、酒店还是景区门口，以及返程集合点和最晚发车时间。
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Module 2: Fees -->
+    <section class="content-section">
+      <div class="section-header">
+        <span class="section-icon">💰</span>
+        <h2 class="section-heading">门票与内部两段电瓶车全透明账单</h2>
+      </div>
+      <table class="fee-table">
+        <thead>
+          <tr>
+            <th>项目</th>
+            <th>费用</th>
+            <th>性质</th>
+            <th>说明与强烈建议</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>门票 + 景区大巴观光车</strong></td>
+            <td>参考口径：门票 ¥70 + 大巴 ¥70</td>
+            <td>必须购买套票</td>
+            <td>大巴车从游客中心开至【上海子服务区】（车程约40分钟）。</td>
+          </tr>
+          <tr>
+            <td><strong>第 1 段电瓶车 (上海子 ⇄ 磐羊湖)</strong></td>
+            <td>参考口径：¥30（往返）</td>
+            <td>强烈建议买</td>
+            <td>游客实测徒步约需 2 小时；4-5 小时速通建议乘车。</td>
+          </tr>
+          <tr>
+            <td><strong>第 2 段电瓶车 (月亮湾 ⇄ 燕子岩窝)</strong></td>
+            <td>参考口径：¥30（往返）</td>
+            <td>强烈建议买</td>
+            <td>单程 4.5 公里直达海拔 3800m 终点雪山红石滩。</td>
+          </tr>
+        </tbody>
+      </table>
+      <p style="font-size: 13px; color: #1e293b; background: #eff6ff; padding: 10px 14px; border-radius: 8px; margin-top: 8px; font-weight: 600;">
+        💡 <strong>价格口径提醒：</strong> 3 篇游客笔记出现约 ¥180 与“70+70+60≈¥200”两种口径，可能受平台套餐、活动或发布时间影响。路线判断可参考，价格务必在“阿坝旅游”等官方渠道按出行日核验。两段电瓶车全坐更省时，但高海拔不等于对老人小孩“无风险”。
+      </p>
+    </section>
+
+    <!-- Module 3: 4-5 Hour Route Flow -->
+    <section class="content-section">
+      <div class="section-header">
+        <span class="section-icon">🗺️</span>
+        <h2 class="section-heading">4-5小时速通不累腿游览动线（两段电瓶车换乘全解析）</h2>
+      </div>
+
+      <div class="route-flow-box">
+        <div class="flow-step">
+          <div class="step-node">1</div>
+          <div class="step-content">
+            <div class="step-name">游客中心大门 (海拔2000m)</div>
+            <div class="step-meta">检票入园，统一乘坐景区大巴观光车，盘山公路单程行驶 26 公里（约 45 分钟）。直达上海子接待中心。</div>
+            <span class="step-transit-tag transit-bus">🚌 景区大巴观光车 · 包含在130元套票内</span>
+          </div>
+        </div>
+
+        <div class="flow-step">
+          <div class="step-node">2</div>
+          <div class="step-content">
+            <div class="step-name">龙王海 (海拔2950m) ➔ 白龙瀑布 (3100m)</div>
+            <div class="step-meta"><strong>建议上行时下车游览：</strong>游客实测提示返程大巴可能不停该站。沿龙王海木栈道步行至后续上车点，再乘大巴前往上海子；具体停靠以当天调度为准。</div>
+            <span class="step-transit-tag transit-hike">🥾 木栈道轻漫步 · 平缓下坡约 30 分钟</span>
+          </div>
+        </div>
+
+        <div class="flow-step">
+          <div class="step-node">3</div>
+          <div class="step-content">
+            <div class="step-name">上海子接待中心 (海拔3570m · 核心枢纽)</div>
+            <div class="step-meta"><strong>⚠️ 大巴终点与换乘枢纽。</strong>上海子本身以补给、换车为主。到磐羊湖可坐第一段电瓶车；游客实测徒步约需 2 小时，若只安排 4-5 小时游览，不建议把主要时间耗在这一段。</div>
+            <span class="step-transit-tag transit-cart">🛺 换乘第 1 段电瓶车 · 往返30元</span>
+          </div>
+        </div>
+
+        <div class="flow-step">
+          <div class="step-node">4</div>
+          <div class="step-content">
+            <div class="step-name">卓玛滩 & 红石滩 (海拔3600m)</div>
+            <div class="step-meta">第 1 段电瓶车沿线景点。若专程去卓玛滩，可从磐羊湖下车区域按现场指引回走约 700 米；不要默认电瓶车每一站都会停。</div>
+            <span class="step-transit-tag transit-hike">📸 出片打卡 · 沙滩溪流红石</span>
+          </div>
+        </div>
+
+        <div class="flow-step">
+          <div class="step-node">5</div>
+          <div class="step-content">
+            <div class="step-name">磐羊湖 (海拔3676m · 核心天花板)</div>
+            <div class="step-meta">毕棚沟风光核心。磐羊湖下车后沿湖边栈道轻徒步约 1-2 公里到月亮湾；磐羊湖并非第二段电瓶车上车点。建议把最多停留时间留给这段雪山、湖泊和彩林组合。</div>
+            <span class="step-transit-tag transit-hike">🥾 精华轻徒步 · 磐羊湖 → 月亮湾</span>
+          </div>
+        </div>
+
+        <div class="flow-step">
+          <div class="step-node node-danger">6</div>
+          <div class="step-content">
+            <div class="step-name" style="color: #2563eb;">燕子岩窝 (海拔3837m · 终极最高点)</div>
+            <div class="step-meta"><strong>🛺 从月亮湾乘第二段电瓶车抵达。</strong>下车后左右两侧草坪约步行 5 分钟；继续深入约 20-30 分钟可更接近雪山，但有爬坡且海拔接近 3900 米，高反或体力不足应在燕子岩休息后返程。</div>
+            <span class="step-transit-tag transit-cart">🏔️ 终极雪山极境 · 电瓶车直达</span>
+          </div>
+        </div>
+      </div>
+      <p style="font-size: 12.5px; color: #64748b; margin-top: 12px; line-height: 1.7;">
+        📌 <strong>游客实测样本（博主 Suburb. 于 2024 年五一假期实地游玩，2026-09-19 整理）：</strong>
+        <a href="https://www.xiaohongshu.com/explore/6a06e60200000000070263b4?xsec_token=ABQ3qX6pjT2T-rdlXJhMNsSrVKtmlEEiAZlcEnBvTO_o8=&amp;xsec_source=pc_search&amp;source=web_explore_feed" target="_blank" rel="noopener noreferrer">毕棚沟4-5小时速通攻略</a>、
+        <a href="https://www.xiaohongshu.com/explore/6a57b2310000000015027ad1?xsec_token=ABji7TV7VvsupNqKLKOUW2oPaS8um7wy1ixk28xLtMqCc=&amp;xsec_source=pc_search" target="_blank" rel="noopener noreferrer">成都周末两日路线</a>、
+        <a href="https://www.xiaohongshu.com/explore/6a7da6dd00000000220176d0?xsec_token=ABLjZxrV9EnzQjT6uGViq0qvCPbKrkFadxnFoUTjdmrEs=&amp;xsec_source=pc_search" target="_blank" rel="noopener noreferrer">不累腿换乘说明</a>。个人笔记用于补充真实动线，不替代景区当日公告。
+      </p>
+    </section>
+
+    <!-- Module 4: 6 Sub-Spots Real Photos Gallery -->
+    <section class="content-section">
+      <div class="section-header">
+        <span class="section-icon">📷</span>
+        <h2 class="section-heading">按帖子图号核对的子景点完整实拍组</h2>
+      </div>
+
+      <div class="subspots-grid">
+
+<article class="subspot-card">
+                    <div class="subspot-gallery-slider">
+            <div class="subspot-slider-track">
+              <div class="subspot-slide"><img src="../images/bipenggou/fig3.webp" alt="帖子图3：龙王海下车点" /></div>
+              <div class="subspot-slide"><img src="../images/bipenggou/fig4.webp" alt="帖子图4：龙王海瀑布" /></div>
+            </div>
+            <span class="subspot-badge">游览第 1 站 · 龙王海 (2950m)</span>
+            <button class="slider-nav-btn slider-prev" aria-label="上一张">‹</button>
+            <button class="slider-nav-btn slider-next" aria-label="下一张">›</button>
+            <div class="slider-counter">1 / 2</div>
+            <div class="slider-dots">
+              <div class="slider-dot active"></div>
+              <div class="slider-dot"></div>
+            </div>
+          </div>
+          <div class="subspot-body">
+            <div>
+              <h3 class="subspot-title">龙王海（图3–4）</h3>
+              <p class="subspot-desc">进入毕棚沟遇见的第一个高山天然湖泊。水质极度清澈透亮，野鸭游弋其间。秋季四周密布红桦、冷杉与金黄落叶松，层林尽染，阳光斜射时湖水呈现纯净的孔雀蓝。</p>
+            </div>
+            <div class="subspot-tips">
+              📸 <strong>小红书游览避坑：</strong> 建议早晨上山时先坐大巴直奔山顶，下午乘大巴下山途中再在龙王海站下车慢慢漫步拍照，此时光线顺光，水色最通透。
+            </div>
+          </div>
+        </article>
+
+<article class="subspot-card">
+                    <div class="subspot-img-box">
+            <img src="../images/bipenggou/fig5.webp" alt="帖子图5：龙王海至上海子途中" />
+            <span class="subspot-badge">游览第 2 站 · 大巴沿途 (图5)</span>
+          </div>
+          <div class="subspot-body"><div><h3 class="subspot-title">龙王海—上海子沿途</h3><p class="subspot-desc">图5为第二段大巴途中视角，不伪装成独立子景点；适合坐前排观景，但弯道较多、容易晕车。</p></div></div>
+        </article>
+
+<article class="subspot-card">
+                    <div class="subspot-gallery-slider">
+            <div class="subspot-slider-track">
+              <div class="subspot-slide"><img src="../images/bipenggou/fig6.webp" alt="帖子图6：磐羊湖" /></div>
+              <div class="subspot-slide"><img src="../images/bipenggou/fig7.webp" alt="帖子图7：磐羊湖" /></div>
+              <div class="subspot-slide"><img src="../images/bipenggou/fig8.webp" alt="帖子图8：磐羊湖" /></div>
+              <div class="subspot-slide"><img src="../images/bipenggou/fig9.webp" alt="帖子图9：磐羊湖" /></div>
+            </div>
+            <span class="subspot-badge">游览第 3 站 · 磐羊湖 (3676m · 核心)</span>
+            <button class="slider-nav-btn slider-prev" aria-label="上一张">‹</button>
+            <button class="slider-nav-btn slider-next" aria-label="下一张">›</button>
+            <div class="slider-counter">1 / 4</div>
+            <div class="slider-dots">
+              <div class="slider-dot active"></div>
+              <div class="slider-dot"></div>
+              <div class="slider-dot"></div>
+              <div class="slider-dot"></div>
+            </div>
+          </div>
+          <div class="subspot-body">
+            <div>
+              <h3 class="subspot-title">磐羊湖（图6–9）</h3>
+              <p class="subspot-desc">毕棚沟无可争议的视觉中心。湖水呈现透彻的蓝绿色渐变，半脊峰雪山金顶完美倒映在如镜水面上。湖中挺立着原生高山枯树，木质月亮湾步道横卧湖心，环湖漫步犹如漫步在阿尔卑斯山仙境。</p>
+            </div>
+            <div class="subspot-tips">
+              📸 <strong>小红书出片机位：</strong> 站在月亮湾木栈桥中部，手机 1x 或 2x 视角低角度仰拍，以湖水枯木为前景，雪山倒影为主体，清冷感与层次感直接拉满。
+            </div>
+          </div>
+        </article>
+
+<article class="subspot-card">
+                    <div class="subspot-img-box">
+            <img src="../images/bipenggou/fig10.webp" alt="帖子图10：月亮湾" />
+            <span class="subspot-badge">游览第 4 站 · 月亮湾换乘点 (图10)</span>
+          </div>
+          <div class="subspot-body"><div><h3 class="subspot-title">月亮湾</h3><p class="subspot-desc">磐羊湖轻徒步段的换乘终点。图10单独归入月亮湾，避免继续与磐羊湖合并成一张代表图。</p></div></div>
+        </article>
+
+<article class="subspot-card">
+                    <div class="subspot-gallery-slider">
+            <div class="subspot-slider-track">
+              <div class="subspot-slide"><img src="../images/bipenggou/fig11.webp" alt="帖子图11：燕子岩窝" /></div>
+              <div class="subspot-slide"><img src="../images/bipenggou/fig12.webp" alt="帖子图12：燕子岩窝" /></div>
+              <div class="subspot-slide"><img src="../images/bipenggou/fig13.webp" alt="帖子图13：燕子岩窝" /></div>
+            </div>
+            <span class="subspot-badge">游览第 5 站 · 燕子岩窝 (3837m · 终点)</span>
+            <button class="slider-nav-btn slider-prev" aria-label="上一张">‹</button>
+            <button class="slider-nav-btn slider-next" aria-label="下一张">›</button>
+            <div class="slider-counter">1 / 3</div>
+            <div class="slider-dots">
+              <div class="slider-dot active"></div>
+              <div class="slider-dot"></div>
+              <div class="slider-dot"></div>
+            </div>
+          </div>
+          <div class="subspot-body">
+            <div>
+              <h3 class="subspot-title">燕子岩窝（图11–13）</h3>
+              <p class="subspot-desc">电瓶车能直达的终点站。拔地而起的千仞黑色花岗岩雪山绝壁扑面而来，绝壁之上悬挂着巨大的现代冰川与层层瀑布，山谷间草甸泛着灿金，十月中下旬常与初雪同框，震撼人心。</p>
+            </div>
+            <div class="subspot-tips">
+              📸 <strong>小红书出片机位：</strong> 建议下车后顺着高山草甸栈道往前走 100 米，背对雪山冰川绝壁站立拍摄大广角人像，电影感极强。
+            </div>
+          </div>
+        </article>
+
+<article class="subspot-card">
+                    <div class="subspot-gallery-slider">
+            <div class="subspot-slider-track">
+              <div class="subspot-slide"><img src="../images/bipenggou/fig14.webp" alt="帖子图14：山水秘境徒步" /></div>
+              <div class="subspot-slide"><img src="../images/bipenggou/fig15.webp" alt="帖子图15：山水秘境雪山" /></div>
+              <div class="subspot-slide"><img src="../images/bipenggou/fig16.webp" alt="帖子图16：山水秘境近距离雪山" /></div>
+            </div>
+            <span class="subspot-badge">游览第 6 站 · 山水秘境 (高阶深入)</span>
+            <button class="slider-nav-btn slider-prev" aria-label="上一张">‹</button>
+            <button class="slider-nav-btn slider-next" aria-label="下一张">›</button>
+            <div class="slider-counter">1 / 3</div>
+            <div class="slider-dots">
+              <div class="slider-dot active"></div>
+              <div class="slider-dot"></div>
+              <div class="slider-dot"></div>
+            </div>
+          </div>
+          <div class="subspot-body">
+            <div>
+              <h3 class="subspot-title">山水秘境（图14–16）</h3>
+              <p class="subspot-desc">从燕子岩窝继续向上爬坡轻徒步约 30 分钟抵达的高处秘境，是景区内离雪山最近的观景区域。高山碎石、残雪与高耸雪峰极具压迫感。坡度较大且海拔接近 3900 米，高反或体力不支者建议在燕子岩窝休整返程。</p>
+            </div>
+            <div class="subspot-tips">
+              ⚠️ <strong>徒步与返程提示：</strong> 若选择前往山水秘境，返程乘电瓶车和下山大巴时如需中途下车必须提前与司机说明。
+            </div>
+          </div>
+        </article>
+
+      </div>
+      <p style="font-size: 12.5px; color: #64748b; margin-top: 12px; line-height: 1.7;">
+        已按小红书博主 Suburb. 正文完整展示全部下载完成的子景点实拍照片（拍摄于 2024 年五一假期）：图3–4＝龙王海，图5＝龙王海至上海子途中，图6–9＝磐羊湖，图10＝月亮湾，图11–13＝燕子岩窝，图14–16＝山水秘境。图片来自五一春雪期实拍，用于佐证景区子景点归属与真实动线。
+      </p>
+    </section>
+
+  </main>
+
+  <aside class="bottom-bar">
+    <div style="font-size: 13px; font-weight: 600; color: #334155;">
+      <span>🏔️ 毕棚沟 · 深度出行决策路书</span>
+    </div>
+    <a href="../川西自驾与景点交互地图.html?spot=bipenggou" class="bottom-btn">
+      <span>🗺️ 返回主地图并定位该景点</span>
+    </a>
+  </aside>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.subspot-gallery-slider').forEach(slider => {
+        const track = slider.querySelector('.subspot-slider-track');
+        const slides = slider.querySelectorAll('.subspot-slide');
+        const prevBtn = slider.querySelector('.slider-prev');
+        const nextBtn = slider.querySelector('.slider-next');
+        const counter = slider.querySelector('.slider-counter');
+        const dots = slider.querySelectorAll('.slider-dot');
+        const total = slides.length;
+        if (total <= 1) return;
+
+        let currentIndex = 0;
+
+        function updateSlider(index) {
+          currentIndex = (index + total) % total;
+          track.style.transform = `translateX(-${currentIndex * 100}%)`;
+          if (counter) counter.textContent = `${currentIndex + 1} / ${total}`;
+          dots.forEach((dot, i) => {
+            dot.classList.toggle('active', i === currentIndex);
+          });
+        }
+
+        if (prevBtn) {
+          prevBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            updateSlider(currentIndex - 1);
+          });
+        }
+        if (nextBtn) {
+          nextBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            updateSlider(currentIndex + 1);
+          });
+        }
+        dots.forEach((dot, i) => {
+          dot.addEventListener('click', (e) => {
+            e.stopPropagation();
+            updateSlider(i);
+          });
+        });
+      });
+    });
+  </script>
+</body>
+</html>

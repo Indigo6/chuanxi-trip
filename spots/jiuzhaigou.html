@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>九寨沟深度决策手账与高铁大巴Y字形动线路书 - 川西自驾指南</title>
+  <style>
+    :root {
+      --primary: #2563eb; --primary-dark: #1d4ed8; --bg-light: #f8fafc;
+      --card-bg: #ffffff; --text-main: #0f172a; --text-muted: #64748b;
+      --border: #e2e8f0; --shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.06);
+      --shadow-md: 0 10px 25px -4px rgba(15, 23, 42, 0.1);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      color: var(--text-main); background: var(--bg-light); line-height: 1.65; padding-bottom: 80px;
+    }
+    .top-nav {
+      position: sticky; top: 0; z-index: 100; background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(12px); border-bottom: 1px solid var(--border);
+      padding: 10px 20px; display: flex; justify-content: space-between; align-items: center;
+      box-shadow: var(--shadow-sm);
+    }
+    .nav-brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 15px; color: #0f172a; }
+    .nav-back-btn {
+      display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px;
+      background: #eff6ff; color: var(--primary); border: 1px solid #bfdbfe;
+      border-radius: 9999px; font-size: 13px; font-weight: 600; text-decoration: none; transition: all 0.2s;
+    }
+    .nav-back-btn:hover { background: var(--primary); color: #ffffff; transform: translateY(-1px); }
+    .container { max-width: 960px; margin: 0 auto; padding: 20px 16px; }
+    .spot-hero {
+      position: relative; width: 100%; height: 380px; border-radius: 20px;
+      overflow: hidden; margin-bottom: 24px; box-shadow: var(--shadow-md); background: #0f172a;
+    }
+    .spot-hero img { width: 100%; height: 100%; object-fit: cover; opacity: 0.92; }
+    .hero-overlay {
+      position: absolute; bottom: 0; left: 0; right: 0; padding: 30px 24px 20px;
+      background: linear-gradient(180deg, transparent 0%, rgba(15, 23, 42, 0.88) 100%); color: #ffffff;
+    }
+    .hero-title { font-size: 28px; font-weight: 800; margin-bottom: 6px; }
+    .hero-subtitle { font-size: 14px; color: #cbd5e1; margin-bottom: 12px; }
+    .hero-tags-row { display: flex; flex-wrap: wrap; gap: 8px; }
+    .hero-badge { font-size: 11.5px; padding: 4px 10px; border-radius: 6px; font-weight: 600; backdrop-filter: blur(8px); }
+    .badge-alt { background: rgba(255,255,255,0.22); color: #ffffff; }
+    .badge-diff { background: rgba(22, 163, 74, 0.88); color: #ffffff; }
+    .badge-autumn { background: rgba(217, 119, 6, 0.9); color: #ffffff; }
+
+    .decision-summary-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px; margin-bottom: 24px;
+    }
+    .summary-card {
+      background: var(--card-bg); border: 1px solid var(--border);
+      border-radius: 14px; padding: 14px 16px; box-shadow: var(--shadow-sm);
+    }
+    .summary-card-title { font-size: 11.5px; font-weight: 600; color: var(--text-muted); margin-bottom: 4px; }
+    .summary-card-value { font-size: 15px; font-weight: 800; color: var(--text-main); }
+
+    .content-section {
+      background: var(--card-bg); border: 1px solid var(--border);
+      border-radius: 18px; padding: 24px 22px; margin-bottom: 24px; box-shadow: var(--shadow-sm);
+    }
+    .section-header {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 16px;
+      padding-bottom: 10px; border-bottom: 1px solid var(--border);
+    }
+    .section-icon { font-size: 22px; line-height: 1; }
+    .section-heading { font-size: 18px; font-weight: 800; color: var(--text-main); }
+
+    .traffic-box { display: flex; flex-direction: column; gap: 14px; }
+    .traffic-item {
+      background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px 16px;
+    }
+    .traffic-item-title { font-size: 14px; font-weight: 700; color: #1e293b; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+    .traffic-item-desc { font-size: 13px; color: #475569; line-height: 1.6; }
+
+    .fee-table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 13px; }
+    .fee-table th { background: #f1f5f9; padding: 10px 12px; text-align: left; font-weight: 700; color: #334155; border: 1px solid #e2e8f0; }
+    .fee-table td { padding: 10px 12px; border: 1px solid #e2e8f0; color: #334155; }
+    .fee-table tr:nth-child(even) { background: #fafbfc; }
+
+    .subspots-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
+    .subspot-card {
+      background: #ffffff; border: 1px solid var(--border); border-radius: 16px;
+      overflow: hidden; box-shadow: var(--shadow-sm); display: flex; flex-direction: column;
+    }
+    @media(min-width: 720px) {
+      .subspot-card { flex-direction: row; }
+      .subspot-img-box { width: 380px; flex-shrink: 0; }
+    }
+    .subspot-img-box { position: relative; height: 240px; background: #0f172a; }
+    .subspot-img-box img { width: 100%; height: 100%; object-fit: cover; }
+    .subspot-badge {
+      position: absolute; top: 10px; left: 10px; background: rgba(15, 23, 42, 0.8);
+      color: #ffffff; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 600;
+    }
+    .subspot-body { padding: 16px 18px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
+    .subspot-title { font-size: 17px; font-weight: 800; color: #0f172a; margin-bottom: 6px; }
+    .subspot-desc { font-size: 13px; color: #334155; line-height: 1.6; margin-bottom: 10px; }
+    .subspot-tips {
+      background: #fffbeb; border: 1px solid #fde68a; padding: 8px 12px;
+      border-radius: 8px; font-size: 12px; color: #92400e; line-height: 1.5;
+    }
+
+    .bottom-bar {
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 99;
+      background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px);
+      border-top: 1px solid var(--border); padding: 12px 20px;
+      display: flex; justify-content: space-between; align-items: center;
+      box-shadow: 0 -4px 16px rgba(0,0,0,0.06);
+    }
+    .bottom-btn {
+      display: inline-flex; align-items: center; gap: 6px; padding: 8px 18px;
+      background: var(--primary); color: #ffffff; border-radius: 10px;
+      font-size: 13.5px; font-weight: 700; text-decoration: none; transition: background 0.2s;
+    }
+    .bottom-btn:hover { background: var(--primary-dark); }
+  
+    /* Subspot Gallery Slider (Multi-photo Carousel) */
+    .subspot-gallery-slider {
+      position: relative;
+      width: 100%;
+      height: 250px;
+      background: #0f172a;
+      overflow: hidden;
+      display: flex;
+    }
+    @media(min-width: 720px) {
+      .subspot-gallery-slider {
+        width: 380px;
+        height: auto;
+        min-height: 250px;
+        flex-shrink: 0;
+      }
+    }
+    .subspot-slider-track {
+      display: flex;
+      width: 100%;
+      height: 100%;
+      transition: transform 0.32s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+    .subspot-slide {
+      min-width: 100%;
+      width: 100%;
+      height: 100%;
+      position: relative;
+      flex-shrink: 0;
+    }
+    .subspot-slide img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .slider-nav-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(15, 23, 42, 0.72);
+      backdrop-filter: blur(4px);
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 18px;
+      font-weight: 700;
+      line-height: 1;
+      user-select: none;
+      z-index: 10;
+      transition: background 0.15s, transform 0.15s;
+    }
+    .slider-nav-btn:hover {
+      background: rgba(15, 23, 42, 0.95);
+      transform: translateY(-50%) scale(1.08);
+    }
+    .slider-prev { left: 8px; }
+    .slider-next { right: 8px; }
+    .slider-counter {
+      position: absolute;
+      bottom: 8px;
+      right: 10px;
+      background: rgba(15, 23, 42, 0.78);
+      backdrop-filter: blur(4px);
+      color: #ffffff;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      z-index: 10;
+      letter-spacing: 0.5px;
+    }
+    .slider-dots {
+      position: absolute;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 5px;
+      z-index: 10;
+    }
+    .slider-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.45);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .slider-dot.active {
+      width: 16px;
+      border-radius: 3px;
+      background: #ffffff;
+    }
+
+  </style>
+</head>
+<body>
+
+  <header class="top-nav">
+    <div class="nav-brand">
+      <span>🏔️ 川西自驾路书</span>
+      <span style="color: #cbd5e1;">|</span>
+      <span>九寨沟深度决策手账</span>
+    </div>
+    <a href="../川西自驾与景点交互地图.html?spot=jiuzhaigou" class="nav-back-btn">
+      <span>🗺️ 返回主地图并定位</span>
+    </a>
+  </header>
+
+  <main class="container">
+
+    <section class="spot-hero">
+      <img src="../images/jiuzhaigou.jpg" alt="九寨沟五花海" referrerpolicy="no-referrer" onerror="this.src='../images/jiuzhaigou_autumn1.jpg'" />
+      <div class="hero-overlay">
+        <h1 class="hero-title">九寨沟国家级自然保护区</h1>
+        <p class="hero-subtitle">童话世界 · 九寨归来不看水 · 高铁直通与Y字形全景动线攻略</p>
+        <div class="hero-tags-row">
+          <span class="hero-badge badge-alt">⛰️ 海拔 2000m ~ 3100m (适宜低反)</span>
+          <span class="hero-badge badge-diff">🚄 川青高铁极速通达 · 3.5h直达沟口</span>
+          <span class="hero-badge badge-autumn">🍁 最佳季节：10月中旬 ~ 11月上旬 (彩林天花板)</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="decision-summary-grid">
+      <div class="summary-card">
+        <div class="summary-card-title">🚄 最优交通方案</div>
+        <div class="summary-card-value" style="color: #16a34a;">高铁2h至黄龙九寨站+直通车1.5h</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-card-title">💰 全口径门票与小交通</div>
+        <div class="summary-card-value">旺季 ¥280 / 淡季 ¥160</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-card-title">☀️ 天气包容度</div>
+        <div class="summary-card-value">极高 (晴天水透，阴雨水墨仙境)</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-card-title">🥾 内部通达模式</div>
+        <div class="summary-card-value">公交化大巴循环接驳 · 轻松省力</div>
+      </div>
+    </section>
+
+    <!-- Module 1: Chengdu Traffic -->
+    <section class="content-section">
+      <div class="section-header">
+        <span class="section-icon">🚄</span>
+        <h2 class="section-heading">从成都出发怎么去：高铁时代与自驾路线全对比</h2>
+      </div>
+      <div class="traffic-box">
+        <div class="traffic-item" style="border-color: #93c5fd; background: #eff6ff;">
+          <div class="traffic-item-title" style="color: #1d4ed8;">⚡ 强烈推荐：川青铁路动车 + 景区直通大巴（仅需3.5小时！）</div>
+          <div class="traffic-item-desc">
+            <strong>车次方案：</strong> 成都东站每天有多趟动车直达【黄龙九寨站】（运行仅 1.5 - 2 小时，二等座约 100-140 元）。<br/>
+            <strong>无缝接驳：</strong> 出了高铁站站厅，出站口即是官方开行的景区直通大巴，无缝发车直达九寨沟沟口酒店群（车程约 1.5-2 小时，车票约 45-50 元）。<br/>
+            <strong>优势评定：</strong> 彻底终结过去 8-10 小时盘山颠簸大巴的疲劳历史，早晨在成都吃完早饭，中午已能坐在九寨沟口品尝藏式土火锅！
+          </div>
+        </div>
+
+        <div class="traffic-item">
+          <div class="traffic-item-title">🚘 自驾路线指南</div>
+          <div class="traffic-item-desc">
+            <strong>路线规划：</strong> 成都 ➔ 成绵高速 ➔ 绵阳 ➔ 江油 ➔ 平武 ➔ 九寨沟（东线全长 420km，车程约 6.5-7.5 小时，路况极优，过路费约 70 元）。
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Module 2: Fees -->
+    <section class="content-section">
+      <div class="section-header">
+        <span class="section-icon">💰</span>
+        <h2 class="section-heading">门票与观光车价格明细（无任何强制二次车费）</h2>
+      </div>
+      <table class="fee-table">
+        <thead>
+          <tr>
+            <th>季节类型</th>
+            <th>景区门票</th>
+            <th>观光大巴车票</th>
+            <th>全包合计</th>
+            <th>执行时段与特惠</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>旺季套票</strong></td>
+            <td>¥190 /人</td>
+            <td>¥90 /人</td>
+            <td><strong>¥280 /人</strong></td>
+            <td>4月1日 ~ 11月15日 (金秋彩林巅峰期)</td>
+          </tr>
+          <tr>
+            <td><strong>淡季套票 (极划算)</strong></td>
+            <td>¥80 /人</td>
+            <td>¥80 /人</td>
+            <td><strong>¥160 /人</strong></td>
+            <td>11月16日 ~ 次年3月31日 (冰瀑蓝冰雪景)</td>
+          </tr>
+        </tbody>
+      </table>
+      <p style="font-size: 12.5px; color: #64748b; margin-top: 8px;">
+        💡 九寨沟内<strong>没有任何二次索道、电瓶车或缆车强制消费</strong>，所有景点全靠包含在 90 元车票内的公交化豪华大巴无限制无限次换乘。
+      </p>
+    </section>
+
+    <!-- Module 3: Internal Flow -->
+    <section class="content-section">
+      <div class="section-header">
+        <span class="section-icon">🗺️</span>
+        <h2 class="section-heading">“Y”字形三条沟游览顺序与避峰黄金法则</h2>
+      </div>
+      <div style="font-size: 13.5px; color: #334155; line-height: 1.8;">
+        九寨沟由<strong>树正沟（主干）、日则沟（右上精华）、则查洼沟（左上长海）</strong>组成，全长超 50 公里。<br/>
+        <strong>🧭 一日高完成度走法：</strong><br/>
+        1. <strong>尽早进沟：</strong> 首班车在诺日朗后开往日则沟还是则查洼沟可能由当日调度决定，不要把“先右后左”当成必然。若先到右线，可走【箭竹海 → 熊猫海 → 五花海 → 珍珠滩】；其中五花海应留最多时间。<br/>
+        2. <strong>日则沟取舍：</strong> 箭竹海到熊猫海水色渐深；五花海是绝对核心，值得环湖慢走。珍珠滩可看雪山与瀑布，但时间很紧时优先级低于五花海。<br/>
+        3. <strong>诺日朗换乘左线：</strong> 前往【长海 → 五彩池】。长海下车点到水边有上下台阶，高反或膝盖不适者谨慎；五彩池面积不大但水色突出，建议保留。<br/>
+        4. <strong>下午收主干：</strong>【诺日朗瀑布 → 树正群海】。诺日朗瀑布不要只停在瀑布脚下，按指引到较高观景台视野更完整；树正寨右侧高处是群海经典俯拍位。时间充裕再追加芦苇海等站点。
+      </div>
+      <div style="font-size: 13.5px; color: #334155; line-height: 1.8; background: #eff6ff; border-radius: 10px; padding: 12px 14px; margin-top: 12px;">
+        <strong>成都当日往返实测样本：</strong>06:45 成都东 → 08:24 黄龙九寨站 → 08:40 直通车 → 11:00 景区；沟内约 7 小时；18:10 返程直通车 → 20:30 松潘站 → 21:47 发车 → 23:12 成都东。理论上可完成主要精华，但交通链很长、容错低；更推荐提前一晚住沟口，第二天早进沟。
+      </div>
+      <p style="font-size: 12.5px; color: #64748b; margin-top: 12px; line-height: 1.7;">
+        📌 <strong>游客实测样本（博主 Suburb. 于 2024 年五一假期实地游玩，2026-09-19 整理）：</strong>
+        <a href="https://www.xiaohongshu.com/explore/6a0fd8200000000008024382?xsec_token=AB5J3to7QFRXf2x-WfuThCG1HV1FddZIxEyL7YVDD_MRI=&amp;xsec_source=pc_user" target="_blank" rel="noopener noreferrer">九寨沟一日往返与景点评价</a>。该样本发生在五一假期，秋季客流、日照和水量不同；车次、直通车和景区调度须按出行日复核。
+      </p>
+    </section>
+
+    <!-- Module 4: Sub-Spots Gallery -->
+    <section class="content-section">
+      <div class="section-header">
+        <span class="section-icon">📷</span>
+        <h2 class="section-heading">核心子景点小红书实拍深度画廊</h2>
+      </div>
+
+      <div class="subspots-grid">
+
+<article class="subspot-card">
+                    <div class="subspot-gallery-slider">
+            <div class="subspot-slider-track">
+              <div class="subspot-slide"><img src="../images/jiuzhaigou/jiuzhaigou-fig3.webp" alt="帖子图3：箭竹海浅滩" /></div>
+              <div class="subspot-slide"><img src="../images/jiuzhaigou/jiuzhaigou-fig4.webp" alt="帖子图4：箭竹海深水区" /></div>
+            </div>
+            <span class="subspot-badge">游览第 1 站 · 箭竹海 (日则沟)</span>
+            <button class="slider-nav-btn slider-prev" aria-label="上一张">‹</button>
+            <button class="slider-nav-btn slider-next" aria-label="下一张">›</button>
+            <div class="slider-counter">1 / 2</div>
+            <div class="slider-dots">
+              <div class="slider-dot active"></div>
+              <div class="slider-dot"></div>
+            </div>
+          </div>
+          <div class="subspot-body">
+            <div>
+              <h3 class="subspot-title">箭竹海（图3–4）</h3>
+              <p class="subspot-desc">右线靠前站点。靠近原始森林一侧为浅滩、水流较少（图3）；顺栈道往熊猫海方向走，湖水逐渐变深、颜色愈发碧蓝通透（图4）。</p>
+            </div>
+            <div class="subspot-tips">
+              📸 <strong>拍摄提示：</strong> 建议沿木栈道前行一段拍摄湖面由浅及深的渐变层次。
+            </div>
+          </div>
+        </article>
+
+<article class="subspot-card">
+                    <div class="subspot-gallery-slider">
+            <div class="subspot-slider-track">
+              <div class="subspot-slide"><img src="../images/jiuzhaigou/jiuzhaigou-fig5.webp" alt="帖子图5：熊猫海" /></div>
+              <div class="subspot-slide"><img src="../images/jiuzhaigou/jiuzhaigou-fig6.webp" alt="帖子图6：熊猫海裸露岩壁" /></div>
+              <div class="subspot-slide"><img src="../images/jiuzhaigou/jiuzhaigou-fig7.webp" alt="帖子图7：熊猫海上车点远眺雪山" /></div>
+            </div>
+            <span class="subspot-badge">游览第 2 站 · 熊猫海 (日则沟)</span>
+            <button class="slider-nav-btn slider-prev" aria-label="上一张">‹</button>
+            <button class="slider-nav-btn slider-next" aria-label="下一张">›</button>
+            <div class="slider-counter">1 / 3</div>
+            <div class="slider-dots">
+              <div class="slider-dot active"></div>
+              <div class="slider-dot"></div>
+              <div class="slider-dot"></div>
+            </div>
+          </div>
+          <div class="subspot-body">
+            <div>
+              <h3 class="subspot-title">熊猫海（图5–7）</h3>
+              <p class="subspot-desc">湖旁山体多为裸露岩石，水色与箭竹海相近，纯净而深邃。在熊猫海上车点附近（图7）可远眺巍峨雪山与高山峡谷。</p>
+            </div>
+            <div class="subspot-tips">
+              📸 <strong>出片机位：</strong> 上车点附近视线开阔，适合取景雪山与海子交织的大气风光。
+            </div>
+          </div>
+        </article>
+
+<article class="subspot-card">
+                    <div class="subspot-gallery-slider">
+            <div class="subspot-slider-track">
+              <div class="subspot-slide"><img src="../images/jiuzhaigou/jiuzhaigou-fig8.webp" alt="帖子图8：五花海" /></div>
+              <div class="subspot-slide"><img src="../images/jiuzhaigou/jiuzhaigou-fig9.webp" alt="帖子图9：五花海" /></div>
+              <div class="subspot-slide"><img src="../images/jiuzhaigou/jiuzhaigou-fig10.webp" alt="帖子图10：五花海" /></div>
+            </div>
+            <span class="subspot-badge">游览第 3 站 · 五花海 (九寨沟之魂)</span>
+            <button class="slider-nav-btn slider-prev" aria-label="上一张">‹</button>
+            <button class="slider-nav-btn slider-next" aria-label="下一张">›</button>
+            <div class="slider-counter">1 / 3</div>
+            <div class="slider-dots">
+              <div class="slider-dot active"></div>
+              <div class="slider-dot"></div>
+              <div class="slider-dot"></div>
+            </div>
+          </div>
+          <div class="subspot-body">
+            <div>
+              <h3 class="subspot-title">五花海（九寨沟之魂 · 图8–10）</h3>
+              <p class="subspot-desc">九寨沟当之无愧的视觉核心。同一水域中交织着鹅黄、翡翠绿、孔雀蓝与藏青色。清澈见底的水底沉睡着钙化千年的远古枯树木，宛如水下玉龙横卧。四周红叶与雪山环绕，值得重点停留。</p>
+            </div>
+            <div class="subspot-tips">
+              📸 <strong>机位秘诀：</strong> 登上老虎石高台观景台俯拍全景大片；湖滨木栈道漫步时水面色彩随角度转换，通透至极。
+            </div>
+          </div>
+        </article>
+
+<article class="subspot-card">
+                    <div class="subspot-gallery-slider">
+            <div class="subspot-slider-track">
+              <div class="subspot-slide"><img src="../images/jiuzhaigou/jiuzhaigou-fig11.webp" alt="帖子图11：珍珠滩与雪山" /></div>
+              <div class="subspot-slide"><img src="../images/jiuzhaigou/jiuzhaigou-fig12.webp" alt="帖子图12：珍珠滩瀑布与雪山同框" /></div>
+            </div>
+            <span class="subspot-badge">游览第 4 站 · 珍珠滩与瀑布</span>
+            <button class="slider-nav-btn slider-prev" aria-label="上一张">‹</button>
+            <button class="slider-nav-btn slider-next" aria-label="下一张">›</button>
+            <div class="slider-counter">1 / 2</div>
+            <div class="slider-dots">
+              <div class="slider-dot active"></div>
+              <div class="slider-dot"></div>
+            </div>
+          </div>
+          <div class="subspot-body">
+            <div>
+              <h3 class="subspot-title">珍珠滩与珍珠滩瀑布（图11–12）</h3>
+              <p class="subspot-desc">能清晰眺望雪山的经典水景。宽阔钙华滩面上流水溅起万千水珠如珍珠跳跃；图12珍珠滩瀑布可拍摄飞瀑与雪山同框。若时间极紧可略作权衡。</p>
+            </div>
+            <div class="subspot-tips">
+              📸 <strong>机位：</strong> 沿下行栈道可同时拍到水花飞溅的钙华瀑布与上方皑皑雪山。
+            </div>
+          </div>
+        </article>
+
+<article class="subspot-card">
+                    <div class="subspot-gallery-slider">
+            <div class="subspot-slider-track">
+              <div class="subspot-slide"><img src="../images/jiuzhaigou/jiuzhaigou-fig13.webp" alt="帖子图13：长海" /></div>
+              <div class="subspot-slide"><img src="../images/jiuzhaigou/jiuzhaigou-fig14.webp" alt="帖子图14：长海全貌" /></div>
+            </div>
+            <span class="subspot-badge">游览第 5 站 · 长海 (则查洼沟最高点)</span>
+            <button class="slider-nav-btn slider-prev" aria-label="上一张">‹</button>
+            <button class="slider-nav-btn slider-next" aria-label="下一张">›</button>
+            <div class="slider-counter">1 / 2</div>
+            <div class="slider-dots">
+              <div class="slider-dot active"></div>
+              <div class="slider-dot"></div>
+            </div>
+          </div>
+          <div class="subspot-body">
+            <div>
+              <h3 class="subspot-title">长海（图13–14）</h3>
+              <p class="subspot-desc">九寨沟海拔最高、湖面最宽广的高山堰塞湖。水色深蓝静谧，群峰环抱，独臂老人松守护在侧。下车点至亲水步道需走长台阶，高反或膝盖疲劳者可在观景台休整。</p>
+            </div>
+            <div class="subspot-tips">
+              ⚠️ <strong>游览注意：</strong> 台阶落差较大，注意呼吸节奏防范高反。
+            </div>
+          </div>
+        </article>
+
+<article class="subspot-card">
+                    <div class="subspot-gallery-slider">
+            <div class="subspot-slider-track">
+              <div class="subspot-slide"><img src="../images/jiuzhaigou/jiuzhaigou-fig15.webp" alt="帖子图15：五彩池" /></div>
+              <div class="subspot-slide"><img src="../images/jiuzhaigou/jiuzhaigou-fig16.webp" alt="帖子图16：五彩池纯净蓝绿" /></div>
+            </div>
+            <span class="subspot-badge">游览第 6 站 · 五彩池 (秀丽宝石)</span>
+            <button class="slider-nav-btn slider-prev" aria-label="上一张">‹</button>
+            <button class="slider-nav-btn slider-next" aria-label="下一张">›</button>
+            <div class="slider-counter">1 / 2</div>
+            <div class="slider-dots">
+              <div class="slider-dot active"></div>
+              <div class="slider-dot"></div>
+            </div>
+          </div>
+          <div class="subspot-body">
+            <div>
+              <h3 class="subspot-title">五彩池（图15–16）</h3>
+              <p class="subspot-desc">九寨沟最小巧精美却色彩最浓郁的海子之一。池底钙华沉淀与藻类使湖水呈现梦幻般的孔雀蓝与青绿，即使在非丰水季依然通透夺目，仅次于五花海。</p>
+            </div>
+            <div class="subspot-tips">
+              📸 <strong>出片建议：</strong> 顺栈道环池半周，阳光照射下水色如晶莹剔透的宝石。
+            </div>
+          </div>
+        </article>
+
+<article class="subspot-card">
+                    <div class="subspot-img-box">
+            <img src="../images/jiuzhaigou/jiuzhaigou-nuorilang-fig17.webp" alt="帖子图17：诺日朗瀑布高处观景台" />
+            <span class="subspot-badge">游览第 7 站 · 诺日朗大瀑布 (中枢)</span>
+          </div>
+          <div class="subspot-body">
+            <div>
+              <h3 class="subspot-title">诺日朗大瀑布（图17）</h3>
+              <p class="subspot-desc">宽达 270 米的宏伟水帘，水流自诺日朗群海奔涌跌落，在金黄冷杉树木与灌木间飞泻百丈，水雾漫天。86版《西游记》片尾取景地。跟着景区指引走上较高处的观景台（图17），观景视野更为辽阔大气。</p>
+            </div>
+            <div class="subspot-tips">
+              📸 <strong>机位秘诀：</strong> 避开瀑布正下方拥挤人流，登上高台观景台俯拍全瀑与两侧彩林。中午直射光常能捕捉到七色彩虹。
+            </div>
+          </div>
+        </article>
+
+<article class="subspot-card">
+                    <div class="subspot-img-box">
+            <img src="../images/jiuzhaigou/jiuzhaigou-fig18.webp" alt="帖子图18：树正群海观景台视角" />
+            <span class="subspot-badge">游览第 8 站 · 树正群海 (出沟段)</span>
+          </div>
+          <div class="subspot-body">
+            <div>
+              <h3 class="subspot-title">树正群海（图18）</h3>
+              <p class="subspot-desc">出沟必经的树正沟核心群海。正对树正寨右侧的高处观景台是经典机位（图18），梯级海子层层跌落，半透明的钙华堤埂与翠绿水色相映，是九寨沟最具代表性的全景画面之一。</p>
+            </div>
+            <div class="subspot-tips">
+              📸 <strong>拍摄时机：</strong> 下午顺光游览树正沟，从高处观景台拍摄群海层次感最丰富。
+            </div>
+          </div>
+        </article>
+
+      </div>
+      <p style="font-size: 12.5px; color: #64748b; margin-top: 12px; line-height: 1.7;">
+        已按小红书博主 Suburb. 正文完整展示全部下载完成的子景点实拍照片（拍摄于 2024 年五一假期）：图3–4＝箭竹海，图5–7＝熊猫海，图8–10＝五花海，图11–12＝珍珠滩，图13–14＝长海，图15–16＝五彩池，图17＝诺日朗瀑布，图18＝树正群海。图片来自五一假期实拍，用于佐证景区子景点归属与真实动线。
+      </p>
+    </section>
+
+  </main>
+
+  <aside class="bottom-bar">
+    <div style="font-size: 13px; font-weight: 600; color: #334155;">
+      <span>🏔️ 九寨沟 · 深度出行决策路书</span>
+    </div>
+    <a href="../川西自驾与景点交互地图.html?spot=jiuzhaigou" class="bottom-btn">
+      <span>🗺️ 返回主地图并定位该景点</span>
+    </a>
+  </aside>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.subspot-gallery-slider').forEach(slider => {
+        const track = slider.querySelector('.subspot-slider-track');
+        const slides = slider.querySelectorAll('.subspot-slide');
+        const prevBtn = slider.querySelector('.slider-prev');
+        const nextBtn = slider.querySelector('.slider-next');
+        const counter = slider.querySelector('.slider-counter');
+        const dots = slider.querySelectorAll('.slider-dot');
+        const total = slides.length;
+        if (total <= 1) return;
+
+        let currentIndex = 0;
+
+        function updateSlider(index) {
+          currentIndex = (index + total) % total;
+          track.style.transform = `translateX(-${currentIndex * 100}%)`;
+          if (counter) counter.textContent = `${currentIndex + 1} / ${total}`;
+          dots.forEach((dot, i) => {
+            dot.classList.toggle('active', i === currentIndex);
+          });
+        }
+
+        if (prevBtn) {
+          prevBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            updateSlider(currentIndex - 1);
+          });
+        }
+        if (nextBtn) {
+          nextBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            updateSlider(currentIndex + 1);
+          });
+        }
+        dots.forEach((dot, i) => {
+          dot.addEventListener('click', (e) => {
+            e.stopPropagation();
+            updateSlider(i);
+          });
+        });
+      });
+    });
+  </script>
+</body>
+</html>

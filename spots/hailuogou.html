@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>海螺沟深度决策手账与大冰瀑布温泉路书 - 川西自驾指南</title>
+  <style>
+    :root {
+      --primary: #2563eb; --primary-dark: #1d4ed8; --bg-light: #f8fafc;
+      --card-bg: #ffffff; --text-main: #0f172a; --text-muted: #64748b;
+      --border: #e2e8f0; --shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.06);
+      --shadow-md: 0 10px 25px -4px rgba(15, 23, 42, 0.1);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; color: var(--text-main); background: var(--bg-light); line-height: 1.65; padding-bottom: 80px; }
+    .top-nav { position: sticky; top: 0; z-index: 100; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow-sm); }
+    .nav-brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 15px; color: #0f172a; }
+    .nav-back-btn { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; background: #eff6ff; color: var(--primary); border: 1px solid #bfdbfe; border-radius: 9999px; font-size: 13px; font-weight: 600; text-decoration: none; transition: all 0.2s; }
+    .nav-back-btn:hover { background: var(--primary); color: #ffffff; transform: translateY(-1px); }
+    .container { max-width: 960px; margin: 0 auto; padding: 20px 16px; }
+    .spot-hero { position: relative; width: 100%; height: 380px; border-radius: 20px; overflow: hidden; margin-bottom: 24px; box-shadow: var(--shadow-md); background: #0f172a; }
+    .spot-hero img { width: 100%; height: 100%; object-fit: cover; opacity: 0.92; }
+    .hero-overlay { position: absolute; bottom: 0; left: 0; right: 0; padding: 30px 24px 20px; background: linear-gradient(180deg, transparent 0%, rgba(15, 23, 42, 0.88) 100%); color: #ffffff; }
+    .hero-title { font-size: 28px; font-weight: 800; margin-bottom: 6px; }
+    .hero-subtitle { font-size: 14px; color: #cbd5e1; margin-bottom: 12px; }
+    .hero-tags-row { display: flex; flex-wrap: wrap; gap: 8px; }
+    .hero-badge { font-size: 11.5px; padding: 4px 10px; border-radius: 6px; font-weight: 600; backdrop-filter: blur(8px); }
+    .badge-alt { background: rgba(255,255,255,0.22); color: #ffffff; }
+    .badge-diff { background: rgba(22, 163, 74, 0.88); color: #ffffff; }
+    .decision-summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 24px; }
+    .summary-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; box-shadow: var(--shadow-sm); }
+    .summary-card-title { font-size: 11.5px; font-weight: 600; color: var(--text-muted); margin-bottom: 4px; }
+    .summary-card-value { font-size: 15px; font-weight: 800; color: var(--text-main); }
+    .content-section { background: var(--card-bg); border: 1px solid var(--border); border-radius: 18px; padding: 24px 22px; margin-bottom: 24px; box-shadow: var(--shadow-sm); }
+    .section-header { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+    .section-icon { font-size: 22px; line-height: 1; }
+    .section-heading { font-size: 18px; font-weight: 800; color: var(--text-main); }
+    .traffic-box { display: flex; flex-direction: column; gap: 14px; }
+    .traffic-item { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px 16px; }
+    .traffic-item-title { font-size: 14px; font-weight: 700; color: #1e293b; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+    .traffic-item-desc { font-size: 13px; color: #475569; line-height: 1.6; }
+    .fee-table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 13px; }
+    .fee-table th { background: #f1f5f9; padding: 10px 12px; text-align: left; font-weight: 700; color: #334155; border: 1px solid #e2e8f0; }
+    .fee-table td { padding: 10px 12px; border: 1px solid #e2e8f0; color: #334155; }
+    .fee-table tr:nth-child(even) { background: #fafbfc; }
+    .subspots-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
+    .subspot-card { background: #ffffff; border: 1px solid var(--border); border-radius: 16px; overflow: hidden; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; }
+    @media(min-width: 720px) { .subspot-card { flex-direction: row; } .subspot-img-box { width: 380px; flex-shrink: 0; } }
+    .subspot-img-box { position: relative; height: 240px; background: #0f172a; }
+    .subspot-img-box img { width: 100%; height: 100%; object-fit: cover; }
+    .subspot-badge { position: absolute; top: 10px; left: 10px; background: rgba(15, 23, 42, 0.8); color: #ffffff; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; }
+    .subspot-body { padding: 16px 18px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
+    .subspot-title { font-size: 17px; font-weight: 800; color: #0f172a; margin-bottom: 6px; }
+    .subspot-desc { font-size: 13px; color: #334155; line-height: 1.6; margin-bottom: 10px; }
+    .subspot-tips { background: #fffbeb; border: 1px solid #fde68a; padding: 8px 12px; border-radius: 8px; font-size: 12px; color: #92400e; line-height: 1.5; }
+    .bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; z-index: 99; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); border-top: 1px solid var(--border); padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 -4px 16px rgba(0,0,0,0.06); }
+    .bottom-btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 18px; background: var(--primary); color: #ffffff; border-radius: 10px; font-size: 13.5px; font-weight: 700; text-decoration: none; transition: background 0.2s; }
+    .bottom-btn:hover { background: var(--primary-dark); }
+  </style>
+</head>
+<body>
+
+  <header class="top-nav">
+    <div class="nav-brand">
+      <span>🏔️ 川西自驾路书</span>
+      <span style="color: #cbd5e1;">|</span>
+      <span>海螺沟深度决策手账</span>
+    </div>
+    <a href="../川西自驾与景点交互地图.html?spot=hailuogou" class="nav-back-btn">
+      <span>🗺️ 返回主地图并定位</span>
+    </a>
+  </header>
+
+  <main class="container">
+
+    <section class="spot-hero">
+      <img src="../images/hailuogou.jpg" alt="海螺沟冰川" referrerpolicy="no-referrer" onerror="this.src='../images/hailuogou_autumn1.jpg'" />
+      <div class="hero-overlay">
+        <h1 class="hero-title">海螺沟国家级风景名胜区</h1>
+        <p class="hero-subtitle">贡嘎山东坡 · 低海拔现代冰川奇观 · 万丈大冰瀑布与雪山森林温泉</p>
+        <div class="hero-tags-row">
+          <span class="hero-badge badge-alt">⛰️ 海拔 2850m ~ 3600m (四号营地)</span>
+          <span class="hero-badge badge-diff">🚗 全程高速3.5h畅达 · 低反安全区</span>
+          <span class="hero-badge" style="background: rgba(14, 165, 233, 0.9); color: #fff;">♨️ 雪山森林天然温泉</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="decision-summary-grid">
+      <div class="summary-card">
+        <div class="summary-card-title">🚗 成都出发车程</div>
+        <div class="summary-card-value">3.5 - 4h / 285km (全高速过路费~110元)</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-card-title">💰 门票+观光车+索道</div>
+        <div class="summary-card-value">¥295 /人 (门票90+车70+索道135)</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-card-title">☀️ 天气依赖程度</div>
+        <div class="summary-card-value">中度 (晴看大冰瀑布，雨看云雾温泉)</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-card-title">🚡 索道关键决策</div>
+        <div class="summary-card-value" style="color: #2563eb;">强烈建议坐索道至四号营地</div>
+      </div>
+    </section>
+
+    <!-- Module 1: Route -->
+    <section class="content-section">
+      <div class="section-header">
+        <span class="section-icon">🚗</span>
+        <h2 class="section-heading">从成都出发交通方案</h2>
+      </div>
+      <div class="traffic-box">
+        <div class="traffic-item">
+          <div class="traffic-item-title">🚘 自驾路线指南</div>
+          <div class="traffic-item-desc">
+            成都 ➔ 雅叶高速 (成雅段/雅康段) ➔ 泸定出口下高速 ➔ 沿大渡河川西旅游公路 ➔ 磨西古镇 (海螺沟景区大门)。<br/>
+            全程约 285 公里，90% 以上为高速公路，车程仅需 3.5 - 4 小时，单程过路费约 110 元。全程路况极好，任何家轿畅行无阻。
+          </div>
+        </div>
+        <div class="traffic-item">
+          <div class="traffic-item-title">🚌 客运大巴</div>
+          <div class="traffic-item-desc">
+            成都新南门汽车站每天上午 09:00 有发往磨西古镇的直达客运大巴（票价 120 元/人）；也可从成都乘动车至雅安站，出站拼车至磨西古镇（约 80-100 元/人）。
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Module 2: Fees -->
+    <section class="content-section">
+      <div class="section-header">
+        <span class="section-icon">💰</span>
+        <h2 class="section-heading">门票与小交通费用账单</h2>
+      </div>
+      <table class="fee-table">
+        <thead>
+          <tr>
+            <th>项目</th>
+            <th>收费标准</th>
+            <th>性质</th>
+            <th>决策建议</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>景区大门票</strong></td>
+            <td>¥90 /人</td>
+            <td>必须购买</td>
+            <td>磨西大门检票入园。</td>
+          </tr>
+          <tr>
+            <td><strong>景区大巴观光车</strong></td>
+            <td>¥70 /人 (往返)</td>
+            <td>必须购买</td>
+            <td>从磨西大门穿行原始森林至三号营地干河坝（单程约 45 分钟）。</td>
+          </tr>
+          <tr>
+            <td><strong>大冰瀑布索道</strong></td>
+            <td>往返 ¥135 /人</td>
+            <td>强烈建议买</td>
+            <td>三号营地至四号营地（跨越冰川）。<strong>不坐索道无法俯瞰世界级大冰瀑布全貌！</strong></td>
+          </tr>
+          <tr>
+            <td><strong>贡嘎神汤/二号营地温泉</strong></td>
+            <td>¥120~188 /人</td>
+            <td>自选休闲</td>
+            <td>露天纯天然雪山森林温泉，洗去自驾疲劳。</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Module 3: Sub-Spots Gallery -->
+    <section class="content-section">
+      <div class="section-header">
+        <span class="section-icon">📷</span>
+        <h2 class="section-heading">核心子景点小红书实拍与特色</h2>
+      </div>
+
+      <div class="subspots-grid">
+        <article class="subspot-card">
+          <div class="subspot-img-box">
+            <img src="../images/hailuogou.jpg" alt="海螺沟大冰瀑布" referrerpolicy="no-referrer" />
+            <span class="subspot-badge">四号营地 · 冰川极景</span>
+          </div>
+          <div class="subspot-body">
+            <div>
+              <h3 class="subspot-title">四号营地大冰瀑布与贡嘎群峰</h3>
+              <p class="subspot-desc">乘索道登上四号营地（3600m），眼前豁然出现高达 1080 米、宽达 1100 米的万丈大冰瀑布，规模是黄果树瀑布的 15 倍以上！巨大的冰裂缝与冰川舌在贡嘎雪峰掩映下银光闪耀。</p>
+            </div>
+            <div class="subspot-tips">
+              📸 <strong>拍摄要点：</strong> 晴天上午顺光拍摄大冰瀑布全景；带上长焦镜头特写冰瀑顶端的冰塔林与透亮幽蓝的冰裂隙。
+            </div>
+          </div>
+        </article>
+
+        <article class="subspot-card">
+          <div class="subspot-img-box">
+            <img src="../images/hailuogou_autumn1.jpg" alt="雪山森林温泉" referrerpolicy="no-referrer" />
+            <span class="subspot-badge">二号营地 · 冰火之境</span>
+          </div>
+          <div class="subspot-body">
+            <div>
+              <h3 class="subspot-title">雪山森林天然温泉</h3>
+              <p class="subspot-desc">露天温泉池依山势坐落在茂密的古老冷杉林中。深秋与初冬时分，池外白雪皑皑、霜花挂枝，池内热气氤氲。一边浸泡在 40℃ 的地热温泉中，一边仰望森林树冠外的雪白峰巅。</p>
+            </div>
+            <div class="subspot-tips">
+              ♨️ <strong>体验建议：</strong> 磨西古镇也有大量带温泉的精品客栈，出沟后夜宿古镇泡汤极为解乏。
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+  </main>
+
+  <aside class="bottom-bar">
+    <div style="font-size: 13px; font-weight: 600; color: #334155;">
+      <span>🏔️ 海螺沟 · 深度出行决策路书</span>
+    </div>
+    <a href="../川西自驾与景点交互地图.html?spot=hailuogou" class="bottom-btn">
+      <span>🗺️ 返回主地图并定位该景点</span>
+    </a>
+  </aside>
+
+</body>
+</html>
