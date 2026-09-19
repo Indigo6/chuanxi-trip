@@ -1,0 +1,9 @@
+# Exclude git internals
+.git
+.git/**
+
+# Exclude repository and cloudflare configs
+.gitignore
+.assetsignore
+wrangler.jsonc
+README.md
