@@ -1,0 +1,14 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "chuanxi-trip",
+  "compatibility_date": "2026-09-18",
+  "assets": {
+    "directory": ".",
+    "exclude": [
+      ".git/**",
+      ".gitignore",
+      "wrangler.jsonc",
+      "README.md"
+    ]
+  }
+}
