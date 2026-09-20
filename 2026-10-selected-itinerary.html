@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>2026 川西请5休9 · 已选行程动态路书</title>
+  <meta name="description" content="成都、九寨沟、四姑娘山双桥沟与毕棚沟备选的动态路线行程图。" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect rx='16' width='64' height='64' fill='%230f2942'/%3E%3Cpath d='M8 49 25 20l8 13 7-10 16 26Z' fill='%23f8fafc'/%3E%3Cpath d='M24 20l5 8-5-2-4 4Z' fill='%236dd3c7'/%3E%3Ccircle cx='47' cy='16' r='6' fill='%23f4b860'/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+  <style>
+    :root {
+      --ink:#10263a; --muted:#637587; --paper:#f8f5ee; --panel:#fffdf8;
+      --line:#d8e0e5; --teal:#167c75; --orange:#d97732; --blue:#3976a8;
+      --purple:#76549a; --green:#4d8061; --shadow:0 18px 50px rgba(15,38,58,.14);
+    }
+    *{box-sizing:border-box} html,body{margin:0;width:100%;height:100%;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;color:var(--ink);background:var(--paper)}
+    body{overflow:hidden}.app{height:100%;display:grid;grid-template-columns:minmax(0,1fr) 430px}
+    .map-wrap{position:relative;min-width:0;background:#dce8e8}.map{width:100%;height:100%}
+    .topbar{position:absolute;z-index:900;left:18px;right:18px;top:16px;display:flex;gap:10px;align-items:center;pointer-events:none}
+    .brand,.control-cluster{pointer-events:auto;background:rgba(255,253,248,.94);backdrop-filter:blur(18px);border:1px solid rgba(255,255,255,.9);box-shadow:var(--shadow)}
+    .brand{border-radius:18px;padding:11px 14px;display:flex;align-items:center;gap:11px}.brand-mark{width:34px;height:34px;border-radius:11px;background:var(--ink);display:grid;place-items:center;color:white;font-size:18px}.brand h1{font-size:15px;line-height:1.2;margin:0}.brand p{font-size:12px;color:var(--muted);margin:3px 0 0}
+    .control-cluster{margin-left:auto;border-radius:16px;padding:6px;display:flex;gap:5px}.icon-btn,.mode-btn,.day-chip{border:0;cursor:pointer;font:inherit}.icon-btn{min-width:40px;height:38px;border-radius:11px;background:transparent;color:var(--ink);font-size:17px}.icon-btn:hover,.icon-btn.active{background:#e7f2f0;color:var(--teal)}
+    .legend{position:absolute;left:18px;bottom:18px;z-index:800;background:rgba(255,253,248,.94);border:1px solid rgba(255,255,255,.9);border-radius:14px;padding:10px 12px;box-shadow:var(--shadow);font-size:12px;color:var(--muted);display:grid;gap:7px}.legend-row{display:flex;align-items:center;gap:8px}.swatch{width:24px;height:4px;border-radius:9px}.swatch.rail{height:0;border-top:3px dashed var(--purple)}
+    .progress-card{position:absolute;z-index:850;left:50%;bottom:18px;transform:translateX(-50%);width:min(560px,calc(100% - 270px));background:rgba(16,38,58,.93);color:white;border-radius:18px;padding:12px 14px;box-shadow:var(--shadow)}
+    .progress-head{display:flex;gap:10px;align-items:center}.traveler-avatar{width:34px;height:34px;border-radius:50%;background:#fff;color:var(--ink);display:grid;place-items:center;font-size:18px;flex:none}.progress-copy{min-width:0;flex:1}.progress-copy strong{display:block;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.progress-copy span{font-size:12px;color:#cbd5df}.progress-track{height:5px;background:rgba(255,255,255,.18);border-radius:9px;margin-top:9px;overflow:hidden}.progress-fill{height:100%;width:0;background:#6dd3c7;border-radius:9px;transition:width .15s linear}
+    .panel{height:100%;overflow:auto;background:var(--panel);border-left:1px solid var(--line);position:relative}.panel-head{position:sticky;top:0;z-index:20;background:rgba(255,253,248,.96);backdrop-filter:blur(14px);padding:18px 20px 13px;border-bottom:1px solid var(--line)}
+    .eyebrow{font-size:12px;color:var(--teal);font-weight:750;letter-spacing:.08em}.panel-head h2{font-size:23px;line-height:1.25;margin:5px 0 7px}.panel-head p{font-size:13px;line-height:1.55;color:var(--muted);margin:0}.status-row{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}.status{font-size:12px;padding:5px 8px;border-radius:999px;background:#edf5f3;color:#226c67}.status.pending{background:#fff1df;color:#9a551c}
+    .mode-bar{padding:13px 20px;border-bottom:1px solid var(--line);display:grid;grid-template-columns:1fr 1fr;gap:8px;background:#faf8f2}.mode-btn{border:1px solid #cdd8dc;background:white;border-radius:12px;padding:9px 10px;color:#476074;font-size:13px}.mode-btn.active{background:var(--ink);color:white;border-color:var(--ink)}
+    .days{padding:15px 14px 30px}.day-card{border:1px solid var(--line);border-radius:18px;background:#fff;margin-bottom:11px;overflow:hidden;transition:.2s ease}.day-card:hover{transform:translateY(-1px);box-shadow:0 10px 28px rgba(16,38,58,.09)}.day-card.active{border-color:var(--teal);box-shadow:0 0 0 2px rgba(22,124,117,.12)}
+    .day-summary{display:grid;grid-template-columns:54px 1fr auto;gap:10px;align-items:center;padding:12px;cursor:pointer}.day-badge{width:48px;height:48px;border-radius:14px;background:#eaf3f2;display:grid;place-items:center;text-align:center;color:var(--teal);font-weight:800;font-size:12px;line-height:1.05}.day-badge small{font-size:10px;color:#60817e}.day-title strong{font-size:15px;display:block}.day-title span{font-size:12px;color:var(--muted);display:block;margin-top:4px}.weather{font-size:11px;border-radius:999px;padding:5px 7px;background:#eff6ff;color:#37678e}.weather.safe{background:#eef6ef;color:#4d8061}.weather.flex{background:#f4eef8;color:#76549a}
+    .day-detail{display:none;padding:0 12px 13px}.day-card.active .day-detail{display:block}.event{position:relative;margin-left:10px;padding:0 0 13px 23px;border-left:2px solid #dfe7e8}.event:last-child{padding-bottom:0}.event:before{content:"";position:absolute;left:-6px;top:3px;width:10px;height:10px;border-radius:50%;background:white;border:2px solid var(--teal)}.event-time{font-size:11px;color:var(--teal);font-weight:700}.event-main{font-size:13px;font-weight:700;margin:2px 0}.event-note{font-size:12px;line-height:1.5;color:var(--muted)}.event.transport:before{border-color:var(--blue)}.event.stay:before{border-color:var(--orange)}
+    .thumb{margin-top:8px;height:82px;border-radius:11px;background-size:cover;background-position:center;position:relative;overflow:hidden}.thumb:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(16,38,58,.18),transparent)}
+    .notice{margin:4px 20px 18px;padding:12px;border-radius:14px;background:#fff5e8;border:1px solid #f2d7b6;font-size:12px;line-height:1.55;color:#7a4b20}.notice strong{color:#8d4e17}
+    .leaflet-control-zoom{margin-top:86px!important}.leaflet-control-layers{margin-top:86px!important}.leaflet-div-icon{background:none;border:0}.place-marker{position:relative;width:28px;height:28px;white-space:nowrap}.place-dot{position:absolute;left:0;top:0;width:28px;height:28px;border-radius:10px;background:var(--ink);color:white;display:grid;place-items:center;border:2px solid white;box-shadow:0 4px 12px rgba(16,38,58,.28);z-index:3}.place-label{position:absolute;left:34px;top:3px;background:rgba(255,253,248,.96);border:1px solid white;border-radius:8px;padding:3px 7px;font-size:11px;font-weight:700;color:var(--ink);box-shadow:0 3px 10px rgba(16,38,58,.14);z-index:2}.place-marker.offset .place-label{left:calc(14px + var(--dx));top:calc(14px + var(--dy));transform:translateY(-50%)}.place-leader{display:none;position:absolute;left:14px;top:14px;width:var(--len);height:2px;background:rgba(16,38,58,.56);transform:rotate(var(--angle));transform-origin:0 50%;z-index:1}.place-marker.offset .place-leader{display:block}
+    .moving-person{font-size:25px;filter:drop-shadow(0 3px 4px rgba(0,0,0,.25));transform:translate(-2px,-4px)}.leaflet-tooltip.route-tooltip{background:rgba(16,38,58,.94);color:white;border:2px solid white;border-radius:9px;padding:5px 8px;box-shadow:0 4px 14px rgba(16,38,58,.24);font-size:10px;font-weight:750;line-height:1.35;white-space:nowrap}.leaflet-tooltip.route-tooltip b{color:#7de0d4;margin-right:4px}.leaflet-tooltip-top.route-tooltip:before{border-top-color:rgba(16,38,58,.94)}
+    @media(max-width:900px){body{overflow:auto}.app{height:auto;min-height:100%;display:flex;flex-direction:column}.map-wrap{height:57vh;min-height:430px}.panel{height:auto;overflow:visible;border-left:0;border-top:1px solid var(--line)}.panel-head{position:relative}.progress-card{width:calc(100% - 36px);bottom:14px}.legend{display:none}.topbar{right:auto}.control-cluster{position:absolute;top:58px;left:0;margin:0}.leaflet-control-zoom{margin-top:132px!important}}
+  </style>
+</head>
+<body>
+<main class="app">
+  <section class="map-wrap" aria-label="行程动态地图">
+    <div id="map" class="map"></div>
+    <div class="topbar">
+      <div class="brand"><div class="brand-mark">🏔</div><div><h1>请5休9 · 已选行程</h1><p>成都中转｜九寨沟｜双桥沟｜毕棚沟备选</p></div></div>
+      <div class="control-cluster">
+        <button class="icon-btn" id="overviewBtn" title="查看全程9天路线" aria-label="查看全程9天路线" style="font-size:12px;width:52px">全程</button>
+        <button class="icon-btn" id="playBtn" title="播放行程" aria-label="播放行程">▶</button>
+        <button class="icon-btn" id="pauseBtn" title="暂停" aria-label="暂停">Ⅱ</button>
+        <button class="icon-btn" id="resetBtn" title="重新播放" aria-label="重新播放">↺</button>
+        <button class="icon-btn" id="speedBtn" title="切换速度" aria-label="切换速度">1×</button>
+      </div>
+    </div>
+    <div class="legend">
+      <div class="legend-row"><span class="swatch" style="background:var(--teal)"></span>当日路线</div>
+      <div class="legend-row"><span class="swatch" style="background:var(--blue)"></span>实际公路路线</div>
+      <div class="legend-row"><span class="swatch rail"></span>动车线路（按站点）</div>
+      <div class="legend-row"><span class="swatch" style="background:var(--orange);opacity:.55"></span>毕棚沟备选</div>
+    </div>
+    <div class="progress-card">
+      <div class="progress-head"><div class="traveler-avatar">🚶</div><div class="progress-copy"><strong id="progressTitle">点击播放，沿路线预演整个假期</strong><span id="progressMeta">自然景观可按天气向后顺延</span></div></div>
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    </div>
+  </section>
+
+  <aside class="panel">
+    <header class="panel-head">
+      <div class="eyebrow">2026年10月底 · 周六出发</div>
+      <h2>先锁九寨与双桥<br/>给天气留出回旋</h2>
+      <p>当前为首选节奏。九寨若玩得久，可多住一晚；下雨时先走成都人文线，把自然景观移到后面。</p>
+      <div class="status-row"><span class="status">九寨沟 · 首选</span><span class="status">双桥沟 · 首选</span><span class="status pending">毕棚沟 · 9/25后看优惠</span></div>
+    </header>
+    <div class="mode-bar">
+      <button class="mode-btn active" data-mode="base">原计划</button>
+      <button class="mode-btn" data-mode="weather">雨天先人文</button>
+      <button class="mode-btn" data-mode="extraNight">九寨多住一晚</button>
+      <button class="mode-btn" data-mode="backup">加入毕棚沟备选</button>
+    </div>
+    <div class="days" id="days"></div>
+    <div class="notice"><strong>交通口径：</strong>成都—双桥沟按 G350、成都—毕棚沟按都汶高速/G317、黄龙九寨站—沟口按 G544 的道路走廊内置绘制；动车段按川青铁路主要站点绘制并用虚线区别。底图或在线服务异常时，路线与动画仍可使用。班次、景区直通车和9月25日前后的新优惠，仍需在出发前复核。</div>
+  </aside>
+</main>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+<script>
+const P={
+  chengdu:[30.6570,104.0660], east:[30.6282,104.1411], wuhou:[30.6455,104.0432], dufu:[30.6600,104.0284],
+  panda:[30.7381,104.1456], dujiangyan:[31.0028,103.6162], hzj:[32.6580,103.7280], jiuzhai:[33.2600,103.9186],
+  siguniang:[31.0022,102.8364], bipeng:[31.2589,102.9463]
+};
+const rail=[[30.6282,104.1411],[30.777,104.251],[31.128,104.167],[31.338,104.221],[31.462,104.354],[31.805,104.173],[31.887,103.683],[32.064,103.610],[32.307,103.604],[32.638,103.598],[32.658,103.728]];
+const modes={
+base:[
+ {d:'D1',day:'周六',title:'抵达成都',tag:'安顿',safe:'safe',events:[['抵达后','入住成都','不塞景点，给长途抵达留余量。','stay']],route:[P.chengdu]},
+ {d:'D2',day:'周日',title:'成都人文＋夜宿九寨',tag:'低天气依赖',safe:'safe',events:[['09:30–12:00','武侯祠 / 杜甫草堂二选一','两处都去也可以，但不要压缩晚间转场余量。','visit'],['下午–晚间','成都东 → 黄龙九寨站 → 九寨沟口','动车约1.5–2小时；直通车约1.5–2小时。','transport'],['夜间','住九寨沟口','优先游客中心、边边街或国大停车场周边。','stay']],route:[P.chengdu,P.wuhou,P.dufu,P.east,...rail,P.hzj,P.jiuzhai],thumb:'images/jiuzhaigou.jpg'},
+ {d:'D3',day:'周一',title:'九寨沟一日＋返成都',tag:'看天气',safe:'',events:[['08:00–18:00','九寨沟完整一日','五花海、长海/五彩池、诺日朗、树正群海；预计8–10小时。','visit'],['18:00后','沟口 → 黄龙九寨站/松潘站 → 成都','极限衔接，按当天直通车和晚班动车确认。','transport'],['深夜','住成都','若出沟晚或人很累，切换“九寨多住一晚”。','stay']],route:[P.jiuzhai,P.hzj,...rail.slice().reverse(),P.east,P.chengdu],thumb:'images/jiuzhaigou_autumn1.jpg'},
+ {d:'D4',day:'周二',title:'成都半日休整＋去四姑娘山',tag:'转场',safe:'safe',events:[['上午','睡到自然醒，补给、洗衣','这是半日休整，不宜理解为全天休息。','visit'],['12:00–14:00前后','成都 → 四姑娘山镇','正规客运/直通车约3.5–4.5小时；不要等到晚上再走。','transport'],['傍晚','住双桥沟口或四姑娘山镇','只玩双桥沟优先住沟口。','stay']],route:[P.chengdu,P.siguniang],thumb:'images/siguniangshan.jpg'},
+ {d:'D5',day:'周三',title:'双桥沟＋返成都',tag:'看天气',safe:'',events:[['08:00–14:30','双桥沟','红杉林、布达拉峰、四姑娜措、人参果坪，约6小时。','visit'],['16:30–17:30前后','双桥沟口 → 成都','返程直通车约4小时，班次以出行日前一日通知为准。','transport'],['夜间','住成都','全天含两段山路，晚间不再安排项目。','stay']],route:[P.siguniang,P.chengdu],thumb:'images/siguniangshan_autumn1.jpg'},
+ {d:'D6',day:'周四',title:'熊猫基地＋都江堰',tag:'低天气依赖',safe:'safe',events:[['07:30–10:30','成都大熊猫繁育研究基地','尽量开园即入，上午熊猫更活跃。','visit'],['10:30–13:00','熊猫基地 → 犀浦/都江堰','市内交通＋成灌铁路，预留换乘。','transport'],['13:00–18:00','都江堰水利工程','秦堰楼/二王庙方向进，顺势下行至鱼嘴、飞沙堰、宝瓶口。','visit'],['晚间','返回成都住宿','如看南桥夜景，返成都时间相应后移。','stay']],route:[P.chengdu,P.panda,P.dujiangyan,P.chengdu]},
+ {d:'D7',day:'周五',title:'兴趣日 / 天气机动',tag:'可调整',safe:'flex',events:[['全天','三选一','成都慢逛；补武侯祠/杜甫草堂；或承接因天气后移的自然景观。','visit'],['夜间','住成都','不要提前锁不可退的远郊酒店。','stay']],route:[P.chengdu]},
+ {d:'D8',day:'周六',title:'自由安排',tag:'缓冲',safe:'flex',events:[['全天','成都兴趣日或返程缓冲','人民公园、金沙遗址、四川博物院、美食散步均可。','visit']],route:[P.chengdu]}
+]};
+const weekDays=['周六','周日','周一','周二','周三','周四','周五','周六'];
+modes.weather=[modes.base[0],modes.base[1],modes.base[5],modes.base[6],modes.base[2],modes.base[3],modes.base[4],modes.base[7]].map((x,i)=>({...x,d:'D'+(i+1),day:weekDays[i]}));
+modes.extraNight=modes.base.map(x=>({...x}));
+modes.extraNight[2]={...modes.extraNight[2],title:'九寨沟完整一日＋续住',events:[['08:00–18:00','九寨沟完整一日','不赶晚间交通，完整游览三条沟。','visit'],['夜间','继续住九寨沟口','降低交通链风险，也更适合慢节奏。','stay']],route:[P.jiuzhai]};
+modes.extraNight[3]={...modes.extraNight[3],title:'返回成都＋休整',events:[['上午','沟口 → 黄龙九寨站 → 成都','白天返程，容错明显更高。','transport'],['下午','成都休整','洗衣、补给，不再去四姑娘山。','visit']],route:[P.jiuzhai,P.hzj,...rail.slice().reverse(),P.east,P.chengdu]};
+modes.extraNight[4]={...modes.base[3],d:'D5',day:'周三'};modes.extraNight[5]={...modes.base[4],d:'D6',day:'周四'};modes.extraNight[6]={...modes.base[5],d:'D7',day:'周五'};modes.extraNight[7]={...modes.base[7],d:'D8',day:'周六'};
+modes.backup=modes.base.map(x=>({...x}));
+modes.backup[6]={d:'D7',day:'周五',title:'毕棚沟备选 · 提前住宿',tag:'9/25后决定',safe:'flex',events:[['下午','成都 → 毕棚沟口','约3–3.5小时，住景区门口。','transport'],['夜间','住毕棚沟口','仅在优惠、天气和体力都合适时启用。','stay']],route:[P.chengdu,P.bipeng],thumb:'images/bipenggou/panyanghu-fig6.webp'};
+modes.backup[7]={d:'D8',day:'周六',title:'毕棚沟＋返成都',tag:'备选',safe:'flex',events:[['08:00–15:30','毕棚沟','景区大巴＋两段电瓶车，游览约6小时。','visit'],['下午–晚间','毕棚沟 → 成都','返程约3–3.5小时。','transport']],route:[P.bipeng,P.chengdu],thumb:'images/bipenggou/fig16.webp'};
+
+const gaode=L.tileLayer('https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}',{
+ subdomains:['1','2','3','4'],maxZoom:18,attribution:'© 高德地图 AutoNavi'
+});
+const topo=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',{
+ maxZoom:18,attribution:'Tiles © Esri World Topo'
+});
+const map=L.map('map',{zoomControl:true,attributionControl:true,layers:[gaode]}).setView([31.65,103.55],7);
+L.control.layers({'高德中文地图':gaode,'Esri 地形图':topo},null,{position:'topleft'}).addTo(map);
+let tileFallbackUsed=false;
+gaode.on('tileerror',()=>{if(tileFallbackUsed)return;tileFallbackUsed=true;map.removeLayer(gaode);topo.addTo(map);updateProgress('底图已自动切换','高德瓦片不可用，现使用 Esri 地形图',0)});
+const markerLayer=L.layerGroup().addTo(map), routeLayer=L.layerGroup().addTo(map), highlightLayer=L.layerGroup().addTo(map);
+const labels=[
+ ['成都',P.chengdu,'🏙'],['武侯祠',P.wuhou,'🏛',{dx:26,dy:34}],['杜甫草堂',P.dufu,'📜',{dx:-108,dy:-34}],
+ ['熊猫基地',P.panda,'🐼'],['都江堰',P.dujiangyan,'💧'],['黄龙九寨站',P.hzj,'🚄'],['九寨沟',P.jiuzhai,'🏞'],['双桥沟',P.siguniang,'🏔'],['毕棚沟·备选',P.bipeng,'🍂']
+];
+function markerHtml(name,icon,offset){
+ const dx=offset?.dx||0,dy=offset?.dy||0,len=Math.hypot(dx,dy),angle=Math.atan2(dy,dx)*180/Math.PI;
+ const style=offset?` style="--dx:${dx}px;--dy:${dy}px;--len:${len}px;--angle:${angle}deg"`:'';
+ return `<div class="place-marker${offset?' offset':''}"${style}><span class="place-leader"></span><span class="place-dot">${icon}</span><span class="place-label">${name}</span></div>`;
+}
+const markerItems=labels.map(([name,p,icon,offset])=>({name,p,marker:L.marker(p,{icon:L.divIcon({className:'',iconSize:[28,28],iconAnchor:[14,14],html:markerHtml(name,icon,offset)})})}));
+function updateMarkers(day){
+ markerLayer.clearLayers();
+ const relevant=markerItems.filter(x=>day.route.some(p=>same(p,x.p)));
+ relevant.forEach(x=>x.marker.addTo(markerLayer));
+ return relevant.map(x=>x.p);
+}
+function showAllMarkers(){markerLayer.clearLayers();markerItems.forEach(x=>x.marker.addTo(markerLayer));return markerItems.map(x=>x.p)}
+function routeMeta(day){
+ const t=day.title;
+ if(t.includes('夜宿九寨'))return '动车＋景区接驳 · 约3–4小时';
+ if(t.includes('九寨')&&t.includes('返成都'))return '景区接驳＋动车 · 约3–4小时';
+ if(t.includes('返回成都＋休整'))return '景区接驳＋动车 · 约3–4小时';
+ if(t.includes('去四姑娘山'))return '直通车 / 客运 · 约3.5–4.5小时';
+ if(t.includes('双桥沟＋返成都'))return '直通车 / 客运 · 约4小时';
+ if(t.includes('熊猫基地＋都江堰'))return '地铁＋城际铁路 · 约2–2.5小时';
+ if(t.includes('毕棚沟备选'))return '直通车 / 客运 · 约3–3.5小时';
+ if(t.includes('毕棚沟＋返成都'))return '直通车 / 客运 · 约3–3.5小时';
+ return '';
+}
+function addRouteNote(day,segs,color){
+ const meta=routeMeta(day),pts=segs.flatMap(s=>s.pts);if(!meta||!pts.length)return;
+ let p;
+ if(day.title.includes('夜宿九寨'))p=[32.30,103.61];
+ else if(day.title.includes('九寨')&&day.title.includes('返成都'))p=[31.68,104.18];
+ else if(day.title.includes('返回成都＋休整'))p=[31.70,104.18];
+ else if(day.title.includes('去四姑娘山'))p=[31.01,103.03];
+ else if(day.title.includes('双桥沟＋返成都'))p=[30.72,103.58];
+ else if(day.title.includes('熊猫基地＋都江堰'))p=[30.96,103.78];
+ else if(day.title.includes('毕棚沟备选'))p=[31.34,103.38];
+ else if(day.title.includes('毕棚沟＋返成都'))p=[31.12,103.08];
+ else p=pts[Math.floor(pts.length*.55)];
+ L.tooltip({permanent:true,direction:'top',className:'route-tooltip',opacity:1,offset:[0,-7]}).setLatLng(p).setContent(`<b>${day.d}</b>${meta}`).addTo(highlightLayer);
+}
+
+let currentMode='base', days=modes.base, selected=0, animation=null, speed=1, person=null, masterRoutes=[], mapView='overview';
+function isRailPair(a,b){return rail.some(p=>same(p,a))&&rail.some(p=>same(p,b))}
+function same(a,b){return Math.abs(a[0]-b[0])<.0002&&Math.abs(a[1]-b[1])<.0002}
+const ROAD_CORRIDORS=[
+ {a:P.chengdu,b:P.siguniang,pts:[P.chengdu,[30.784,103.956],[30.902,103.794],P.dujiangyan,[31.061,103.486],[31.079,103.326],[31.035,103.171],[31.009,103.052],[30.991,102.956],P.siguniang]},
+ {a:P.chengdu,b:P.bipeng,pts:[P.chengdu,[30.784,103.956],[30.902,103.794],P.dujiangyan,[31.061,103.486],[31.236,103.484],[31.476,103.590],[31.481,103.366],[31.437,103.165],[31.321,103.074],P.bipeng]},
+ {a:P.hzj,b:P.jiuzhai,pts:[P.hzj,[32.664,103.611],[32.748,103.654],[32.852,103.704],[32.963,103.750],[33.075,103.823],[33.176,103.881],P.jiuzhai]},
+ {a:P.panda,b:P.dujiangyan,pts:[P.panda,[30.752,104.079],[30.772,103.992],[30.833,103.875],[30.903,103.760],P.dujiangyan]},
+ {a:P.dujiangyan,b:P.chengdu,pts:[P.dujiangyan,[30.903,103.760],[30.833,103.875],[30.772,103.992],P.chengdu]}
+];
+function road(a,b){
+ if(same(a,b))return [a];
+ for(const r of ROAD_CORRIDORS){
+  if(same(a,r.a)&&same(b,r.b))return r.pts;
+  if(same(a,r.b)&&same(b,r.a))return r.pts.slice().reverse();
+ }
+ return [a,[(a[0]+b[0])/2,(a[1]+b[1])/2],b];
+}
+function buildDayRoute(day){
+ const pts=day.route;if(pts.length<2)return [];
+ const out=[];
+ for(let i=0;i<pts.length-1;i++){
+   const a=pts[i],b=pts[i+1];
+   if(isRailPair(a,b)){out.push({pts:[a,b],type:'rail'});continue}
+   if(rail.some(p=>same(p,a))&&rail.some(p=>same(p,b))){out.push({pts:[a,b],type:'rail'});continue}
+   out.push({pts:road(a,b),type:'road'});
+ }
+ return out;
+}
+function renderRoutes(){
+ routeLayer.clearLayers();highlightLayer.clearLayers();masterRoutes=[];
+ for(let i=0;i<days.length;i++){
+  const segments=buildDayRoute(days[i]);masterRoutes.push(segments);
+ }
+ mapView==='overview'?showOverview():highlightSelected();
+}
+function showOverview(){
+ mapView='overview';routeLayer.clearLayers();highlightLayer.clearLayers();
+ const colors=['#167c75','#3976a8','#76549a','#c66a2b','#2f7c59','#9a526a','#a57324','#436b8c'],all=[];
+ masterRoutes.forEach((segs,i)=>{
+  if(!segs.length)return;const color=colors[i%colors.length];
+  segs.forEach(s=>{
+   L.polyline(s.pts,{color:'#fffdf8',weight:9,opacity:.8,lineCap:'round'}).addTo(routeLayer);
+   L.polyline(s.pts,{color:s.type==='rail'?'#76549a':color,weight:5,opacity:.86,dashArray:s.type==='rail'?'9 7':null,lineCap:'round'}).addTo(routeLayer);
+   all.push(...s.pts);
+  });
+  addRouteNote(days[i],segs,color);
+ });
+ all.push(...showAllMarkers());
+ if(all.length>1)map.fitBounds(L.latLngBounds(all),{paddingTopLeft:[75,105],paddingBottomRight:[90,155],maxZoom:9});
+ document.getElementById('overviewBtn').classList.add('active');
+ updateProgress('全程 9 天路线总览','点击某一天可聚焦；点击播放可沿全程预演',0);
+}
+function highlightSelected(){
+ mapView='day';document.getElementById('overviewBtn').classList.remove('active');
+ routeLayer.clearLayers();highlightLayer.clearLayers();const segs=masterRoutes[selected]||[];
+ segs.forEach(s=>{
+  L.polyline(s.pts,{color:'#fffdf8',weight:10,opacity:.9,lineCap:'round'}).addTo(routeLayer);
+  L.polyline(s.pts,{color:s.type==='rail'?'#76549a':'#167c75',weight:6,opacity:.97,dashArray:s.type==='rail'?'9 7':null,lineCap:'round'}).addTo(highlightLayer);
+ });
+ addRouteNote(days[selected],segs,'#167c75');
+ const markerPts=updateMarkers(days[selected]);
+ const all=[...segs.flatMap(s=>s.pts),...markerPts];
+ if(all.length>1)map.fitBounds(L.latLngBounds(all),{paddingTopLeft:[75,105],paddingBottomRight:[90,155],maxZoom:11});
+ else if(all.length===1)map.setView(all[0],11);
+}
+function renderDays(){
+ const el=document.getElementById('days');el.innerHTML=days.map((x,i)=>`<article class="day-card ${i===selected?'active':''}" data-i="${i}"><div class="day-summary"><div class="day-badge">${x.d}<small>${x.day}</small></div><div class="day-title"><strong>${x.title}</strong><span>${x.events.map(e=>e[1]).slice(0,2).join(' · ')}</span></div><span class="weather ${x.safe}">${x.tag}</span></div><div class="day-detail">${x.events.map(e=>`<div class="event ${e[3]}"><div class="event-time">${e[0]}</div><div class="event-main">${e[1]}</div><div class="event-note">${e[2]}</div></div>`).join('')}${x.thumb?`<div class="thumb" style="background-image:url('${x.thumb}')"></div>`:''}</div></article>`).join('');
+ document.querySelectorAll('.day-card').forEach(c=>c.onclick=()=>{selected=+c.dataset.i;renderDays();highlightSelected();updateProgress(days[selected].title,'单日聚焦 · 点击“全程”返回9天总览');});
+}
+function updateProgress(title,meta,pct=0){document.getElementById('progressTitle').textContent=title;document.getElementById('progressMeta').textContent=meta;document.getElementById('progressFill').style.width=pct+'%'}
+function flattenFrom(start){const arr=[];for(let d=start;d<masterRoutes.length;d++)for(const s of masterRoutes[d])for(let i=0;i<s.pts.length;i++)arr.push({p:s.pts[i],d,type:s.type});return arr}
+function play(){
+ stop();const keepOverview=mapView==='overview',start=keepOverview?0:selected,points=flattenFrom(start);if(!points.length){updateProgress(days[selected].title,'当天无长距离移动，选择下一天继续');return}
+ let idx=0;person=L.marker(points[0].p,{icon:L.divIcon({className:'',iconSize:[28,28],iconAnchor:[14,14],html:'<div class="moving-person">🚶</div>'}),zIndexOffset:1000}).addTo(map);
+ const total=points.length;animation=setInterval(()=>{if(idx>=total){stop(false);updateProgress('行程预演完成','周五、周六仍保留兴趣与天气机动',100);return}const q=points[idx];person.setLatLng(q.p);if(q.d!==selected){selected=q.d;renderDays();if(!keepOverview)highlightSelected()}updateProgress(`${days[q.d].d} · ${days[q.d].title}`,q.type==='rail'?'正在乘动车前进':'正在沿公路前进',Math.round(idx/total*100));idx+=Math.max(1,Math.round(speed));},55);
+}
+function stop(remove=true){if(animation)clearInterval(animation);animation=null;if(remove&&person){map.removeLayer(person);person=null}}
+function reset(){stop();selected=0;renderDays();showOverview()}
+document.getElementById('overviewBtn').onclick=()=>{stop();showOverview()};
+document.getElementById('playBtn').onclick=play;document.getElementById('pauseBtn').onclick=()=>stop(false);document.getElementById('resetBtn').onclick=reset;document.getElementById('speedBtn').onclick=e=>{speed=speed===1?2:speed===2?4:1;e.currentTarget.textContent=speed+'×'};
+document.querySelectorAll('.mode-btn').forEach(b=>b.onclick=()=>{stop();document.querySelectorAll('.mode-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');currentMode=b.dataset.mode;days=modes[currentMode];selected=0;mapView='overview';renderDays();renderRoutes()});
+renderDays();renderRoutes();
+</script>
+</body>
+</html>
