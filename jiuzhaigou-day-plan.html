@@ -5,7 +5,7 @@
 @media(max-width:420px){.photos{grid-template-columns:1fr}.photos img{height:270px}}
 @media print{.controls,.toolbar,button{display:none}header{color:var(--ink);background:#fff}header a{color:var(--green)}.lake,.step{break-inside:avoid}.photos img{height:180px}main{max-width:none}.route{display:block}}
 </style></head><body><main>
-<header><a href="2026-10-selected-itinerary.html#day-2">← 返回四川行路书 · 九寨沟当天</a><p>九寨沟一日游 · 现场决策页</p><h1>看天气，也看首班车把你带到哪里</h1><p>先保住喜欢的海子，再按接驳调整顺序。中线是树正沟，左线是则查洼沟，右线是日则沟。</p><a href="#atlas">先看18组海子的天气照片 ↓</a></header>
+<header><a href="2026-10-selected-itinerary.html#day-2">← 返回四川行路书 · 九寨沟当天</a><p>九寨沟一日游 · 现场决策页</p><h1>看天气，也看首班车把你带到哪里</h1><p>先保住喜欢的海子，再按接驳调整顺序。中线是树正沟，左线是则查洼沟，右线是日则沟。</p><a href="#distribution">查看动态分布图与步行距离 ↓</a> · <a href="#atlas">海子天气照片 ↓</a></header>
 <section aria-labelledby="choose"><h2 id="choose">入园后，选当前实际情况</h2><div class="controls">
 <label>天气<select id="weather"><option value="sun">晴／有阳光，远山可见</option><option value="cloud">阴天，云高，远山可见</option><option value="rain">小雨／低云，远山被遮</option><option value="change">阴晴变化快</option></select></label>
 <label>首班车实际落点<select id="landing"><option value="unknown">还不知道／还在入口</option><option value="middle">树正寨／中线区间车</option><option value="right">右线（日则沟）</option><option value="left">左线（长海方向）</option><option value="hub">诺日朗换乘区</option></select></label>
@@ -52,4 +52,4 @@ function filter(){const v=$("line").value;let n=0;document.querySelectorAll(".la
 for(const id of ["weather","landing","wind"])$(id).addEventListener("change",render);
 document.querySelectorAll(".wish").forEach(s=>{try{s.value=localStorage.getItem("jzg-wish-"+s.dataset.name)||"候选";}catch{}s.addEventListener("change",()=>{try{localStorage.setItem("jzg-wish-"+s.dataset.name,s.value);}catch{}filter();});});
 $("line").addEventListener("change",filter);$("print").addEventListener("click",()=>window.print());render();filter();
-</script></body></html>
+</script><script src="jzg-route-map.js"></script></body></html>
